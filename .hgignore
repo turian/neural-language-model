@@ -1,0 +1,25 @@
+syntax: glob
+
+*~
+\#*\#
+bak
+.coverage
+*.dag
+*.dag.*
+data
+fmap*.pkl.gz
+html
+LOGS.*
+*.o
+old
+*.orig
+out
+*.out
+*.out.gz
+pdf
+*.pyc
+results
+*.so
+*.sw?
+TMP_DBI
+wsj_10*
