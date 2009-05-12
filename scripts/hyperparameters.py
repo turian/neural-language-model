@@ -14,12 +14,6 @@ WINDOW_SIZE = 5
 
 HIDDEN_SIZE = 100
 
-##: Ronan's trick: Divide learning rate for all connections into a neuron
-## by the number of inputs into that neuron.
-## Note: Not clear what to do when the weight is shared. Maybe divide by
-## sqrt of number of times it is used?
-#DIVIDE_LEARNING_RATE_BY_NUMBER_OF_INPUTS = True
-
 #: Scaling value to control range for weight initialization
 #SCALE_INITIAL_WEIGHTS_BY = math.sqrt(3)
 SCALE_INITIAL_WEIGHTS_BY = 1
@@ -28,6 +22,8 @@ SCALE_INITIAL_WEIGHTS_BY = 1
 #ACTIVATION_FUNCTION="sigmoid"
 #ACTIVATION_FUNCTION="tanh"
 ACTIVATION_FUNCTION="softsign"
+
+LEARNING_RATE = 0.1
 
 ## number of (higher-order) quadratic filters for James's neuron
 #NUMBER_OF_QUADRATIC_FILTERS=0

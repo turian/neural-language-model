@@ -56,7 +56,7 @@ def stack(x):
 def score(inputs):
     x = stack(inputs)
     hidden = activation_function(dot(x, hidden_weights) + hidden_biases)
-    score = dot(x, output_weights) + output_biases
+    score = dot(hidden, output_weights) + output_biases
     return score
 
 cached_functions = {}
@@ -78,7 +78,7 @@ def functions(sequence_length):
 
         correct_score = score(correct_inputs)
         noise_score = score(noise_inputs)
-        loss = max(0, 1 - correct_score + noise_score)
+        loss = t.clip(1 - correct_score + noise_score, 0, 1e999)
 
         (dhidden_weights, dhidden_biases, doutput_weights, doutput_biases) = t.grad(loss, [hidden_weights, hidden_biases, output_weights, output_biases])
         predict_inputs = correct_inputs + [hidden_weights, hidden_biases, output_weights, output_biases]
@@ -117,9 +117,11 @@ def functions(sequence_length):
 #
 def predict(correct_sequence, parameters):
     fn = functions(sequence_length=len(correct_sequence))[0]
-    for i in (correct_sequence + [parameters.hidden_weights, parameters.hidden_biases, parameters.output_weights, parameters.output_biases]):
-        print i.shape
-    return fn(*(correct_sequence + [parameters.hidden_weights, parameters.hidden_biases, parameters.output_weights, parameters.output_biases]))
+    r = fn(*(correct_sequence + [parameters.hidden_weights, parameters.hidden_biases, parameters.output_weights, parameters.output_biases]))
+    assert len(r) == 1
+    r = r[0]
+    assert r.shape == (1, 1)
+    return r[0,0]
 def train(correct_sequence, noise_sequence, parameters):
     assert len(correct_sequence) == len(noise_sequence)
     fn = functions(sequence_length=len(correct_sequence))[1]

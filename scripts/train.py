@@ -55,3 +55,4 @@ for e in get_training_example():
     ecorrupt = corrupt_example(e)
     print e, ecorrupt
     print m.predict(e)
+    print m.train(e, ecorrupt)
