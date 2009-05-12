@@ -51,17 +51,25 @@ class Model:
     def train(self, correct_sequence):
         noise_sequence = self.corrupt_example(correct_sequence)
         r = graph.train(self.embed(correct_sequence), self.embed(noise_sequence), self.parameters)
-        (loss, correct_score, noise_score, dhidden_weights, dhidden_biases, doutput_weights, doutput_biases) = r
-        print loss, correct_score, noise_score,
+        (dcorrect_inputs, dnoise_inputs, loss, correct_score, noise_score, dhidden_weights, dhidden_biases, doutput_weights, doutput_biases) = r
+#        print loss, correct_score, noise_score,
+
+#        if loss == 0:
+#            print dhidden_weights,
 
         self.parameters.hidden_weights   -= 1.0 * hyperparameters.LEARNING_RATE * dhidden_weights
         self.parameters.hidden_biases    -= 1.0 * hyperparameters.LEARNING_RATE * dhidden_biases
         self.parameters.output_weights   -= 1.0 * hyperparameters.LEARNING_RATE * doutput_weights
         self.parameters.output_biases    -= 1.0 * hyperparameters.LEARNING_RATE * doutput_biases
 
-        r = graph.train(self.embed(correct_sequence), self.embed(noise_sequence), self.parameters)
-        (loss, correct_score, noise_score, dhidden_weights, dhidden_biases, doutput_weights, doutput_biases) = r
-        print loss, correct_score, noise_score
+#        for (i, di) in zip(correct_sequence, correct_score):
+#            self.parameters.embeddings[i] -= 1.0 * hyperparameters.LEARNING_RATE * di
+#        for (i, di) in zip(noise_sequence, noise_score):
+#            self.parameters.embeddings[i] -= 1.0 * hyperparameters.LEARNING_RATE * di
+
+#        r = graph.train(self.embed(correct_sequence), self.embed(noise_sequence), self.parameters)
+#        (dcorrect_inputs, dnoise_inputs, loss, correct_score, noise_score, dhidden_weights, dhidden_biases, doutput_weights, doutput_biases) = r
+#        print loss, correct_score, noise_score
 
     def predict(self, sequence):
         (score) = graph.predict(self.embed(sequence), self.parameters)

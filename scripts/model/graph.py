@@ -81,10 +81,12 @@ def functions(sequence_length):
         loss = t.clip(1 - correct_score + noise_score, 0, 1e999)
 
         (dhidden_weights, dhidden_biases, doutput_weights, doutput_biases) = t.grad(loss, [hidden_weights, hidden_biases, output_weights, output_biases])
+        dcorrect_inputs = t.grad(loss, correct_inputs)
+        dnoise_inputs = t.grad(loss, noise_inputs)
         predict_inputs = correct_inputs + [hidden_weights, hidden_biases, output_weights, output_biases]
         train_inputs = correct_inputs + noise_inputs + [hidden_weights, hidden_biases, output_weights, output_biases]
         predict_outputs = [correct_score]
-        train_outputs = [loss, correct_score, noise_score, dhidden_weights, dhidden_biases, doutput_weights, doutput_biases]
+        train_outputs = dcorrect_inputs + dnoise_inputs + [loss, correct_score, noise_score, dhidden_weights, dhidden_biases, doutput_weights, doutput_biases]
 
         import theano.gof.graph
 
@@ -125,4 +127,10 @@ def predict(correct_sequence, parameters):
 def train(correct_sequence, noise_sequence, parameters):
     assert len(correct_sequence) == len(noise_sequence)
     fn = functions(sequence_length=len(correct_sequence))[1]
-    return fn(*(correct_sequence + noise_sequence + [parameters.hidden_weights, parameters.hidden_biases, parameters.output_weights, parameters.output_biases]))
+    r = fn(*(correct_sequence + noise_sequence + [parameters.hidden_weights, parameters.hidden_biases, parameters.output_weights, parameters.output_biases]))
+    dcorrect_inputs = r[:len(correct_sequence)]
+    r = r[len(correct_sequence):]
+    dnoise_inputs = r[:len(noise_sequence)]
+    r = r[len(correct_sequence):]
+    (loss, correct_score, noise_score, dhidden_weights, dhidden_biases, doutput_weights, doutput_biases) = r
+    return (dcorrect_inputs, dnoise_inputs, loss, correct_score, noise_score, dhidden_weights, dhidden_biases, doutput_weights, doutput_biases)

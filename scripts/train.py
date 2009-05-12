@@ -70,6 +70,6 @@ for (cnt, e) in enumerate(get_train_example()):
     m.train(e)
 
     if (cnt+1) % 100 == 0:
-        print >> sys.stderr, "Finished training step %d" % cnt
+        print >> sys.stderr, "Finished training step %d" % (cnt+1)
     if (cnt+1) % hyperparameters.VALIDATE_EVERY == 0:
         validate(cnt+1)
