@@ -3,7 +3,8 @@ from os.path import join
 #: Not actually used directly, just for convenience
 DATA_DIR = "/home/fringant2/lisa/turian/dev/python/language-model.predict-final-word/data/"
 
-TRAINING_SENTENCES = join(DATA_DIR, "allwords.train.gz")
+TRAIN_SENTENCES = join(DATA_DIR, "allwords.train.gz")
+VALIDATION_SENTENCES = join(DATA_DIR, "allwords.validation.gz")
 VOCABULARY = join(DATA_DIR, "allwords.vocabulary-5000.txt")
 
 # Each embedded word representation has this width

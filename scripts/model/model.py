@@ -39,7 +39,17 @@ class Model:
         return [numpy.resize(s, (1, s.size)) for s in seq]
 #        return [self.parameters.embeddings[s] for s in sequence]
 
-    def train(self, correct_sequence, noise_sequence):
+    def corrupt_example(self, e):
+        import random
+        import copy
+        e = copy.copy(e)
+        last = e[-1]
+        while e[-1] == last:
+            e[-1] = random.randint(0, self.parameters.vocab_size-1)
+        return e
+
+    def train(self, correct_sequence):
+        noise_sequence = self.corrupt_example(correct_sequence)
         r = graph.train(self.embed(correct_sequence), self.embed(noise_sequence), self.parameters)
         (loss, correct_score, noise_score, dhidden_weights, dhidden_biases, doutput_weights, doutput_biases) = r
         print loss, correct_score, noise_score
@@ -56,3 +66,19 @@ class Model:
     def predict(self, sequence):
         (score) = graph.predict(self.embed(sequence), self.parameters)
         return score
+
+    def validate(self, sequence):
+        """
+        Get the rank of this final word, as opposed to all other words in the vocabulary.
+        """
+        import copy
+        corrupt_sequence = copy.copy(sequence)
+        rank = 1
+        correct_score = self.predict(sequence)
+        for i in range(self.parameters.vocab_size):
+            if i == sequence[-1]: continue
+            corrupt_sequence[-1] = i
+            corrupt_score = self.predict(corrupt_sequence)
+            if correct_score <= corrupt_score:
+                rank += 1
+        return rank
