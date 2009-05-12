@@ -7,7 +7,6 @@ Miscellaneous globals.
 #: RNG seed
 RANDOMSEED = 0
 
-LINKER      = 'c|py'
-#LINKER      = 'py'
-OPTIMIZER   = 'merge'   # 'math' optimizer is broken with 'c|py' linker
-
+#LINKER      = 'c|py'
+##LINKER      = 'py'
+#OPTIMIZER   = 'merge'   # 'math' optimizer is broken with 'c|py' linker

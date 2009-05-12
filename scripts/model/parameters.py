@@ -10,62 +10,48 @@ class Parameters:
 
     import hyperparameters
     import miscglobals
-    import vocabularies
-    import pylearn.sandbox.embeddings.parameters as embeddings
-    def __init__(self, window_width=hyperparameters.TRAINING_WINDOW, input_dimension=None, embedding_size=hyperparameters.EMBEDDING_SIZE, output_vocabsize=vocabularies.labelmap.len, randomly_initialize=True, hidden_layers=None, seed=miscglobals.RANDOMSEED):
+    import vocabulary
+    def __init__(self, window_size=hyperparameters.WINDOW_SIZE, vocab_size=vocabulary.wordmap.len, embedding_size=hyperparameters.EMBEDDING_SIZE, hidden_size=hyperparameters.HIDDEN_SIZE, seed=miscglobals.RANDOMSEED):
         """
         Initialize L{Model} parameters.
-
-        Weights, if chosen randomly, are initialized to uniform value in
-            [-hyperparameters.SCALE_INITIAL_WEIGHTS_BY / sqrt(number of inputs to this weights neuron), 
-             +hyperparameters.SCALE_INITIAL_WEIGHTS_BY / sqrt(number of inputs to this weights neuron)].
-        Biases are initialized to zero.
-        
-        @param randomly_initialize: If True, then randomly initialize
-        according to the given seed. If False, then just use zeroes.
-
-        @todo: Use L{hyperparameter.mode_weight_initialize}
         """
-        if input_dimension == None:
-            import hyperparameters, vocabularies
-            import pylearn.sandbox.embeddings.parameters as embeddings
-            # Set it to a default value
-            if hyperparameters.USE_POS_TAG_FEATURES:
-                input_dimension = embeddings.DIMENSIONS + vocabularies.tagmap.len
-            else:
-                input_dimension = embeddings.DIMENSIONS
 
-        if hidden_layers == None:
-            if hyperparameters.USE_SECOND_HIDDEN_LAYER:
-                hidden_layers = 2
-            else:
-                hidden_layers = 1
-
-        self.convolution_width      = convolution_width
-        self.input_dimension        = input_dimension
-        self.embedding_size    = embedding_size
-        self.output_vocabsize       = output_vocabsize
-        self.hidden_layers          = hidden_layers
+        self.vocab_size     = vocab_size
+        self.window_size    = window_size
+        self.embedding_size = embedding_size
+        self.hidden_size    = hidden_size
+        self.output_size    = 1
 
         import numpy
         import hyperparameters
-        if randomly_initialize:
-            from pylearn.sandbox.weights import random_weights
-            numpy.random.seed(seed)
-            self.convolution_weights = random_weights(self.total_input_dimension,
-                                                embedding_size, scale_by=hyperparameters.SCALE_INITIAL_WEIGHTS_BY)
-            if self.hidden_layers == 2:
-                self.hidden2_weights = random_weights(embedding_size, embedding_size, scale_by=hyperparameters.SCALE_INITIAL_WEIGHTS_BY)
-            self.unembedding_weights = random_weights(embedding_size, output_vocabsize, scale_by=hyperparameters.SCALE_INITIAL_WEIGHTS_BY)
-        else:
-            self.convolution_weights = numpy.zeros((self.total_input_dimension, embedding_size))
-            if self.hidden_layers == 2:
-                self.hidden2_weights = numpy.zeros((embedding_size, embedding_size))
-            self.unembedding_weights = numpy.zeros((embedding_size, output_vocabsize))
 
-        self.convolution_biases = numpy.zeros((1, embedding_size))
-        if self.hidden_layers == 2:
-            self.hidden2_biases = numpy.zeros((1, embedding_size))
-        self.unembedding_biases = numpy.zeros((1, output_vocabsize))
+        from pylearn.algorithms.weights import random_weights
+        numpy.random.seed(seed)
+        self.embeddings = numpy.random.rand(self.vocab_size, hyperparameters.EMBEDDING_SIZE) * 2 - 1
+        self.hidden_weights = random_weights(self.input_size, self.hidden_size, scale_by=hyperparameters.SCALE_INITIAL_WEIGHTS_BY)
+        self.output_weights = random_weights(self.hidden_size, self.output_size, scale_by=hyperparameters.SCALE_INITIAL_WEIGHTS_BY)
 
-    total_input_dimension = property(lambda self: self.convolution_width * self.input_dimension)
+        self.hidden_biases = numpy.zeros((1, self.hidden_size))
+        self.output_biases = numpy.zeros((1, self.output_size))
+
+    input_size = property(lambda self: self.window_size * self.embedding_size)
+    
+    def normalize_embeddings():
+        """
+        Normalize such that the l2 norm of every embedding is hyperparameters.EMBEDDING_SIZE
+        @todo: l1 norm?
+        """
+        global embeddings
+    
+        l2norm = (embeddings * embeddings).sum(axis=1)
+        l2norm = numpy.sqrt(l2norm.reshape((vocabsize, 1)))
+    
+        embeddings /= l2norm
+        import math
+        embeddings *= math.sqrt(hyperparameters.EMBEDDING_SIZE)
+    
+        # TODO: Assert that norm is correct
+    #    l2norm = (embeddings * embeddings).sum(axis=1)
+    #    print l2norm.shape
+    #    print (l2norm == numpy.ones((vocabsize)) * hyperparameters.EMBEDDING_SIZE)
+    #    print (l2norm == numpy.ones((vocabsize)) * hyperparameters.EMBEDDING_SIZE).all()
