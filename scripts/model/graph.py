@@ -11,8 +11,8 @@ from theano import gradient
 import theano.compile
 #from miscglobals import LINKER, OPTIMIZER
 #mode = theano.compile.Mode(LINKER, OPTIMIZER)
-#COMPILE_MODE = theano.compile.Mode('c|py', 'fast_run')
-COMPILE_MODE = theano.compile.Mode('py', 'fast_compile')
+COMPILE_MODE = theano.compile.Mode('c|py', 'fast_run')
+#COMPILE_MODE = theano.compile.Mode('py', 'fast_compile')
 
 import numpy
 

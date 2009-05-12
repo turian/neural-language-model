@@ -52,7 +52,7 @@ class Model:
         noise_sequence = self.corrupt_example(correct_sequence)
         r = graph.train(self.embed(correct_sequence), self.embed(noise_sequence), self.parameters)
         (loss, correct_score, noise_score, dhidden_weights, dhidden_biases, doutput_weights, doutput_biases) = r
-        print loss, correct_score, noise_score
+        print loss, correct_score, noise_score,
 
         self.parameters.hidden_weights   -= 1.0 * hyperparameters.LEARNING_RATE * dhidden_weights
         self.parameters.hidden_biases    -= 1.0 * hyperparameters.LEARNING_RATE * dhidden_biases

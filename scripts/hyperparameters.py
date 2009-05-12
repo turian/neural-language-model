@@ -4,7 +4,8 @@ from os.path import join
 DATA_DIR = "/home/fringant2/lisa/turian/dev/python/language-model.predict-final-word/data/"
 
 TRAIN_SENTENCES = join(DATA_DIR, "allwords.train.gz")
-VALIDATION_SENTENCES = join(DATA_DIR, "allwords.validation.gz")
+#VALIDATION_SENTENCES = join(DATA_DIR, "allwords.validation.gz")
+VALIDATION_SENTENCES = join(DATA_DIR, "allwords.validation-100.gz")
 VOCABULARY = join(DATA_DIR, "allwords.vocabulary-5000.txt")
 
 # Each embedded word representation has this width
@@ -24,7 +25,7 @@ SCALE_INITIAL_WEIGHTS_BY = 1
 #ACTIVATION_FUNCTION="tanh"
 ACTIVATION_FUNCTION="softsign"
 
-LEARNING_RATE = 0.1
+LEARNING_RATE = 0.01
 
 ## number of (higher-order) quadratic filters for James's neuron
 #NUMBER_OF_QUADRATIC_FILTERS=0
@@ -32,3 +33,6 @@ LEARNING_RATE = 0.1
 ## instead of SCALE_INITIAL_WEIGHTS_BY
 ## @note: Try between 10 and 0.01
 #SCALE_QUADRATIC_INITIAL_WEIGHTS_BY = 1
+
+# Validate after this many examples
+VALIDATE_EVERY = 10000

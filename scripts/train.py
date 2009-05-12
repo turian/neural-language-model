@@ -5,7 +5,7 @@ import hyperparameters, miscglobals
 common.dump.vars(hyperparameters)
 common.dump.vars(miscglobals)
 
-from common.stats import stats()
+from common.stats import stats
 
 import sys
 
@@ -51,23 +51,25 @@ def get_validation_example():
 print "Reading vocab"
 read_vocabulary()
 
-def validate():
+def validate(cnt):
     import math
     logranks = []
-    print >> sys.stderr, "BEGINNING VALIDATION"
+    print >> sys.stderr, "BEGINNING VALIDATION AT TRAINING STEP %d" % cnt
     print >> sys.stderr, stats()
     for (i, ve) in enumerate(get_validation_example()):
         logranks.append(math.log(m.validate(ve)))
-        if i % 100 == 0:
-            print >> sys.stderr, "Validating example %d, mean(logrank) = %.2f, stddev(logrank) = %.2f" % (i, numpy.mean(numpy.array(logranks)), numpy.std(numpy.array(logranks)))
+        if (i+1) % 10 == 0:
+            print >> sys.stderr, "Training step %d, validating example %d, mean(logrank) = %.2f, stddev(logrank) = %.2f" % (cnt, i+1, numpy.mean(numpy.array(logranks)), numpy.std(numpy.array(logranks)))
             print >> sys.stderr, stats()
-    print >> sys.stderr, "FINAL VALIDATION: mean(logrank) = %.2f, stddev(logrank) = %.2f" % (i, numpy.mean(numpy.array(logranks)), numpy.std(numpy.array(logranks)))
+    print >> sys.stderr, "FINAL VALIDATION AT TRAINING STEP %d: mean(logrank) = %.2f, stddev(logrank) = %.2f" % (cnt, numpy.mean(numpy.array(logranks)), numpy.std(numpy.array(logranks)))
     print >> sys.stderr, stats()
 
 import model
 m = model.Model()
-for e in get_train_example():
-    print m.predict(e)
+for (cnt, e) in enumerate(get_train_example()):
     m.train(e)
 
-    validate()
+    if (cnt+1) % 100 == 0:
+        print >> sys.stderr, "Finished training step %d" % cnt
+    if (cnt+1) % hyperparameters.VALIDATE_EVERY == 0:
+        validate(cnt+1)
