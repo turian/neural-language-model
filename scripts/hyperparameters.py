@@ -10,11 +10,13 @@ VOCABULARY = join(DATA_DIR, "allwords.vocabulary-5000.txt")
 
 # Each embedded word representation has this width
 EMBEDDING_SIZE = 50
+#EMBEDDING_SIZE = 5
 
 # Predict with a window of five words at a time
 WINDOW_SIZE = 5
 
 HIDDEN_SIZE = 100
+#HIDDEN_SIZE = 10
 
 #: Scaling value to control range for weight initialization
 #SCALE_INITIAL_WEIGHTS_BY = math.sqrt(3)
@@ -25,7 +27,8 @@ SCALE_INITIAL_WEIGHTS_BY = 1
 #ACTIVATION_FUNCTION="tanh"
 ACTIVATION_FUNCTION="softsign"
 
-LEARNING_RATE = 0.01
+#LEARNING_RATE = 0.01
+LEARNING_RATE = 0.1
 
 ## number of (higher-order) quadratic filters for James's neuron
 #NUMBER_OF_QUADRATIC_FILTERS=0

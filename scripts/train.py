@@ -2,8 +2,9 @@
 
 import common.dump
 import hyperparameters, miscglobals
-common.dump.vars(hyperparameters)
-common.dump.vars(miscglobals)
+from common import myyaml
+import sys
+print >> sys.stderr, myyaml.dump(common.dump.vars_seq([hyperparameters, miscglobals]))
 
 from common.stats import stats
 
@@ -66,6 +67,7 @@ def validate(cnt):
 
 import model
 m = model.Model()
+validate(0)
 for (cnt, e) in enumerate(get_train_example()):
     m.train(e)
 
