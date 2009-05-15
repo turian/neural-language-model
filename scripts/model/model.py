@@ -9,6 +9,8 @@ import math
 
 from common.file import myopen
 
+from vocabulary import *
+
 class Model:
     """
     A Model can:
@@ -105,10 +107,12 @@ class Model:
         corrupt_sequence = copy.copy(sequence)
         rank = 1
         correct_score = self.predict(sequence)
+#        print "CORRECT", correct_score, [wordmap.str(id) for id in sequence]
         for i in range(self.parameters.vocab_size):
             if i == sequence[-1]: continue
             corrupt_sequence[-1] = i
             corrupt_score = self.predict(corrupt_sequence)
             if correct_score <= corrupt_score:
+#                print " CORRUPT", corrupt_score, [wordmap.str(id) for id in corrupt_sequence]
                 rank += 1
         return rank

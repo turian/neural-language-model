@@ -6,3 +6,14 @@ zcat allwords.gz | sort | uniq -c | sort -rn > allwords.vocabulary.txt
 test is the first 10K words.
 validation is the next 10K words.
 train is the rest.
+
+=============
+
+wikitext.txt.gz is preprocessed English wikipedia, broken into sentences and
+tokenized and shuffled.
+
+ls | grep gz | ~/common/scripts/shuffle.sh | xargs zcat | ../../scripts/preprocess.pl  | grep . | ~/common/scripts/shuffle.sh | gzip -c > ../wikitext.txt.gz
+
+zcat wikitext.txt.gz | head -10000 | gzip -c > wikitext.test.txt.gz
+zcat wikitext.txt.gz | head -20000 | tail -10000 | gzip -c > wikitext.validation.txt.gz
+zcat wikitext.txt.gz | tail -66151742 | gzip -c > wikitext.train.txt.gz

@@ -28,26 +28,28 @@ def read_vocabulary():
     wordmap.readonly = True
 
 def get_train_example():
-    prevwords = []
-    for w in myopen(hyperparameters.TRAIN_SENTENCES):
-        w = string.strip(w)
-        if wordmap.exists(w):
-            prevwords.append(wordmap.id(w))
-            if len(prevwords) > hyperparameters.WINDOW_SIZE:
-                yield prevwords[-hyperparameters.WINDOW_SIZE:]
-        else:
-            prevwords = []
+    for l in myopen(hyperparameters.TRAIN_SENTENCES):
+        prevwords = []
+        for w in string.split(l):
+            w = string.strip(w)
+            if wordmap.exists(w):
+                prevwords.append(wordmap.id(w))
+                if len(prevwords) > hyperparameters.WINDOW_SIZE:
+                    yield prevwords[-hyperparameters.WINDOW_SIZE:]
+            else:
+                prevwords = []
 
 def get_validation_example():
-    prevwords = []
-    for w in myopen(hyperparameters.VALIDATION_SENTENCES):
-        w = string.strip(w)
-        if wordmap.exists(w):
-            prevwords.append(wordmap.id(w))
-            if len(prevwords) > hyperparameters.WINDOW_SIZE:
-                yield prevwords[-hyperparameters.WINDOW_SIZE:]
-        else:
-            prevwords = []
+    for l in myopen(hyperparameters.VALIDATION_SENTENCES):
+        prevwords = []
+        for w in string.split(l):
+            w = string.strip(w)
+            if wordmap.exists(w):
+                prevwords.append(wordmap.id(w))
+                if len(prevwords) > hyperparameters.WINDOW_SIZE:
+                    yield prevwords[-hyperparameters.WINDOW_SIZE:]
+            else:
+                prevwords = []
 
 print "Reading vocab"
 read_vocabulary()
@@ -67,8 +69,9 @@ def validate(cnt):
 
 import model
 m = model.Model()
-validate(0)
+#validate(0)
 for (cnt, e) in enumerate(get_train_example()):
+#    print [wordmap.str(id) for id in e]
     m.train(e)
 
     if (cnt+1) % 100 == 0:

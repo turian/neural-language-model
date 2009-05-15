@@ -3,10 +3,16 @@ from os.path import join
 #: Not actually used directly, just for convenience
 DATA_DIR = "/home/fringant2/lisa/turian/dev/python/language-model.predict-final-word/data/"
 
-TRAIN_SENTENCES = join(DATA_DIR, "allwords.train.gz")
-#VALIDATION_SENTENCES = join(DATA_DIR, "allwords.validation.gz")
-VALIDATION_SENTENCES = join(DATA_DIR, "allwords.validation-100.gz")
-VOCABULARY = join(DATA_DIR, "allwords.vocabulary-5000.txt")
+#TRAIN_SENTENCES = join(DATA_DIR, "allwords.train.gz")
+##VALIDATION_SENTENCES = join(DATA_DIR, "allwords.validation.gz")
+#VALIDATION_SENTENCES = join(DATA_DIR, "allwords.validation-100.gz")
+#VOCABULARY = join(DATA_DIR, "allwords.vocabulary-5000.txt")
+
+TRAIN_SENTENCES = join(DATA_DIR, "wikitext.train.txt.gz")
+#VALIDATION_SENTENCES = join(DATA_DIR, "wikitext.validation.txt")
+VALIDATION_SENTENCES = join(DATA_DIR, "wikitext.validation-100.txt")
+#VOCABULARY = join(DATA_DIR, "vocabulary-wikitext-10000.txt.gz")
+VOCABULARY = join(DATA_DIR, "vocabulary-wikitext-20000.txt.gz")
 
 # Each embedded word representation has this width
 EMBEDDING_SIZE = 50
@@ -27,8 +33,9 @@ SCALE_INITIAL_WEIGHTS_BY = 1
 #ACTIVATION_FUNCTION="tanh"
 ACTIVATION_FUNCTION="softsign"
 
+LEARNING_RATE = 0.001
 #LEARNING_RATE = 0.01
-LEARNING_RATE = 0.1
+#LEARNING_RATE = 0.1
 
 ## number of (higher-order) quadratic filters for James's neuron
 #NUMBER_OF_QUADRATIC_FILTERS=0
