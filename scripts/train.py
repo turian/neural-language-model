@@ -39,7 +39,7 @@ def get_train_example():
             w = string.strip(w)
             if wordmap.exists(w):
                 prevwords.append(wordmap.id(w))
-                if len(prevwords) > hyperparameters.WINDOW_SIZE:
+                if len(prevwords) >= hyperparameters.WINDOW_SIZE:
                     yield prevwords[-hyperparameters.WINDOW_SIZE:]
             else:
                 prevwords = []
@@ -51,7 +51,7 @@ def get_validation_example():
             w = string.strip(w)
             if wordmap.exists(w):
                 prevwords.append(wordmap.id(w))
-                if len(prevwords) > hyperparameters.WINDOW_SIZE:
+                if len(prevwords) >= hyperparameters.WINDOW_SIZE:
                     yield prevwords[-hyperparameters.WINDOW_SIZE:]
             else:
                 prevwords = []
@@ -59,7 +59,7 @@ def get_validation_example():
 #ves = [e for e in get_validation_example()]
 #import random
 #random.shuffle(ves)
-#for e in ves[:200]:
+#for e in ves[:1000]:
 #    print string.join([wordmap.str(id) for id in e])
 
 print "Reading vocab"
@@ -72,6 +72,7 @@ def validate(cnt):
     print >> sys.stderr, stats()
     i = 0
     for (i, ve) in enumerate(get_validation_example()):
+#        print >> sys.stderr, [wordmap.str(id) for id in ve]
         logranks.append(math.log(m.validate(ve)))
         if (i+1) % 10 == 0:
             print >> sys.stderr, "Training step %d, validating example %d, mean(logrank) = %.2f, stddev(logrank) = %.2f" % (cnt, i+1, numpy.mean(numpy.array(logranks)), numpy.std(numpy.array(logranks)))
