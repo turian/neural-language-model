@@ -10,9 +10,14 @@ DATA_DIR = "/home/fringant2/lisa/turian/dev/python/language-model.predict-final-
 
 TRAIN_SENTENCES = join(DATA_DIR, "wikitext.train.txt.gz")
 #VALIDATION_SENTENCES = join(DATA_DIR, "wikitext.validation.txt")
-VALIDATION_SENTENCES = join(DATA_DIR, "wikitext.validation-100.txt")
+VALIDATION_SENTENCES = join(DATA_DIR, "wikitext.validation-200.txt")
+#VALIDATION_SENTENCES = join(DATA_DIR, "wikitext.validation-100.txt")
 #VOCABULARY = join(DATA_DIR, "vocabulary-wikitext-10000.txt.gz")
-VOCABULARY = join(DATA_DIR, "vocabulary-wikitext-20000.txt.gz")
+VOCABULARY = {5000: join(DATA_DIR, "vocabulary-wikitext-5000.txt.gz"),
+10000: join(DATA_DIR, "vocabulary-wikitext-10000.txt.gz"),
+20000: join(DATA_DIR, "vocabulary-wikitext-20000.txt.gz")}
+
+VOCABULARY_SIZE = 10000
 
 # Each embedded word representation has this width
 EMBEDDING_SIZE = 50
@@ -45,4 +50,4 @@ LEARNING_RATE = 0.001
 #SCALE_QUADRATIC_INITIAL_WEIGHTS_BY = 1
 
 # Validate after this many examples
-VALIDATE_EVERY = 100000
+VALIDATE_EVERY = 1000000

@@ -1,0 +1,7 @@
+#./train.py 2>&1 | tee train-0.1.out
+#./train.py 2>&1 | tee train-0.01.out
+#./train.py 2>&1 | tee train-0.001.out
+
+dbidispatch ./train.py \
+    '--VOCABULARY_SIZE={{5000,10000,20000}}' \
+    '--LEARNING_RATE={{0.1,0.01,0.001}}'
