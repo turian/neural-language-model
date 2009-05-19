@@ -45,7 +45,7 @@ SCALE_INITIAL_WEIGHTS_BY = 1
 ACTIVATION_FUNCTION="softsign"
 
 #LEARNING_RATE = 0.001
-#LEARNING_RATE = 0.01
+LEARNING_RATE = 0.01
 #LEARNING_RATE = 0.1
 
 ## number of (higher-order) quadratic filters for James's neuron
