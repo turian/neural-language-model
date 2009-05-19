@@ -28,6 +28,7 @@ class Parameters:
         from pylearn.algorithms.weights import random_weights
         numpy.random.seed(seed)
         self.embeddings = numpy.random.rand(self.vocab_size, hyperparameters.EMBEDDING_SIZE) * 2 - 1
+        if hyperparameters.NORMALIZE_EMBEDDINGS: self.normalize(range(self.vocab_size))
         self.hidden_weights = random_weights(self.input_size, self.hidden_size, scale_by=hyperparameters.SCALE_INITIAL_WEIGHTS_BY)
         self.output_weights = random_weights(self.hidden_size, self.output_size, scale_by=hyperparameters.SCALE_INITIAL_WEIGHTS_BY)
 
@@ -36,19 +37,19 @@ class Parameters:
 
     input_size = property(lambda self: self.window_size * self.embedding_size)
     
-    def normalize_embeddings():
+    def normalize(self, indices):
         """
-        Normalize such that the l2 norm of every embedding is hyperparameters.EMBEDDING_SIZE
+        Normalize such that the l2 norm of the embeddings indices passed in.
         @todo: l1 norm?
+        @return: The normalized embeddings
         """
-        global embeddings
-    
-        l2norm = (embeddings * embeddings).sum(axis=1)
-        l2norm = numpy.sqrt(l2norm.reshape((vocabsize, 1)))
-    
-        embeddings /= l2norm
+        import numpy
+        l2norm = numpy.square(self.embeddings[indices]).sum(axis=1)
+        l2norm = numpy.sqrt(l2norm.reshape((len(indices), 1)))
+
+        self.embeddings[indices] /= l2norm
         import math
-        embeddings *= math.sqrt(hyperparameters.EMBEDDING_SIZE)
+        self.embeddings[indices] *= math.sqrt(self.embeddings.shape[1])
     
         # TODO: Assert that norm is correct
     #    l2norm = (embeddings * embeddings).sum(axis=1)

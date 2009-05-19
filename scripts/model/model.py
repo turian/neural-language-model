@@ -21,6 +21,7 @@ class Model:
 
     def __init__(self):
         self.parameters = Parameters()
+        import sets
 
     def load(self, filename):
         sys.stderr.write("Loading model from: %s\n" % filename)
@@ -80,20 +81,42 @@ class Model:
 #            print "OLD: dw2", st(doutput_weights)
 #            print "OLD: db2", st(doutput_biases)
 
-        self.parameters.hidden_weights   -= 1.0 * hyperparameters.LEARNING_RATE * dhidden_weights
-        self.parameters.hidden_biases    -= 1.0 * hyperparameters.LEARNING_RATE * dhidden_biases
-        self.parameters.output_weights   -= 1.0 * hyperparameters.LEARNING_RATE * doutput_weights
-        self.parameters.output_biases    -= 1.0 * hyperparameters.LEARNING_RATE * doutput_biases
+        if loss == 0:
+            for di in dcorrect_inputs + dnoise_inputs + [dhidden_weights, dhidden_biases, doutput_weights, doutput_biases]:
+                assert (di == 0).all()
 
-        for (i, di) in zip(correct_sequence, correct_score):
-            self.parameters.embeddings[i] -= 1.0 * hyperparameters.LEARNING_RATE * di
-        for (i, di) in zip(noise_sequence, noise_score):
-            self.parameters.embeddings[i] -= 1.0 * hyperparameters.LEARNING_RATE * di
-
-#        r = graph.train(self.embed(correct_sequence), self.embed(noise_sequence), self.parameters)
-#        (dcorrect_inputs, dnoise_inputs, loss, correct_score, noise_score, dhidden_weights, dhidden_biases, doutput_weights, doutput_biases) = r
-#        print loss, correct_score, noise_score
-#        print "NEW: loss = %.3f, correct score = %.3f, noise score = %.3f" % (loss, correct_score, noise_score)
+        else:
+	        self.parameters.hidden_weights   -= 1.0 * hyperparameters.LEARNING_RATE * dhidden_weights
+	        self.parameters.hidden_biases    -= 1.0 * hyperparameters.LEARNING_RATE * dhidden_biases
+	        self.parameters.output_weights   -= 1.0 * hyperparameters.LEARNING_RATE * doutput_weights
+	        self.parameters.output_biases    -= 1.0 * hyperparameters.LEARNING_RATE * doutput_biases
+	
+	        import sets
+	        to_normalize = sets.Set()
+	        for (i, di) in zip(correct_sequence, dcorrect_inputs):
+	            assert di.shape[0] == 1
+	            di.resize(di.size)
+#	            print i, di
+	            self.parameters.embeddings[i] -= 1.0 * hyperparameters.LEARNING_RATE * di
+	            if hyperparameters.NORMALIZE_EMBEDDINGS:
+	                to_normalize.add(i)
+	        for (i, di) in zip(noise_sequence, dnoise_inputs):
+	            assert di.shape[0] == 1
+	            di.resize(di.size)
+#	            print i, di
+	            self.parameters.embeddings[i] -= 1.0 * hyperparameters.LEARNING_RATE * di
+	            if hyperparameters.NORMALIZE_EMBEDDINGS:
+	                to_normalize.add(i)
+#	        print to_normalize
+	        if len(to_normalize) > 0:
+	            to_normalize = [i for i in to_normalize]
+#	            print "NORMALIZING", to_normalize
+	            self.parameters.normalize(to_normalize)
+	
+#           r = graph.train(self.embed(correct_sequence), self.embed(noise_sequence), self.parameters)
+#           (dcorrect_inputs, dnoise_inputs, loss, correct_score, noise_score, dhidden_weights, dhidden_biases, doutput_weights, doutput_biases) = r
+#           print loss, correct_score, noise_score
+#           print "NEW: loss = %.3f, correct score = %.3f, noise score = %.3f" % (loss, correct_score, noise_score)
 
     def predict(self, sequence):
         (score) = graph.predict(self.embed(sequence), self.parameters)

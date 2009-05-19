@@ -84,6 +84,7 @@ def functions(sequence_length):
         (dhidden_weights, dhidden_biases, doutput_weights, doutput_biases) = t.grad(loss, [hidden_weights, hidden_biases, output_weights, output_biases])
         dcorrect_inputs = t.grad(loss, correct_inputs)
         dnoise_inputs = t.grad(loss, noise_inputs)
+        #print "REMOVEME", len(dcorrect_inputs)
         predict_inputs = correct_inputs + [hidden_weights, hidden_biases, output_weights, output_biases]
         train_inputs = correct_inputs + noise_inputs + [hidden_weights, hidden_biases, output_weights, output_biases]
         verbose_predict_inputs = predict_inputs
@@ -147,5 +148,6 @@ def train(correct_sequence, noise_sequence, parameters):
     r = r[len(correct_sequence):]
     dnoise_inputs = r[:len(noise_sequence)]
     r = r[len(correct_sequence):]
+#    print "REMOVEME", len(dcorrect_inputs), len(dnoise_inputs)
     (loss, correct_score, noise_score, dhidden_weights, dhidden_biases, doutput_weights, doutput_biases) = r
     return (dcorrect_inputs, dnoise_inputs, loss, correct_score, noise_score, dhidden_weights, dhidden_biases, doutput_weights, doutput_biases)

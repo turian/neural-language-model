@@ -3,7 +3,8 @@
 #./train.py 2>&1 | tee train-0.001.out
 
 dbidispatch ./train.py \
-    '--VOCABULARY_SIZE={{5000,10000,20000}}' \
+    '{{--no_NORMALIZE_EMBEDDINGS,--NORMALIZE_EMBEDDINGS}}' \
+    '--VOCABULARY_SIZE={{5000,20000}}' \
     '--LEARNING_RATE={{0.001,0.0001,0.00001,0.000001}}'
 
 #    '--LEARNING_RATE={{0.0001,0.00001,0.000001}}'
