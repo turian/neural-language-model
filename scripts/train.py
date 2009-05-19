@@ -114,11 +114,21 @@ def visualize(cnt, WORDCNT=500):
     except IOError:
         print >> sys.stderr, "ERROR visualizing", filename, ". Continuing..."
 
+def embeddings_debug(cnt):
+    e = m.parameters.embeddings[:100]
+    l2norm = numpy.sqrt(numpy.square(e).sum(axis=1))
+    print >> sys.stderr, cnt, "l2norm of top 100 words: mean =", numpy.mean(l2norm), "stddev =", numpy.std(l2norm),
+    l2norm = l2norm.tolist()
+    l2norm.sort()
+    l2norm.reverse()
+    print >> sys.stderr, "top 5 =", l2norm[:5]
 
 
 import model
 m = model.Model()
 #validate(0)
+verbose_predict(0)
+embeddings_debug(0)
 for (cnt, e) in enumerate(get_train_example()):
 #    print [wordmap.str(id) for id in e]
     m.train(e)
@@ -128,6 +138,7 @@ for (cnt, e) in enumerate(get_train_example()):
     if (cnt+1) % 10000 == 0:
         print >> sys.stderr, stats()
         verbose_predict(cnt+1)
+        embeddings_debug(cnt+1)
     if (cnt+1) % hyperparameters.VALIDATE_EVERY == 0:
-        validate(cnt+1)
         visualize(cnt+1)    
+        validate(cnt+1)
