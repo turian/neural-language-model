@@ -99,6 +99,10 @@ class Model:
         (score) = graph.predict(self.embed(sequence), self.parameters)
         return score
 
+    def verbose_predict(self, sequence):
+        (score, prehidden) = graph.verbose_predict(self.embed(sequence), self.parameters)
+        return score, prehidden
+
     def validate(self, sequence):
         """
         Get the rank of this final word, as opposed to all other words in the vocabulary.

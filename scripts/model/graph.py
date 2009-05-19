@@ -55,9 +55,10 @@ def stack(x):
 
 def score(inputs):
     x = stack(inputs)
-    hidden = activation_function(dot(x, hidden_weights) + hidden_biases)
+    prehidden = dot(x, hidden_weights) + hidden_biases
+    hidden = activation_function(prehidden)
     score = dot(hidden, output_weights) + output_biases
-    return score
+    return score, prehidden
 
 cached_functions = {}
 def functions(sequence_length):
@@ -76,8 +77,8 @@ def functions(sequence_length):
         correct_inputs = [t.dmatrix() for i in range(sequence_length)]
         noise_inputs = [t.dmatrix() for i in range(sequence_length)]
 
-        correct_score = score(correct_inputs)
-        noise_score = score(noise_inputs)
+        correct_score, correct_prehidden = score(correct_inputs)
+        noise_score, noise_prehidden = score(noise_inputs)
         loss = t.clip(1 - correct_score + noise_score, 0, 1e999)
 
         (dhidden_weights, dhidden_biases, doutput_weights, doutput_biases) = t.grad(loss, [hidden_weights, hidden_biases, output_weights, output_biases])
@@ -85,8 +86,10 @@ def functions(sequence_length):
         dnoise_inputs = t.grad(loss, noise_inputs)
         predict_inputs = correct_inputs + [hidden_weights, hidden_biases, output_weights, output_biases]
         train_inputs = correct_inputs + noise_inputs + [hidden_weights, hidden_biases, output_weights, output_biases]
+        verbose_predict_inputs = predict_inputs
         predict_outputs = [correct_score]
         train_outputs = dcorrect_inputs + dnoise_inputs + [loss, correct_score, noise_score, dhidden_weights, dhidden_biases, doutput_weights, doutput_biases]
+        verbose_predict_outputs = [correct_score, correct_prehidden]
 
         import theano.gof.graph
 
@@ -95,12 +98,17 @@ def functions(sequence_length):
         predict_function = theano.function(predict_inputs, predict_outputs, mode=COMPILE_MODE)
         print "...done constructing graph for sequence_length=%d" % (sequence_length)
 
+        nnodes = len(theano.gof.graph.ops(verbose_predict_inputs, verbose_predict_outputs))
+        print "About to compile predict function over %d ops [nodes]..." % nnodes
+        verbose_predict_function = theano.function(verbose_predict_inputs, verbose_predict_outputs, mode=COMPILE_MODE)
+        print "...done constructing graph for sequence_length=%d" % (sequence_length)
+
         nnodes = len(theano.gof.graph.ops(train_inputs, train_outputs))
         print "About to compile train function over %d ops [nodes]..." % nnodes
         train_function = theano.function(train_inputs, train_outputs, mode=COMPILE_MODE)
         print "...done constructing graph for sequence_length=%d" % (sequence_length)
 
-        cached_functions[p] = (predict_function, train_function)
+        cached_functions[p] = (predict_function, train_function, verbose_predict_function)
     return cached_functions[p]
 
 #def apply_function(fn, sequence, target_output, parameters):
@@ -124,6 +132,13 @@ def predict(correct_sequence, parameters):
     r = r[0]
     assert r.shape == (1, 1)
     return r[0,0]
+def verbose_predict(correct_sequence, parameters):
+    fn = functions(sequence_length=len(correct_sequence))[2]
+    r = fn(*(correct_sequence + [parameters.hidden_weights, parameters.hidden_biases, parameters.output_weights, parameters.output_biases]))
+    assert len(r) == 2
+    (score, prehidden) = r
+    assert score.shape == (1, 1)
+    return score[0,0], prehidden
 def train(correct_sequence, noise_sequence, parameters):
     assert len(correct_sequence) == len(noise_sequence)
     fn = functions(sequence_length=len(correct_sequence))[1]

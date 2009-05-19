@@ -80,6 +80,20 @@ def validate(cnt):
     print >> sys.stderr, "FINAL VALIDATION AT TRAINING STEP %d: mean(logrank) = %.2f, stddev(logrank) = %.2f, cnt = %d" % (cnt, numpy.mean(numpy.array(logranks)), numpy.std(numpy.array(logranks)), i+1)
     print >> sys.stderr, stats()
 
+def verbose_predict(cnt):
+    for (i, ve) in enumerate(get_validation_example()):
+        (score, prehidden) = m.verbose_predict(ve)
+        abs_prehidden = numpy.abs(prehidden)
+        med = numpy.median(abs_prehidden)
+        abs_prehidden = abs_prehidden.tolist()
+        assert len(abs_prehidden) == 1
+        abs_prehidden = abs_prehidden[0]
+        abs_prehidden.sort()
+        abs_prehidden.reverse()
+        print >> sys.stderr, cnt+1, "AbsPrehidden median =", med, "max =", abs_prehidden[:5]
+        if i > 5: break
+
+
 import model
 m = model.Model()
 #validate(0)
@@ -91,5 +105,6 @@ for (cnt, e) in enumerate(get_train_example()):
         print >> sys.stderr, "Finished training step %d" % (cnt+1)
     if (cnt+1) % 10000 == 0:
         print >> sys.stderr, stats()
+        verbose_predict(cnt)
     if (cnt+1) % hyperparameters.VALIDATE_EVERY == 0:
         validate(cnt+1)

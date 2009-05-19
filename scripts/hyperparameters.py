@@ -17,9 +17,9 @@ VOCABULARY = {5000: join(DATA_DIR, "vocabulary-wikitext-5000.txt.gz"),
 10000: join(DATA_DIR, "vocabulary-wikitext-10000.txt.gz"),
 20000: join(DATA_DIR, "vocabulary-wikitext-20000.txt.gz")}
 
-VOCABULARY_SIZE = 5000
+#VOCABULARY_SIZE = 5000
 #VOCABULARY_SIZE = 10000
-#VOCABULARY_SIZE = 20000
+VOCABULARY_SIZE = 20000
 
 # Each embedded word representation has this width
 EMBEDDING_SIZE = 50
