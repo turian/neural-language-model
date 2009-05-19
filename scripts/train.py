@@ -11,6 +11,8 @@ from common import myyaml
 import sys
 print >> sys.stderr, myyaml.dump(common.dump.vars_seq([hyperparameters, miscglobals]))
 
+rundir = common.dump.create_canonical_directory(hyperparameters.__dict__)
+
 from common.stats import stats
 
 import sys
@@ -90,8 +92,28 @@ def verbose_predict(cnt):
         abs_prehidden = abs_prehidden[0]
         abs_prehidden.sort()
         abs_prehidden.reverse()
-        print >> sys.stderr, cnt+1, "AbsPrehidden median =", med, "max =", abs_prehidden[:5]
+        print >> sys.stderr, cnt, "AbsPrehidden median =", med, "max =", abs_prehidden[:5]
         if i > 5: break
+
+def visualize(cnt, WORDCNT=500):
+    """
+    Visualize a set of examples using t-SNE.
+    """
+    PERPLEXITY=30
+    x = m.parameters.embeddings[:WORDCNT]
+    print x.shape
+    titles = [wordmap.str(id) for id in range(WORDCNT)]
+    import os.path
+    filename = os.path.join(rundir, "embeddings-%d.png" % cnt)
+    try:
+        from textSNE.calc_tsne import tsne
+#       from textSNE.tsne import tsne
+        out = tsne(x, perplexity=PERPLEXITY)
+        from textSNE.render import render
+        render([(title, point[0], point[1]) for title, point in zip(titles, out)], filename)
+    except IOError:
+        print >> sys.stderr, "ERROR visualizing", filename, ". Continuing..."
+
 
 
 import model
@@ -105,6 +127,7 @@ for (cnt, e) in enumerate(get_train_example()):
         print >> sys.stderr, "Finished training step %d" % (cnt+1)
     if (cnt+1) % 10000 == 0:
         print >> sys.stderr, stats()
-        verbose_predict(cnt)
+        verbose_predict(cnt+1)
     if (cnt+1) % hyperparameters.VALIDATE_EVERY == 0:
         validate(cnt+1)
+        visualize(cnt+1)    
