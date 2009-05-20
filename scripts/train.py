@@ -123,6 +123,15 @@ def embeddings_debug(cnt):
     l2norm.reverse()
     print >> sys.stderr, "top 5 =", l2norm[:5]
 
+def save_state(m, cnt):
+    import os.path
+    filename = os.path.join(rundir, "model-%d.pkl" % (cnt+1))
+    print >> sys.stderr, "Writing model to %s..." % filename
+    print >> sys.stderr, stats()
+    import cPickle
+    cPickle.dump(m, myopen(filename, "wb"), protocol=-1)
+    print >> sys.stderr, "...done writing model to %s" % filename
+    print >> sys.stderr, stats()
 
 import model
 m = model.Model()
@@ -140,5 +149,6 @@ for (cnt, e) in enumerate(get_train_example()):
         verbose_predict(cnt+1)
         embeddings_debug(cnt+1)
     if (cnt+1) % hyperparameters.VALIDATE_EVERY == 0:
+        save_state(m, cnt+1)
         visualize(cnt+1)    
         validate(cnt+1)
