@@ -3,9 +3,14 @@
 #./train.py 2>&1 | tee train-0.001.out
 
 dbidispatch ./train.py \
-    '{{--no_NORMALIZE_EMBEDDINGS,--NORMALIZE_EMBEDDINGS}}' \
+    '--no_NORMALIZE_EMBEDDINGS' \
+    '--NGRAM_FOR_TRAINING_NOISE=1' \
     '--VOCABULARY_SIZE={{5000,20000}}' \
-    '--LEARNING_RATE={{0.1,0.032,0.01,0.0032,0.001,0.0001,0.00001}}'
+    '--LEARNING_RATE={{0.032,0.01,0.0032,0.001}}'
+#dbidispatch ./train.py \
+#    '{{--no_NORMALIZE_EMBEDDINGS,--NORMALIZE_EMBEDDINGS}}' \
+#    '--VOCABULARY_SIZE={{5000,20000}}' \
+#    '--LEARNING_RATE={{0.1,0.032,0.01,0.0032,0.001,0.0001,0.00001}}'
 #    '--VOCABULARY_SIZE=20000' \
 
 #    '--VOCABULARY_SIZE={{5000,20000}}' \

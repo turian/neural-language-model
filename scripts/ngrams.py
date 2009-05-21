@@ -14,7 +14,7 @@ if __name__ == "__main__":
     hyperparameters.__dict__.update(common.options.reparse(hyperparameters.__dict__))
 
     import vocabulary
-    print "Reading vocab"
+    print >> sys.stderr, "Reading vocab"
     vocabulary.read()
     from vocabulary import wordmap
 
@@ -24,5 +24,8 @@ if __name__ == "__main__":
         if i % 10000 == 0:
             print >> sys.stderr, "Read %d examples" % i
             print >> sys.stderr, stats()
-    import common.myyaml
-    print common.myyaml.dump(cnt)
+        if i > 100000000:
+            break
+    cnt = [(t, cnt[t]) for t in cnt]
+    import common.json
+    common.json.dump(cnt, sys.stdout)

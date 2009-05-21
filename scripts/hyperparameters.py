@@ -25,6 +25,10 @@ NORMALIZE_EMBEDDINGS = False
 #VOCABULARY_SIZE = 10000
 VOCABULARY_SIZE = 20000
 
+NGRAM_FOR_TRAINING_NOISE = 1
+
+NGRAMS = {(1, 20000): join(DATA_DIR, "1grams-wikitext-20000.json.gz")}
+
 # Each embedded word representation has this width
 EMBEDDING_SIZE = 50
 #EMBEDDING_SIZE = 5

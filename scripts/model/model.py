@@ -47,8 +47,21 @@ class Model:
         import copy
         e = copy.copy(e)
         last = e[-1]
+        cnt = 0
         while e[-1] == last:
-            e[-1] = random.randint(0, self.parameters.vocab_size-1)
+            if hyperparameters.NGRAM_FOR_TRAINING_NOISE == 0:
+                e[-1] = random.randint(0, self.parameters.vocab_size-1)
+            elif hyperparameters.NGRAM_FOR_TRAINING_NOISE == 1:
+                import noise
+                from common.myrandom import weighted_sample
+                e[-1] = weighted_sample(noise.indexed_weights())
+#                from vocabulary import wordmap
+#                print wordmap.str(e[-1])
+            else:
+                assert 0
+            cnt += 1
+            # Backoff to 0gram smoothing if we fail 10 times to get noise.
+            if cnt > 10: e[-1] = random.randint(0, self.parameters.vocab_size-1)
         return e
 
     def train(self, correct_sequence):

@@ -120,6 +120,9 @@ if __name__ == "__main__":
     import sys
     print >> sys.stderr, myyaml.dump(common.dump.vars_seq([hyperparameters, miscglobals]))
 
+    import noise
+    indexed_weights = noise.indexed_weights()
+
     rundir = common.dump.create_canonical_directory(hyperparameters.__dict__)
 
     import random, numpy
@@ -127,7 +130,7 @@ if __name__ == "__main__":
     numpy.random.seed(miscglobals.RANDOMSEED)
 
     import vocabulary
-    print "Reading vocab"
+    print >> sys.stderr, "Reading vocab"
     vocabulary.read()
     
     import model
