@@ -2,6 +2,8 @@
 
 import common.dump
 import hyperparameters, miscglobals
+        
+from common.file import myopen
 
 from common.stats import stats
 
@@ -11,6 +13,7 @@ import sys
 import string
 
 def get_train_example():
+    from vocabulary import wordmap
     for l in myopen(hyperparameters.TRAIN_SENTENCES):
         prevwords = []
         for w in string.split(l):
@@ -23,6 +26,7 @@ def get_train_example():
                 prevwords = []
 
 def get_validation_example():
+    from vocabulary import wordmap
     for l in myopen(hyperparameters.VALIDATION_SENTENCES):
         prevwords = []
         for w in string.split(l):
@@ -72,6 +76,7 @@ def visualize(cnt, WORDCNT=500):
     """
     Visualize a set of examples using t-SNE.
     """
+    from vocabulary import wordmap
     PERPLEXITY=30
     x = m.parameters.embeddings[:WORDCNT]
     print x.shape
@@ -120,11 +125,8 @@ if __name__ == "__main__":
     import random, numpy
     random.seed(miscglobals.RANDOMSEED)
     numpy.random.seed(miscglobals.RANDOMSEED)
-        
-    from common.file import myopen
-    
+
     import vocabulary
-    from vocabulary import wordmap
     print "Reading vocab"
     vocabulary.read()
     
