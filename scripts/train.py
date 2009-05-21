@@ -23,16 +23,10 @@ numpy.random.seed(miscglobals.RANDOMSEED)
 
 from common.file import myopen
 
+import vocabulary
 from vocabulary import wordmap
 
 import string
-
-def read_vocabulary():
-    for l in myopen(hyperparameters.VOCABULARY[hyperparameters.VOCABULARY_SIZE]):
-        (cnt, word) = string.split(l)
-        wordmap.id(word, can_add=True)
-    wordmap.dump()
-    wordmap.readonly = True
 
 def get_train_example():
     for l in myopen(hyperparameters.TRAIN_SENTENCES):
@@ -63,9 +57,6 @@ def get_validation_example():
 #random.shuffle(ves)
 #for e in ves[:1000]:
 #    print string.join([wordmap.str(id) for id in e])
-
-print "Reading vocab"
-read_vocabulary()
 
 def validate(cnt):
     import math
@@ -132,6 +123,9 @@ def save_state(m, cnt):
     cPickle.dump(m, myopen(filename, "wb"), protocol=-1)
     print >> sys.stderr, "...done writing model to %s" % filename
     print >> sys.stderr, stats()
+
+print "Reading vocab"
+vocabulary.read()
 
 import model
 m = model.Model()
