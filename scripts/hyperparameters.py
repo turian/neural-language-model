@@ -1,7 +1,7 @@
-from os.path import join
+from os.path import join, expanduser
 
 #: Not actually used directly, just for convenience
-DATA_DIR = "/home/fringant2/lisa/turian/dev/python/language-model.predict-final-word/data/"
+DATA_DIR = join(expanduser("~"), "dev/python/language-model.predict-final-word/data/")
 
 #TRAIN_SENTENCES = join(DATA_DIR, "allwords.train.gz")
 ##VALIDATION_SENTENCES = join(DATA_DIR, "allwords.validation.gz")
