@@ -1,30 +1,12 @@
-#!/usr/bin/python
+#!/usr/bin/env python
 
 import common.dump
 import hyperparameters, miscglobals
-
-import common.options
-hyperparameters.__dict__.update(common.options.reparse(hyperparameters.__dict__))
-#miscglobals.__dict__ = common.options.reparse(miscglobals.__dict__)
-
-from common import myyaml
-import sys
-print >> sys.stderr, myyaml.dump(common.dump.vars_seq([hyperparameters, miscglobals]))
-
-rundir = common.dump.create_canonical_directory(hyperparameters.__dict__)
 
 from common.stats import stats
 
 import sys
 
-import random, numpy
-random.seed(miscglobals.RANDOMSEED)
-numpy.random.seed(miscglobals.RANDOMSEED)
-
-from common.file import myopen
-
-import vocabulary
-from vocabulary import wordmap
 
 import string
 
@@ -124,25 +106,44 @@ def save_state(m, cnt):
     print >> sys.stderr, "...done writing model to %s" % filename
     print >> sys.stderr, stats()
 
-print "Reading vocab"
-vocabulary.read()
+if __name__ == "__main__":
+    import common.options
+    hyperparameters.__dict__.update(common.options.reparse(hyperparameters.__dict__))
+    #miscglobals.__dict__ = common.options.reparse(miscglobals.__dict__)
 
-import model
-m = model.Model()
-#validate(0)
-verbose_predict(0)
-embeddings_debug(0)
-for (cnt, e) in enumerate(get_train_example()):
-#    print [wordmap.str(id) for id in e]
-    m.train(e)
+    from common import myyaml
+    import sys
+    print >> sys.stderr, myyaml.dump(common.dump.vars_seq([hyperparameters, miscglobals]))
 
-    if (cnt+1) % 100 == 0:
-        print >> sys.stderr, "Finished training step %d" % (cnt+1)
-    if (cnt+1) % 10000 == 0:
-        print >> sys.stderr, stats()
-        verbose_predict(cnt+1)
-        embeddings_debug(cnt+1)
-    if (cnt+1) % hyperparameters.VALIDATE_EVERY == 0:
-        save_state(m, cnt+1)
-        visualize(cnt+1)    
-        validate(cnt+1)
+    rundir = common.dump.create_canonical_directory(hyperparameters.__dict__)
+
+    import random, numpy
+    random.seed(miscglobals.RANDOMSEED)
+    numpy.random.seed(miscglobals.RANDOMSEED)
+        
+    from common.file import myopen
+    
+    import vocabulary
+    from vocabulary import wordmap
+    print "Reading vocab"
+    vocabulary.read()
+    
+    import model
+    m = model.Model()
+    #validate(0)
+    verbose_predict(0)
+    embeddings_debug(0)
+    for (cnt, e) in enumerate(get_train_example()):
+    #    print [wordmap.str(id) for id in e]
+        m.train(e)
+    
+        if (cnt+1) % 100 == 0:
+            print >> sys.stderr, "Finished training step %d" % (cnt+1)
+        if (cnt+1) % 10000 == 0:
+            print >> sys.stderr, stats()
+            verbose_predict(cnt+1)
+            embeddings_debug(cnt+1)
+        if (cnt+1) % hyperparameters.VALIDATE_EVERY == 0:
+            save_state(m, cnt+1)
+            visualize(cnt+1)    
+            validate(cnt+1)
