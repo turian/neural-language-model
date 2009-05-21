@@ -27,7 +27,12 @@ VOCABULARY_SIZE = 20000
 
 NGRAM_FOR_TRAINING_NOISE = 1
 
-NGRAMS = {(1, 20000): join(DATA_DIR, "1grams-wikitext-20000.json.gz")}
+NGRAMS = {(1, 5000): join(DATA_DIR, "1grams-wikitext-5000.json.gz"),
+(1, 10000): join(DATA_DIR, "1grams-wikitext-10000.json.gz"),
+(1, 20000): join(DATA_DIR, "1grams-wikitext-20000.json.gz")}
+
+# Number of instances of each ngram to add, for smoothing.
+TRAINING_NOISE_SMOOTHING_ADDITION = 0
 
 # Each embedded word representation has this width
 EMBEDDING_SIZE = 50
