@@ -107,11 +107,11 @@ class Model:
         else:
             import math
             if hyperparameters.DIVIDE_LEARNING_RATE_BY_FANIN:
-                hdiv = self.input_size
-                odiv = self.hidden_size
+                hdiv = self.parameters.input_size
+                odiv = self.parameters.hidden_size
             elif hyperparameters.DIVIDE_LEARNING_RATE_BY_SQRT_FANIN:
-                hdiv = math.sqrt(self.input_size)
-                odiv = math.sqrt(self.hidden_size)
+                hdiv = math.sqrt(self.parameters.input_size)
+                odiv = math.sqrt(self.parameters.hidden_size)
             else:
                 hdiv = 1.
                 odiv = 1.
