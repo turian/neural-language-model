@@ -67,7 +67,7 @@ class Model:
             # Backoff to 0gram smoothing if we fail 10 times to get noise.
             if cnt > 10: e[-1] = random.randint(0, self.parameters.vocab_size-1)
         weight = 1./pr
-        return e, pr
+        return e, weight
 
     def train(self, correct_sequence):
         noise_sequence, weight = self.corrupt_example(correct_sequence)
@@ -99,39 +99,39 @@ class Model:
 #            print "OLD: dw2", st(doutput_weights)
 #            print "OLD: db2", st(doutput_biases)
 
+        learning_rate = hyperparameters.LEARNING_RATE * weight
         if loss == 0:
             for di in dcorrect_inputs + dnoise_inputs + [dhidden_weights, dhidden_biases, doutput_weights, doutput_biases]:
                 assert (di == 0).all()
 
-        learning_rate = hyperparameters.LEARNING_RATE * weight
         else:
-	        self.parameters.hidden_weights   -= 1.0 * learning_rate * dhidden_weights
-	        self.parameters.hidden_biases    -= 1.0 * learning_rate * dhidden_biases
-	        self.parameters.output_weights   -= 1.0 * learning_rate * doutput_weights
-	        self.parameters.output_biases    -= 1.0 * learning_rate * doutput_biases
-	
-	        import sets
-	        to_normalize = sets.Set()
-	        for (i, di) in zip(correct_sequence, dcorrect_inputs):
-	            assert di.shape[0] == 1
-	            di.resize(di.size)
-#	            print i, di
-	            self.parameters.embeddings[i] -= 1.0 * learning_rate * di
-	            if hyperparameters.NORMALIZE_EMBEDDINGS:
-	                to_normalize.add(i)
-	        for (i, di) in zip(noise_sequence, dnoise_inputs):
-	            assert di.shape[0] == 1
-	            di.resize(di.size)
-#	            print i, di
-	            self.parameters.embeddings[i] -= 1.0 * learning_rate * di
-	            if hyperparameters.NORMALIZE_EMBEDDINGS:
-	                to_normalize.add(i)
-#	        print to_normalize
-	        if len(to_normalize) > 0:
-	            to_normalize = [i for i in to_normalize]
-#	            print "NORMALIZING", to_normalize
-	            self.parameters.normalize(to_normalize)
-	
+            self.parameters.hidden_weights   -= 1.0 * learning_rate * dhidden_weights
+            self.parameters.hidden_biases    -= 1.0 * learning_rate * dhidden_biases
+            self.parameters.output_weights   -= 1.0 * learning_rate * doutput_weights
+            self.parameters.output_biases    -= 1.0 * learning_rate * doutput_biases
+    
+            import sets
+            to_normalize = sets.Set()
+            for (i, di) in zip(correct_sequence, dcorrect_inputs):
+                assert di.shape[0] == 1
+                di.resize(di.size)
+#                print i, di
+                self.parameters.embeddings[i] -= 1.0 * learning_rate * di
+                if hyperparameters.NORMALIZE_EMBEDDINGS:
+                    to_normalize.add(i)
+            for (i, di) in zip(noise_sequence, dnoise_inputs):
+                assert di.shape[0] == 1
+                di.resize(di.size)
+#                print i, di
+                self.parameters.embeddings[i] -= 1.0 * learning_rate * di
+                if hyperparameters.NORMALIZE_EMBEDDINGS:
+                    to_normalize.add(i)
+#            print to_normalize
+            if len(to_normalize) > 0:
+                to_normalize = [i for i in to_normalize]
+#                print "NORMALIZING", to_normalize
+                self.parameters.normalize(to_normalize)
+    
 #           r = graph.train(self.embed(correct_sequence), self.embed(noise_sequence), self.parameters)
 #           (dcorrect_inputs, dnoise_inputs, loss, correct_score, noise_score, dhidden_weights, dhidden_biases, doutput_weights, doutput_biases) = r
 #           print loss, correct_score, noise_score
