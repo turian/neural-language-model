@@ -127,29 +127,23 @@ class Model:
 
             import math
             if hyperparameters.DIVIDE_LEARNING_RATE_BY_FANIN:
-                div = hyperparameters.FAN_IN_OF_EMBEDDINGS
+                ediv = hyperparameters.FAN_IN_OF_EMBEDDINGS
             elif hyperparameters.DIVIDE_LEARNING_RATE_BY_SQRT_FANIN:
-                div = math.sqrt(hyperparameters.FAN_IN_OF_EMBEDDINGS)
+                ediv = math.sqrt(hyperparameters.FAN_IN_OF_EMBEDDINGS)
             else:
-                div = 1.
+                ediv = 1.
             for (i, di) in zip(correct_sequence, dcorrect_inputs):
                 assert di.shape[0] == 1
                 di.resize(di.size)
 #                print i, di
-                self.parameters.embeddings[i] -= 1.0 * learning_rate * di / div
+                self.parameters.embeddings[i] -= 1.0 * learning_rate * di / ediv
                 if hyperparameters.NORMALIZE_EMBEDDINGS:
                     to_normalize.add(i)
             for (i, di) in zip(noise_sequence, dnoise_inputs):
                 assert di.shape[0] == 1
                 di.resize(di.size)
 #                print i, di
-                if hyperparameters.DIVIDE_LEARNING_RATE_BY_FANIN:
-                    div = hyperparameters.FAN_IN_OF_EMBEDDINGS
-                elif hyperparameters.DIVIDE_LEARNING_RATE_BY_SQRT_FANIN:
-                    div = math.sqrt(hyperparameters.FAN_IN_OF_EMBEDDINGS)
-                else:
-                    div = 1.
-                self.parameters.embeddings[i] -= 1.0 * learning_rate * di / div
+                self.parameters.embeddings[i] -= 1.0 * learning_rate * di / ediv
                 if hyperparameters.NORMALIZE_EMBEDDINGS:
                     to_normalize.add(i)
 #            print to_normalize
