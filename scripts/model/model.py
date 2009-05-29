@@ -105,25 +105,51 @@ class Model:
                 assert (di == 0).all()
 
         else:
-            self.parameters.hidden_weights   -= 1.0 * learning_rate * dhidden_weights
-            self.parameters.hidden_biases    -= 1.0 * learning_rate * dhidden_biases
-            self.parameters.output_weights   -= 1.0 * learning_rate * doutput_weights
-            self.parameters.output_biases    -= 1.0 * learning_rate * doutput_biases
+            import math
+            if hyperparameters.DIVIDE_LEARNING_RATE_BY_FANIN:
+                hdiv = self.input_size
+                odiv = self.hidden_size
+            elif hyperparameters.DIVIDE_LEARNING_RATE_BY_SQRT_FANIN:
+                hdiv = math.sqrt(self.input_size)
+                odiv = math.sqrt(self.hidden_size)
+            else:
+                hdiv = 1.
+                odiv = 1.
+            self.parameters.hidden_weights   -= 1.0 * learning_rate * dhidden_weights / hdiv
+            self.parameters.hidden_biases    -= 1.0 * learning_rate * dhidden_biases / hdiv
+            self.parameters.output_weights   -= 1.0 * learning_rate * doutput_weights / odiv
+            self.parameters.output_biases    -= 1.0 * learning_rate * doutput_biases / odiv
     
             import sets
             to_normalize = sets.Set()
+
+            assert not hyperparameters.DIVIDE_LEARNING_RATE_BY_FANIN or not hyperparameters.DIVIDE_LEARNING_RATE_BY_SQRT_FANIN
+
+            import math
+            if hyperparameters.DIVIDE_LEARNING_RATE_BY_FANIN:
+                div = hyperparameters.FAN_IN_OF_EMBEDDINGS
+            elif hyperparameters.DIVIDE_LEARNING_RATE_BY_SQRT_FANIN:
+                div = math.sqrt(hyperparameters.FAN_IN_OF_EMBEDDINGS)
+            else:
+                div = 1.
             for (i, di) in zip(correct_sequence, dcorrect_inputs):
                 assert di.shape[0] == 1
                 di.resize(di.size)
 #                print i, di
-                self.parameters.embeddings[i] -= 1.0 * learning_rate * di
+                self.parameters.embeddings[i] -= 1.0 * learning_rate * di / div
                 if hyperparameters.NORMALIZE_EMBEDDINGS:
                     to_normalize.add(i)
             for (i, di) in zip(noise_sequence, dnoise_inputs):
                 assert di.shape[0] == 1
                 di.resize(di.size)
 #                print i, di
-                self.parameters.embeddings[i] -= 1.0 * learning_rate * di
+                if hyperparameters.DIVIDE_LEARNING_RATE_BY_FANIN:
+                    div = hyperparameters.FAN_IN_OF_EMBEDDINGS
+                elif hyperparameters.DIVIDE_LEARNING_RATE_BY_SQRT_FANIN:
+                    div = math.sqrt(hyperparameters.FAN_IN_OF_EMBEDDINGS)
+                else:
+                    div = 1.
+                self.parameters.embeddings[i] -= 1.0 * learning_rate * di / div
                 if hyperparameters.NORMALIZE_EMBEDDINGS:
                     to_normalize.add(i)
 #            print to_normalize

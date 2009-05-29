@@ -54,8 +54,15 @@ SCALE_INITIAL_WEIGHTS_BY = 1
 ACTIVATION_FUNCTION="softsign"
 
 #LEARNING_RATE = 0.001
-LEARNING_RATE = 0.01
-#LEARNING_RATE = 0.1
+#LEARNING_RATE = 0.01
+LEARNING_RATE = 0.1
+
+# The "fan-in" of the embeddings. We could make this 1 or EMBEDDING_SIZE or EMBEDDING_SIZE*WINDOW_SIZE
+FAN_IN_OF_EMBEDDINGS = 1
+# Should we divide the learning rate by the fan-in?
+DIVIDE_LEARNING_RATE_BY_FANIN = False
+# Should we divide the learning rate by sqrt(fan-in)?
+DIVIDE_LEARNING_RATE_BY_SQRT_FANIN = False
 
 ## number of (higher-order) quadratic filters for James's neuron
 #NUMBER_OF_QUADRATIC_FILTERS=0

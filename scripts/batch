@@ -2,13 +2,53 @@
 #./train.py 2>&1 | tee train-0.01.out
 #./train.py 2>&1 | tee train-0.001.out
 
-dbidispatch ./train.py \
+dbidispatch --exp_dir="T-divide_sqrt_fanin" ./train.py \
+    '--no_DIVIDE_LEARNING_RATE_BY_FANIN' \
+    '--DIVIDE_LEARNING_RATE_BY_SQRT_FANIN' \
     '--no_NORMALIZE_EMBEDDINGS' \
     '--NGRAM_FOR_TRAINING_NOISE=1' \
     '--VALIDATE_EVERY=2500000' \
     '--VOCABULARY_SIZE={{5000,20000}}' \
-    '--TRAINING_NOISE_SMOOTHING_ADDITION={{0,100,100000}}' \
-    '--LEARNING_RATE={{0.0001,0.00001,0.000001,0.0000001,0.00000001}}'
+    '--FAN_IN_OF_EMBEDDINGS={{1,50}}' \
+    '--TRAINING_NOISE_SMOOTHING_ADDITION={{0,10000,10000000}}' \
+    '--LEARNING_RATE={{0.0001,0.00001,0.000001}}'
+
+dbidispatch --exp_dir="T-divide_fanin" ./train.py \
+    '--DIVIDE_LEARNING_RATE_BY_FANIN' \
+    '--no_DIVIDE_LEARNING_RATE_BY_SQRT_FANIN' \
+    '--no_NORMALIZE_EMBEDDINGS' \
+    '--NGRAM_FOR_TRAINING_NOISE=1' \
+    '--VALIDATE_EVERY=2500000' \
+    '--VOCABULARY_SIZE={{5000,20000}}' \
+    '--FAN_IN_OF_EMBEDDINGS={{1,50}}' \
+    '--TRAINING_NOISE_SMOOTHING_ADDITION={{0,10000,10000000}}' \
+    '--LEARNING_RATE={{0.001,0.0001,0.00001}}'
+
+dbidispatch --exp_dir="T-no_divide" ./train.py \
+    '--no_DIVIDE_LEARNING_RATE_BY_FANIN' \
+    '--no_DIVIDE_LEARNING_RATE_BY_SQRT_FANIN' \
+    '--no_NORMALIZE_EMBEDDINGS' \
+    '--NGRAM_FOR_TRAINING_NOISE=1' \
+    '--VALIDATE_EVERY=2500000' \
+    '--VOCABULARY_SIZE={{5000,20000}}' \
+    '--FAN_IN_OF_EMBEDDINGS=1' \
+    '--TRAINING_NOISE_SMOOTHING_ADDITION={{0,10000,10000000}}' \
+    '--LEARNING_RATE={{0.000001,0.0000001}}'
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 #dbidispatch ./train.py \
 #    '{{--no_NORMALIZE_EMBEDDINGS,--NORMALIZE_EMBEDDINGS}}' \
