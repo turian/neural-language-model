@@ -2,6 +2,7 @@
 #./train.py 2>&1 | tee train-0.01.out
 #./train.py 2>&1 | tee train-0.001.out
 
+# 0.0001 is too high
 dbidispatch --exp_dir="T-divide_sqrt_fanin" ./train.py \
     '--no_DIVIDE_LEARNING_RATE_BY_FANIN' \
     '--DIVIDE_LEARNING_RATE_BY_SQRT_FANIN' \
@@ -13,6 +14,8 @@ dbidispatch --exp_dir="T-divide_sqrt_fanin" ./train.py \
     '--TRAINING_NOISE_SMOOTHING_ADDITION={{0,10000,10000000}}' \
     '--LEARNING_RATE={{0.0001,0.00001,0.000001}}'
 
+# 0.001 is too high
+# 0.0001 is sometimes too high
 dbidispatch --exp_dir="T-divide_fanin" ./train.py \
     '--DIVIDE_LEARNING_RATE_BY_FANIN' \
     '--no_DIVIDE_LEARNING_RATE_BY_SQRT_FANIN' \

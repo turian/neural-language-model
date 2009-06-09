@@ -62,7 +62,7 @@ FAN_IN_OF_EMBEDDINGS = 1
 # Should we divide the learning rate by the fan-in?
 DIVIDE_LEARNING_RATE_BY_FANIN = False
 # Should we divide the learning rate by sqrt(fan-in)?
-DIVIDE_LEARNING_RATE_BY_SQRT_FANIN = False
+DIVIDE_LEARNING_RATE_BY_SQRT_FANIN = True
 
 ## number of (higher-order) quadratic filters for James's neuron
 #NUMBER_OF_QUADRATIC_FILTERS=0
