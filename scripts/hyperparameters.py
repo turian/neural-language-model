@@ -8,14 +8,20 @@ DATA_DIR = join(expanduser("~"), "dev/python/language-model.predict-final-word/d
 #VALIDATION_SENTENCES = join(DATA_DIR, "allwords.validation-100.gz")
 #VOCABULARY = join(DATA_DIR, "allwords.vocabulary-5000.txt")
 
-TRAIN_SENTENCES = join(DATA_DIR, "wikitext.train.txt.gz")
-#VALIDATION_SENTENCES = join(DATA_DIR, "wikitext.validation.txt")
-VALIDATION_SENTENCES = join(DATA_DIR, "wikitext.validation-200.txt")
-#VALIDATION_SENTENCES = join(DATA_DIR, "wikitext.validation-100.txt")
-#VOCABULARY = join(DATA_DIR, "vocabulary-wikitext-10000.txt.gz")
-VOCABULARY = {5000: join(DATA_DIR, "vocabulary-wikitext-5000.txt.gz"),
-10000: join(DATA_DIR, "vocabulary-wikitext-10000.txt.gz"),
-20000: join(DATA_DIR, "vocabulary-wikitext-20000.txt.gz")}
+#TRAIN_SENTENCES = join(DATA_DIR, "wikitext.train.txt.gz")
+##VALIDATION_SENTENCES = join(DATA_DIR, "wikitext.validation.txt")
+#VALIDATION_SENTENCES = join(DATA_DIR, "wikitext.validation-200.txt")
+##VALIDATION_SENTENCES = join(DATA_DIR, "wikitext.validation-100.txt")
+##VOCABULARY = join(DATA_DIR, "vocabulary-wikitext-10000.txt.gz")
+#VOCABULARY = {5000: join(DATA_DIR, "vocabulary-wikitext-5000.txt.gz"),
+#10000: join(DATA_DIR, "vocabulary-wikitext-10000.txt.gz"),
+#20000: join(DATA_DIR, "vocabulary-wikitext-20000.txt.gz")}
+
+TRAIN_SENTENCES = join(DATA_DIR, "italian-wikitext.train.txt.gz")
+VALIDATION_SENTENCES = join(DATA_DIR, "italian-wikitext.validation-1000.txt.gz")
+VOCABULARY = {5000: join(DATA_DIR, "vocabulary-italian-wikitext-5000.txt.gz"),
+10000: join(DATA_DIR, "vocabulary-italian-wikitext-10000.txt.gz"),
+20000: join(DATA_DIR, "vocabulary-italian-wikitext-20000.txt.gz")}
 
 #NORMALIZE_EMBEDDINGS = True
 NORMALIZE_EMBEDDINGS = False
@@ -68,5 +74,5 @@ EMBEDDING_LEARNING_RATE = 0.1
 #SCALE_QUADRATIC_INITIAL_WEIGHTS_BY = 1
 
 # Validate after this many examples
-VALIDATE_EVERY = 1000000
+VALIDATE_EVERY = 10000000
 #VALIDATE_EVERY = 1000
