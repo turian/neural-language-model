@@ -11,7 +11,7 @@ cnt = defaultdict(int)
 if __name__ == "__main__":
     import hyperparameters
     import common.options
-    hyperparameters.__dict__.update(common.options.reparse(hyperparameters.__dict__))
+    hyperparameters.__dict__.update(common.options.reparse(hyperparameters.__dict__)[0])
 
     import vocabulary
     print >> sys.stderr, "Reading vocab"

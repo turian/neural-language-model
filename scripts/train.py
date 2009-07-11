@@ -113,7 +113,7 @@ def save_state(m, cnt):
 
 if __name__ == "__main__":
     import common.options
-    hyperparameters.__dict__.update(common.options.reparse(hyperparameters.__dict__))
+    hyperparameters.__dict__.update(common.options.reparse(hyperparameters.__dict__)[0])
     #miscglobals.__dict__ = common.options.reparse(miscglobals.__dict__)
 
     from common import myyaml

@@ -17,11 +17,9 @@ DATA_DIR = join(expanduser("~"), "dev/python/language-model.predict-final-word/d
 #10000: join(DATA_DIR, "vocabulary-wikitext-10000.txt.gz"),
 #20000: join(DATA_DIR, "vocabulary-wikitext-20000.txt.gz")}
 
-TRAIN_SENTENCES = join(DATA_DIR, "italian-wikitext.train.txt.gz")
-VALIDATION_SENTENCES = join(DATA_DIR, "italian-wikitext.validation-1000.txt.gz")
-VOCABULARY = {5000: join(DATA_DIR, "vocabulary-italian-wikitext-5000.txt.gz"),
-10000: join(DATA_DIR, "vocabulary-italian-wikitext-10000.txt.gz"),
-20000: join(DATA_DIR, "vocabulary-italian-wikitext-20000.txt.gz")}
+TRAIN_SENTENCES = join(DATA_DIR, "english-wikitext.case-intact.train.txt.gz")
+VALIDATION_SENTENCES = join(DATA_DIR, "english-wikitext.case-intact.validation-1000.txt.gz")
+VOCABULARY = {50000: join(DATA_DIR, "vocabulary-english-wikitext.case-intact-50000.txt.gz")}
 
 #NORMALIZE_EMBEDDINGS = True
 NORMALIZE_EMBEDDINGS = False
@@ -29,7 +27,7 @@ NORMALIZE_EMBEDDINGS = False
 
 #VOCABULARY_SIZE = 5000
 #VOCABULARY_SIZE = 10000
-VOCABULARY_SIZE = 20000
+VOCABULARY_SIZE = 50000
 
 NGRAM_FOR_TRAINING_NOISE = 1
 
