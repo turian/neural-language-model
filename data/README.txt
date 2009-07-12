@@ -58,5 +58,12 @@ zcat english-wikitext.case-intact.train2.txt.gz | perl -ne 's/ /\n/g; print' | g
 zcat vocabulary-english-wikitext.case-intact.txt.gz | head -20000 | gzip -c > vocabulary-english-wikitext.case-intact-20000.txt.gz
 zcat vocabulary-english-wikitext.case-intact.txt.gz | head -50000 | gzip -c > vocabulary-english-wikitext.case-intact-50000.txt.gz
 
+# Edit hyperparameters.py
+# Enter the scripts/ directory, and sample 1000 validation ngrams
+./random-validation-examples.py | gzip -c > ~/dev/python/language-model.predict-final-word/data/english-wikitext.case-intact.validation-1000.txt.gz
+
+# WAIT WANTS TO USE examples.py not ./random-validation-examples.py ??? Choose
+# one.
+# Edit hyperparamaters.py again, to include new validation set
 
 =============
