@@ -22,4 +22,4 @@ if __name__ == "__main__":
 
     v = common.idmap.IDmap(words, allow_unknown=HYPERPARAMETERS["INCLUDE_UNKNOWN_WORD"])
     assert v.len == HYPERPARAMETERS["VOCABULARY_SIZE"]
-    vocabulary.write(common.idmap.IDmap(words, allow_unknown=HYPERPARAMETERS["INCLUDE_UNKNOWN_WORD"]))
+    vocabulary.write(v)
