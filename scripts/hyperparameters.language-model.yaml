@@ -8,14 +8,17 @@ INCLUDE_UNKNOWN_WORD: True
 RUN_NAME: "english-wikitext.case-intact"
 VOCABULARY_SIZE: 50000
 
-#TRAIN_SENTENCES: join(DATA_DIR, "%s.train.txt.gz" % RUN_NAME)
-#VALIDATION_SENTENCES: join(DATA_DIR, "%s.validation-1000.txt.gz" % RUN_NAME)
-#VOCABULARY: join(DATA_DIR, "vocabulary-%s-%d.txt.gz" % (RUN_NAME, VOCABULARY_SIZE))
-#VOCABULARY_IDMAP_FILE: join(DATA_DIR, "idmap.%s-%d.include_unknown=%s.pkl.gz" % (RUN_NAME, VOCABULARY_SIZE, INCLUDE_UNKNOWN_WORD))
-
 NORMALIZE_EMBEDDINGS: False
 #NORMALIZE_EMBEDDINGS: True
 #UPDATES_PER_NORMALIZE_EMBEDDINGS: 1000
+
+# Number of validation examples
+VALIDATION EXAMPLES: 10000
+
+# What percent of noise examples should we use for computing the logrank
+# during validation?
+# This is a speed optimization.
+PERCENT OF NOISE EXAMPLES FOR VALIDATION LOGRANK: 0.01
 
 NGRAM_FOR_TRAINING_NOISE: 0
 

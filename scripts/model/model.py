@@ -155,12 +155,18 @@ class Model:
         """
         Get the rank of this final word, as opposed to all other words in the vocabulary.
         """
+        import random
+        r = random.Random()
+        r.seed(0)
+        from hyperparameters import HYPERPARAMETERS
+
         import copy
         corrupt_sequence = copy.copy(sequence)
         rank = 1
         correct_score = self.predict(sequence)
 #        print "CORRECT", correct_score, [wordmap.str(id) for id in sequence]
         for i in range(self.parameters.vocab_size):
+            if r.random() > HYPERPARAMETERS["PERCENT OF NOISE EXAMPLES FOR VALIDATION LOGRANK"]: continue
             if i == sequence[-1]: continue
             corrupt_sequence[-1] = i
             corrupt_score = self.predict(corrupt_sequence)
