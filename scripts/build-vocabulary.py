@@ -1,16 +1,19 @@
 #!/usr/bin/python
 
 import vocabulary
+import common.idmap
 
 if __name__ == "__main__":
     import hyperparameters
     import common.options
     import common.file
-    hyperparameters.__dict__.update(common.options.reparse(hyperparameters.__dict__))
+    hyperparameters.__dict__.update(common.options.reparse(hyperparameters.__dict__)[0])
+
+    words = set()
 
     import string
-    for l in common.file.myopen(hyperparameters.VOCABULARY[hyperparameters.VOCABULARY_SIZE]):
-        print string.split(l)
+    for l in common.file.myopen(hyperparameters.VOCABULARY):
         (cnt, w) = string.split(l)
-        vocabulary.wordmap.id(w, can_add=True)
-    vocabulary.wordmap.dump()
+        words.add(w)
+
+    vocabulary.write(common.idmap.IDmap(words, allow_unknown=hyperparameters.INCLUDE_UNKNOWN_WORD))

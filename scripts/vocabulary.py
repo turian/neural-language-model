@@ -1,12 +1,23 @@
-import hyperparameters
-import common.featuremap as featuremap
-wordmap = featuremap.get(name="words-%d" % (hyperparameters.VOCABULARY_SIZE), synchronize=True)
+"""
+Automatically load the wordmap, if available.
+"""
 
-def read():
-    from common.file import myopen
-    import string
-    for l in myopen(hyperparameters.VOCABULARY[hyperparameters.VOCABULARY_SIZE]):
-        (cnt, word) = string.split(l)
-        wordmap.id(word, can_add=True)
-    wordmap.dump()
-    wordmap.readonly = True
+import hyperparameters
+import cPickle
+from common.file import myopen
+import sys
+
+def _wordmap_filename():
+    return hyperparameters.VOCABULARY_IDMAP_FILE
+
+wordmap = None
+try:
+    wordmap = cPickle.load(myopen(_wordmap_filename()))
+except: pass
+
+def write(wordmap):
+    """
+    Write the word ID map, passed as a parameter.
+    """
+    print >> sys.stderr, "Writing word map to %s..." % _wordmap_filename()
+    cPickle.dump(wordmap, myopen(_wordmap_filename(), "w"))

@@ -18,6 +18,7 @@ def get_train_example():
         prevwords = []
         for w in string.split(l):
             w = string.strip(w)
+            id = None
             if wordmap.exists(w):
                 prevwords.append(wordmap.id(w))
                 if len(prevwords) >= hyperparameters.WINDOW_SIZE:
