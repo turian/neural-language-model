@@ -13,6 +13,7 @@ def _wordmap_filename():
 wordmap = None
 try:
     wordmap = cPickle.load(myopen(_wordmap_filename()))
+    wordmap.str = wordmap.key
 except: pass
 
 def write(wordmap):

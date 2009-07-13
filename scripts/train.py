@@ -104,7 +104,7 @@ def embeddings_debug(cnt):
 
 def save_state(m, cnt):
     import os.path
-    filename = os.path.join(rundir, "model-%d.pkl" % (cnt+1))
+    filename = os.path.join(rundir, "model-%d.pkl" % cnt)
     print >> sys.stderr, "Writing model to %s..." % filename
     print >> sys.stderr, stats()
     import cPickle
@@ -131,8 +131,8 @@ if __name__ == "__main__":
     numpy.random.seed(miscglobals.RANDOMSEED)
 
     import vocabulary
-    print >> sys.stderr, "Reading vocab"
-    vocabulary.read()
+#    print >> sys.stderr, "Reading vocab"
+#    vocabulary.read()
     
     import model
     m = model.Model()

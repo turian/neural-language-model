@@ -9,11 +9,17 @@ if __name__ == "__main__":
     import common.file
     hyperparameters.__dict__.update(common.options.reparse(hyperparameters.__dict__)[0])
 
-    words = set()
+    words = []
 
     import string
-    for l in common.file.myopen(hyperparameters.VOCABULARY):
+    for i, l in enumerate(common.file.myopen(hyperparameters.VOCABULARY)):
+        if hyperparameters.INCLUDE_UNKNOWN_WORD and i+1 >= hyperparameters.VOCABULARY_SIZE:
+            break
+        if not hyperparameters.INCLUDE_UNKNOWN_WORD and i >= hyperparameters.VOCABULARY_SIZE:
+            break
         (cnt, w) = string.split(l)
-        words.add(w)
+        words.append(w)
 
+    v = common.idmap.IDmap(words, allow_unknown=hyperparameters.INCLUDE_UNKNOWN_WORD)
+    assert v.len == hyperparameters.VOCABULARY_SIZE
     vocabulary.write(common.idmap.IDmap(words, allow_unknown=hyperparameters.INCLUDE_UNKNOWN_WORD))
