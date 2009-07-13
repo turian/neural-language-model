@@ -73,17 +73,31 @@ def verbose_predict(cnt):
         print >> sys.stderr, cnt, "AbsPrehidden median =", med, "max =", abs_prehidden[:5]
         if i > 5: break
 
-def visualize(cnt, WORDCNT=500):
+def visualize(cnt, WORDCNT=500, randomized=False):
     """
     Visualize a set of examples using t-SNE.
+    If randomized=False, visualize the most common words.
+    If randomized=True, visualize random words.
     """
     from vocabulary import wordmap
     PERPLEXITY=30
-    x = m.parameters.embeddings[:WORDCNT]
+
+    if randomized:
+        import random
+        idxs = range(m.parameters.vocab_size)
+        random.shuffle(idxs)
+        idxs = idxs[:WORDCNT]
+    else:
+        idxs = range(WORDCNT)
+
+    x = m.parameters.embeddings[idxs]
     print x.shape
-    titles = [wordmap.str(id) for id in range(WORDCNT)]
+    titles = [wordmap.str(id) for id in idxs]
     import os.path
-    filename = os.path.join(rundir, "embeddings-%d.png" % cnt)
+    if randomized:
+        filename = os.path.join(rundir, "embeddings-randomized-%d.png" % cnt)
+    else:
+        filename = os.path.join(rundir, "embeddings-mostcommon-%d.png" % cnt)
     try:
         from textSNE.calc_tsne import tsne
 #       from textSNE.tsne import tsne
@@ -151,5 +165,6 @@ if __name__ == "__main__":
             embeddings_debug(cnt+1)
         if (cnt+1) % hyperparameters.VALIDATE_EVERY == 0:
             save_state(m, cnt+1)
-            visualize(cnt+1)    
+            visualize(cnt+1, randomized=True)
+            visualize(cnt+1, randomized=False)
             validate(cnt+1)
