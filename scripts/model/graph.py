@@ -16,8 +16,6 @@ COMPILE_MODE = theano.compile.Mode('c|py', 'fast_run')
 
 import numpy
 
-import hyperparameters
-
 # TODO: Pure stochastic one-example-per training?
 # TODO: Reuse subfunctions, e.g. autoassociators, instead of rewriting them
 # TODO: DESCRIBEME: Better var names?
@@ -25,7 +23,7 @@ import hyperparameters
 hidden_weights = t.dmatrix()
 hidden_biases = t.dmatrix()
 
-#if hyperparameters.USE_SECOND_HIDDEN_LAYER == True:
+#if HYPERPARAMETERS["USE_SECOND_HIDDEN_LAYER"] == True:
 #    hidden2_weights = t.dmatrix()
 #    hidden2_biases = t.dmatrix()
 
@@ -35,11 +33,12 @@ output_biases = t.dmatrix()
 # TODO: Include gradient steps in actual function, don't do them manually
 
 def activation_function(r):
-    if hyperparameters.ACTIVATION_FUNCTION == "sigmoid":
+    from hyperparameters import HYPERPARAMETERS
+    if HYPERPARAMETERS["ACTIVATION_FUNCTION"] == "sigmoid":
         return sigmoid(r)
-    elif hyperparameters.ACTIVATION_FUNCTION == "tanh":
+    elif HYPERPARAMETERS["ACTIVATION_FUNCTION"] == "tanh":
         return t.tanh(r)
-    elif hyperparameters.ACTIVATION_FUNCTION == "softsign":
+    elif HYPERPARAMETERS["ACTIVATION_FUNCTION"] == "softsign":
         from theano.sandbox.softsign import softsign
         return softsign(r)
     else:
@@ -116,12 +115,12 @@ def functions(sequence_length):
 #    assert len(sequence) == parameters.hidden_width
 #    inputs = [numpy.asarray([token]) for token in sequence]
 #    if target_output != None:
-##        if hyperparameters.USE_SECOND_HIDDEN_LAYER:
+##        if HYPERPARAMETERS["USE_SECOND_HIDDEN_LAYER"]:
 ##            return fn(*(inputs + [numpy.asarray([target_output]), parameters.hidden_weights, parameters.hidden_biases, parameters.hidden2_weights, parameters.hidden2_biases, parameters.output_weights, parameters.output_biases]))
 ##        else:
 #        return fn(*(inputs + [numpy.asarray([target_output]), parameters.hidden_weights, parameters.hidden_biases, parameters.output_weights, parameters.output_biases]))
 #    else:
-##        if hyperparameters.USE_SECOND_HIDDEN_LAYER:
+##        if HYPERPARAMETERS["USE_SECOND_HIDDEN_LAYER"]:
 ##            return fn(*(inputs + [parameters.hidden_weights, parameters.hidden_biases, parameters.hidden2_weights, parameters.hidden2_biases, parameters.output_weights, parameters.output_biases]))
 ##        else:
 #        return fn(*(inputs + [parameters.hidden_weights, parameters.hidden_biases, parameters.output_weights, parameters.output_biases]))

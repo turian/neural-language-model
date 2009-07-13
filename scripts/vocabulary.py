@@ -2,13 +2,14 @@
 Automatically load the wordmap, if available.
 """
 
-import hyperparameters
 import cPickle
 from common.file import myopen
 import sys
 
 def _wordmap_filename():
-    return hyperparameters.VOCABULARY_IDMAP_FILE
+    import common.hyperparameters, common.options
+    HYPERPARAMETERS = common.hyperparameters.read("language-model")
+    return HYPERPARAMETERS["VOCABULARY_IDMAP_FILE"]
 
 wordmap = None
 try:

@@ -10,6 +10,7 @@ data
 fmap*.pkl.gz
 html
 LOGS
+LOGS*/run-*
 *.o
 old
 *.orig

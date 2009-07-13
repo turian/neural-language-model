@@ -46,16 +46,17 @@ class Model:
         """
         Return a corrupted version of example e, plus the weight of this example.
         """
+        from hyperparameters import HYPERPARAMETERS
         import random
         import copy
         e = copy.copy(e)
         last = e[-1]
         cnt = 0
         while e[-1] == last:
-            if hyperparameters.NGRAM_FOR_TRAINING_NOISE == 0:
+            if HYPERPARAMETERS["NGRAM_FOR_TRAINING_NOISE"] == 0:
                 e[-1] = random.randint(0, self.parameters.vocab_size-1)
                 pr = 1./self.parameters.vocab_size
-            elif hyperparameters.NGRAM_FOR_TRAINING_NOISE == 1:
+            elif HYPERPARAMETERS["NGRAM_FOR_TRAINING_NOISE"] == 1:
                 import noise
                 from common.myrandom import weighted_sample
                 e[-1], pr = weighted_sample(noise.indexed_weights())
@@ -70,6 +71,7 @@ class Model:
         return e, weight
 
     def train(self, correct_sequence):
+        from hyperparameters import HYPERPARAMETERS
         noise_sequence, weight = self.corrupt_example(correct_sequence)
         r = graph.train(self.embed(correct_sequence), self.embed(noise_sequence), self.parameters)
         (dcorrect_inputs, dnoise_inputs, loss, correct_score, noise_score, dhidden_weights, dhidden_biases, doutput_weights, doutput_biases) = r
@@ -99,8 +101,8 @@ class Model:
 #            print "OLD: dw2", st(doutput_weights)
 #            print "OLD: db2", st(doutput_biases)
 
-        learning_rate = hyperparameters.LEARNING_RATE * weight
-        embedding_learning_rate = hyperparameters.EMBEDDING_LEARNING_RATE * weight
+        learning_rate = HYPERPARAMETERS["LEARNING_RATE"] * weight
+        embedding_learning_rate = HYPERPARAMETERS["EMBEDDING_LEARNING_RATE"] * weight
         if loss == 0:
             for di in dcorrect_inputs + dnoise_inputs + [dhidden_weights, dhidden_biases, doutput_weights, doutput_biases]:
                 assert (di == 0).all()
@@ -121,14 +123,14 @@ class Model:
                 di.resize(di.size)
 #                print i, di
                 self.parameters.embeddings[i] -= 1.0 * embedding_learning_rate * di
-                if hyperparameters.NORMALIZE_EMBEDDINGS:
+                if HYPERPARAMETERS["NORMALIZE_EMBEDDINGS"]:
                     to_normalize.add(i)
             for (i, di) in zip(noise_sequence, dnoise_inputs):
                 assert di.shape[0] == 1
                 di.resize(di.size)
 #                print i, di
                 self.parameters.embeddings[i] -= 1.0 * embedding_learning_rate * di
-                if hyperparameters.NORMALIZE_EMBEDDINGS:
+                if HYPERPARAMETERS["NORMALIZE_EMBEDDINGS"]:
                     to_normalize.add(i)
 #            print to_normalize
             if len(to_normalize) > 0:

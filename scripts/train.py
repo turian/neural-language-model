@@ -1,41 +1,43 @@
 #!/usr/bin/env python
 
+import sys
+import string
 import common.dump
-import hyperparameters, miscglobals
-        
 from common.file import myopen
-
 from common.stats import stats
 
-import sys
-
-
-import string
+import miscglobals
 
 def get_train_example():
+    import common.hyperparameters
+    HYPERPARAMETERS = common.hyperparameters.read("language-model")
+
     from vocabulary import wordmap
-    for l in myopen(hyperparameters.TRAIN_SENTENCES):
+    for l in myopen(HYPERPARAMETERS["TRAIN_SENTENCES"]):
         prevwords = []
         for w in string.split(l):
             w = string.strip(w)
             id = None
             if wordmap.exists(w):
                 prevwords.append(wordmap.id(w))
-                if len(prevwords) >= hyperparameters.WINDOW_SIZE:
-                    yield prevwords[-hyperparameters.WINDOW_SIZE:]
+                if len(prevwords) >= HYPERPARAMETERS["WINDOW_SIZE"]:
+                    yield prevwords[-HYPERPARAMETERS["WINDOW_SIZE"]:]
             else:
                 prevwords = []
 
 def get_validation_example():
+    import common.hyperparameters
+    HYPERPARAMETERS = common.hyperparameters.read("language-model")
+
     from vocabulary import wordmap
-    for l in myopen(hyperparameters.VALIDATION_SENTENCES):
+    for l in myopen(HYPERPARAMETERS["VALIDATION_SENTENCES"]):
         prevwords = []
         for w in string.split(l):
             w = string.strip(w)
             if wordmap.exists(w):
                 prevwords.append(wordmap.id(w))
-                if len(prevwords) >= hyperparameters.WINDOW_SIZE:
-                    yield prevwords[-hyperparameters.WINDOW_SIZE:]
+                if len(prevwords) >= HYPERPARAMETERS["WINDOW_SIZE"]:
+                    yield prevwords[-HYPERPARAMETERS["WINDOW_SIZE"]:]
             else:
                 prevwords = []
 
@@ -127,9 +129,10 @@ def save_state(m, cnt):
     print >> sys.stderr, stats()
 
 if __name__ == "__main__":
-    import common.options
-    hyperparameters.__dict__.update(common.options.reparse(hyperparameters.__dict__)[0])
-    #miscglobals.__dict__ = common.options.reparse(miscglobals.__dict__)
+    import common.hyperparameters, common.options
+    HYPERPARAMETERS = common.hyperparameters.read("language-model")
+    HYPERPARAMETERS, options, args = common.options.reparse(HYPERPARAMETERS)
+    import hyperparameters
 
     from common import myyaml
     import sys
@@ -138,7 +141,7 @@ if __name__ == "__main__":
     import noise
     indexed_weights = noise.indexed_weights()
 
-    rundir = common.dump.create_canonical_directory(hyperparameters.__dict__)
+    rundir = common.dump.create_canonical_directory(HYPERPARAMETERS)
 
     import random, numpy
     random.seed(miscglobals.RANDOMSEED)
@@ -163,8 +166,8 @@ if __name__ == "__main__":
             print >> sys.stderr, stats()
             verbose_predict(cnt+1)
             embeddings_debug(cnt+1)
-        if (cnt+1) % hyperparameters.VALIDATE_EVERY == 0:
+        if (cnt+1) % HYPERPARAMETERS["VALIDATE_EVERY"] == 0:
             save_state(m, cnt+1)
-            visualize(cnt+1, randomized=True)
             visualize(cnt+1, randomized=False)
+            visualize(cnt+1, randomized=True)
             validate(cnt+1)
