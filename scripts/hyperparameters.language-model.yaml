@@ -1,11 +1,11 @@
 #: Not actually used directly, just for convenience
 #
-locations: {"DATA_DIR": "~/dev/python/language-model/data/"}
+locations: {"DATA_DIR": "/home/fringant2/lisa/turian/dev/python/language-model/data/"}
 
 # Should we induce an embedding for OOV words?
 INCLUDE_UNKNOWN_WORD: True
 
-RUN_NAME: "english-wikitext.case-intact"
+RUN_NAME: "english-wikitext.lowercase"
 VOCABULARY_SIZE: 50000
 
 NORMALIZE_EMBEDDINGS: False
