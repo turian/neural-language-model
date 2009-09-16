@@ -156,19 +156,25 @@ if __name__ == "__main__":
     #validate(0)
     verbose_predict(0)
     embeddings_debug(0)
-    for (cnt, e) in enumerate(get_train_example()):
-    #    print [wordmap.str(id) for id in e]
-        m.train(e)
-    
-        #validate(cnt+1)
-        if (cnt+1) % 100 == 0:
-            print >> sys.stderr, "Finished training step %d" % (cnt+1)
-        if (cnt+1) % 10000 == 0:
-            print >> sys.stderr, stats()
-            verbose_predict(cnt+1)
-            embeddings_debug(cnt+1)
-        if (cnt+1) % HYPERPARAMETERS["VALIDATE_EVERY"] == 0:
-            save_state(m, cnt+1)
-            visualize(cnt+1, randomized=False)
-            visualize(cnt+1, randomized=True)
-            validate(cnt+1)
+    epoch = 0
+    cnt = 0
+    while 1:
+        epoch += 1
+        print >> sys.stderr, "STARTING EPOCH #%d" % epoch
+        for e in get_train_example():
+            cnt += 1
+        #    print [wordmap.str(id) for id in e]
+            m.train(e)
+        
+            #validate(cnt)
+            if cnt % 100 == 0:
+                print >> sys.stderr, "Finished training step %d (epoch %d)" % (cnt, epoch)
+            if cnt % 10000 == 0:
+                print >> sys.stderr, stats()
+                verbose_predict(cnt)
+                embeddings_debug(cnt)
+            if cnt % HYPERPARAMETERS["VALIDATE_EVERY"] == 0:
+                save_state(m, cnt)
+                visualize(cnt, randomized=False)
+                visualize(cnt, randomized=True)
+                validate(cnt)
