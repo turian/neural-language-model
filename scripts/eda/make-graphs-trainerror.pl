@@ -6,10 +6,10 @@
 $gnuplot = "plot";
 $first = 1;
 foreach $f (split(/[\r\n]+/, `ls [0-9]*err`)) {
-    ($fnew = $f) =~ s/err/dat/;
+    ($fnew = $f) =~ s/.err/-trainerror.dat/;
     die $! if $fnew eq $f;
     print STDERR "$f => $fnew\n";
-    $cmd = "cat $f | grep FINAL | cut -d ' ' -f 6,9 | perl -ne 's/[:,]//g; print' > $fnew";
+    $cmd = "cat $f | grep 'pre-update train acc' | perl -ne 's/=/ /g; print' | cut -d ' ' -f 2,10 | grep -v '[a-zA-Z]' > $fnew";
     print STDERR "$cmd\n";
     system($cmd);
     $gnuplot .= "," unless $first;
