@@ -8,6 +8,7 @@ import sys, pickle
 import math
 
 from common.file import myopen
+from common.movingaverage import MovingAverage
 
 from vocabulary import *
 
@@ -22,16 +23,19 @@ class Model:
     def __init__(self):
         self.parameters = Parameters()
         import sets
+        self.train_loss = MovingAverage()
+        self.train_err = MovingAverage()
+        self.train_cnt = 0
 
     def load(self, filename):
         sys.stderr.write("Loading model from: %s\n" % filename)
         f = myopen(filename, "rb")
-        self.parameters = pickle.load(f)
+        (self.parameters, self.train_loss, self.train_err, self.train_cnt) = pickle.load(f)
 
     def save(self, filename):
         sys.stderr.write("Saving model to: %s\n" % filename)
         f = myopen(filename, "wb")
-        pickle.dump(self.parameters, f)
+        pickle.dump((self.parameters, self.train_loss, self.train_err, self.train_cnt), f)
 
     def embed(self, sequence):
         """
@@ -100,6 +104,13 @@ class Model:
 #            print "OLD: db1", st(dhidden_biases)
 #            print "OLD: dw2", st(doutput_weights)
 #            print "OLD: db2", st(doutput_biases)
+
+        self.train_loss.add(loss)
+        self.train_err.add(correct_score <= noise_score)
+        self.train_cnt += 1
+        if self.train_cnt % 10000 == 0:
+            print >> sys.stderr, "After %d updates, pre-update train loss %s" % (self.train_cnt, self.train_loss)
+            print >> sys.stderr, "After %d updates, pre-update train accuracy %s" % (self.train_cnt, self.train_err)
 
         learning_rate = HYPERPARAMETERS["LEARNING_RATE"] * weight
         embedding_learning_rate = HYPERPARAMETERS["EMBEDDING_LEARNING_RATE"] * weight
