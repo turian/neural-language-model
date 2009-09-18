@@ -9,7 +9,7 @@ foreach $f (split(/[\r\n]+/, `ls [0-9]*err`)) {
     ($fnew = $f) =~ s/.err/-trainloss.dat/;
     die $! if $fnew eq $f;
     print STDERR "$f => $fnew\n";
-    $cmd = "cat $f | grep 'pre-update train loss' | perl -ne 's/=/ /g; print' | cut -d ' ' -f 2,10 | grep -v '[a-zA-Z]' | grep '000000 ' > $fnew";
+    $cmd = "cat $f | grep --text 'pre-update train loss' | perl -ne 's/=/ /g; print' | cut -d ' ' -f 2,10 | grep -v '[a-zA-Z]' | grep '000000 ' > $fnew";
     print STDERR "$cmd\n";
     system($cmd);
     $gnuplot .= "," unless $first;

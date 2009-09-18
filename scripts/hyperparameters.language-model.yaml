@@ -5,15 +5,16 @@ locations: {"DATA_DIR": "/home/fringant2/lisa/turian/dev/python/language-model/d
 # Should we induce an embedding for OOV words?
 INCLUDE_UNKNOWN_WORD: True
 
-RUN_NAME: "english-wikitext.lowercase"
-VOCABULARY_SIZE: 50000
+RUN_NAME: "rcv1.case-intact"
+VOCABULARY_SIZE: 268810
 
 NORMALIZE_EMBEDDINGS: False
 #NORMALIZE_EMBEDDINGS: True
 #UPDATES_PER_NORMALIZE_EMBEDDINGS: 1000
 
 # Number of validation examples
-VALIDATION EXAMPLES: 10000
+#VALIDATION EXAMPLES: 10000
+VALIDATION EXAMPLES: 2500
 
 # What percent of noise examples should we use for computing the logrank
 # during validation?

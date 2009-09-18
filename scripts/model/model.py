@@ -109,8 +109,8 @@ class Model:
         self.train_err.add(correct_score <= noise_score)
         self.train_cnt += 1
         if self.train_cnt % 10000 == 0:
-            print >> sys.stderr, "After %d updates, pre-update train loss %s" % (self.train_cnt, self.train_loss)
-            print >> sys.stderr, "After %d updates, pre-update train error %s" % (self.train_cnt, self.train_err)
+            print >> sys.stderr, "After %d updates, pre-update train loss %s" % (self.train_cnt, self.train_loss.verbose_string())
+            print >> sys.stderr, "After %d updates, pre-update train error %s" % (self.train_cnt, self.train_err.verbose_string())
 
         learning_rate = HYPERPARAMETERS["LEARNING_RATE"] * weight
         embedding_learning_rate = HYPERPARAMETERS["EMBEDDING_LEARNING_RATE"] * weight
