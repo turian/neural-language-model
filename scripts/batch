@@ -23,12 +23,16 @@
 #      3 LEARNING_RATE=0_0000000032
 #      2 LEARNING_RATE=0_000000001
 #      2 LEARNING_RATE=0_000000032
+#
+# From 280K RCV1 english with case, hyperparams:
+#       EMBEDDING_LEARNING_RATE=0_00001.dat and LEARNING_RATE=0_000000001
+# seemed to be the only version that worked well, when experimenting with values x10 and /10.
 
 dbidispatch --exp_dir="T" ./train.py \
     '--no_NORMALIZE_EMBEDDINGS' \
     '--NGRAM_FOR_TRAINING_NOISE=0' \
     '--LEARNING_RATE={{0.00000001,0.0000000032,0.000000001,0.00000000032,0.0000000001}}' \
-    '--EMBEDDING_LEARNING_RATE={{0.00001,0.0000032,0.000001,0.00000032,0.0000001}}'
+    '--EMBEDDING_LEARNING_RATE={{0.0001,0.000032,0.00001,0.0000032,0.000001}}'
 
 #dbidispatch --exp_dir="T" ./train.py \
 #    '--no_NORMALIZE_EMBEDDINGS' \
