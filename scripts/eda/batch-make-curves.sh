@@ -32,3 +32,7 @@ echo "plot \\" >> graphs-validationlogrankloss.gp
 gnuplot graphs-trainerror.gp
 gnuplot graphs-trainloss.gp
 gnuplot graphs-validationlogrankloss.gp
+ps2pdf graphs-trainerror.ps
+ps2pdf graphs-trainloss.ps
+ps2pdf graphs-validationlogrankloss.ps
+cp *pdf ~/public_html/priv ; chmod a+r ~/public_html/priv/*pdf
