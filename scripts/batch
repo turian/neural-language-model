@@ -27,6 +27,19 @@
 # From 280K RCV1 english with case, hyperparams:
 #       EMBEDDING_LEARNING_RATE=0_00001.dat and LEARNING_RATE=0_000000001
 # seemed to be the only version that worked well, when experimenting with values x10 and /10.
+#
+#
+# From 20090916-rcv1.case-intact, the best hyperparams are:
+#       LEARNING_RATE\=0_000000001
+#       EMBEDDING_LEARNING_RATE\=0_0000032
+#
+# From 20090923-rcv1.unclean.CoNLL03-tokenize.case-intact, the best hyperparams are:
+#      3 EMBEDDING_LEARNING_RATE\=0_0000032
+#
+#      1 LEARNING_RATE\=0_0000000001
+#      1 LEARNING_RATE\=0_00000000032
+#      1 LEARNING_RATE\=0_000000001
+#
 
 dbidispatch --exp_dir="T" ./train.py \
     '--no_NORMALIZE_EMBEDDINGS' \
