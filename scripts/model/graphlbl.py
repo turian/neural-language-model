@@ -1,3 +1,7 @@
+"""
+Theano graph of Mnih log bi-linear model.
+"""
+
 import theano
 
 from theano import tensor as t
@@ -15,13 +19,6 @@ COMPILE_MODE = theano.compile.Mode('c|py', 'fast_run')
 #COMPILE_MODE = theano.compile.Mode('py', 'fast_compile')
 
 import numpy
-
-# TODO: Pure stochastic one-example-per training?
-# TODO: Reuse subfunctions, e.g. autoassociators, instead of rewriting them
-# TODO: DESCRIBEME: Better var names?
-
-hidden_weights = t.dmatrix()
-hidden_biases = t.dmatrix()
 
 #if HYPERPARAMETERS["USE_SECOND_HIDDEN_LAYER"] == True:
 #    hidden2_weights = t.dmatrix()

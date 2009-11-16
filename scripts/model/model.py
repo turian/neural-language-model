@@ -1,8 +1,13 @@
 
-import graph
 from parameters import Parameters
 
-import hyperparameters
+from hyperparameters import HYPERPARAMETERS
+LBL = HYPERPARAMETERS["LOG BILINEAR MODEL"]
+
+if LBL:
+    import graphlbl as graph
+else:
+    import graphcw as graph
 
 import sys, pickle
 import math
@@ -76,9 +81,18 @@ class Model:
 
     def train(self, correct_sequence):
         from hyperparameters import HYPERPARAMETERS
-        noise_sequence, weight = self.corrupt_example(correct_sequence)
-        r = graph.train(self.embed(correct_sequence), self.embed(noise_sequence), self.parameters)
-        (dcorrect_inputs, dnoise_inputs, loss, correct_score, noise_score, dhidden_weights, dhidden_biases, doutput_weights, doutput_biases) = r
+        if LBL:
+            noise_sequence, weight = self.corrupt_example(correct_sequence)
+            noise_repr = noise_sequence[-1]
+            correct_repr = correct_sequence[-1]
+            assert noise_sequence[:-1] == correct_sequence[:-1]
+            sequence = correct_sequence[:-1]
+            r = graph.train(self.embed(sequence), self.embed(correct_repr)[0], self.embed(noise_repr)[0], self.parameters)
+            (dsequence, loss, correct_score, noise_score, doutput_weights, doutput_biases) = r
+        else:
+            noise_sequence, weight = self.corrupt_example(correct_sequence)
+            r = graph.train(self.embed(correct_sequence), self.embed(noise_sequence), self.parameters)
+            (dcorrect_inputs, dnoise_inputs, loss, correct_score, noise_score, dhidden_weights, dhidden_biases, doutput_weights, doutput_biases) = r
 #        print loss, correct_score, noise_score,
 #        print loss, correct_score, noise_score
 #        print ""
@@ -115,13 +129,18 @@ class Model:
         learning_rate = HYPERPARAMETERS["LEARNING_RATE"] * weight
         embedding_learning_rate = HYPERPARAMETERS["EMBEDDING_LEARNING_RATE"] * weight
         if loss == 0:
-            for di in dcorrect_inputs + dnoise_inputs + [dhidden_weights, dhidden_biases, doutput_weights, doutput_biases]:
-                assert (di == 0).all()
+            if LBL:
+                for di in dsequence + [doutput_weights, doutput_biases]:
+                    assert (di == 0).all()
+            else:
+                for di in dcorrect_inputs + dnoise_inputs + [dhidden_weights, dhidden_biases, doutput_weights, doutput_biases]:
+                    assert (di == 0).all()
 
         else:
             import math
-            self.parameters.hidden_weights   -= 1.0 * learning_rate * dhidden_weights
-            self.parameters.hidden_biases    -= 1.0 * learning_rate * dhidden_biases
+            if not LBL:
+                self.parameters.hidden_weights   -= 1.0 * learning_rate * dhidden_weights
+                self.parameters.hidden_biases    -= 1.0 * learning_rate * dhidden_biases
             self.parameters.output_weights   -= 1.0 * learning_rate * doutput_weights
             self.parameters.output_biases    -= 1.0 * learning_rate * doutput_biases
     
@@ -129,21 +148,31 @@ class Model:
             to_normalize = sets.Set()
 
             import math
-            for (i, di) in zip(correct_sequence, dcorrect_inputs):
-                assert di.shape[0] == 1
-                di.resize(di.size)
-#                print i, di
-                self.parameters.embeddings[i] -= 1.0 * embedding_learning_rate * di
-                if HYPERPARAMETERS["NORMALIZE_EMBEDDINGS"]:
-                    to_normalize.add(i)
-            for (i, di) in zip(noise_sequence, dnoise_inputs):
-                assert di.shape[0] == 1
-                di.resize(di.size)
-#                print i, di
-                self.parameters.embeddings[i] -= 1.0 * embedding_learning_rate * di
-                if HYPERPARAMETERS["NORMALIZE_EMBEDDINGS"]:
-                    to_normalize.add(i)
-#            print to_normalize
+            if LBL:
+                for (i, di) in zip(sequence, dsequence):
+                    assert di.shape[0] == 1
+                    di.resize(di.size)
+#                    print i, di
+                    self.parameters.embeddings[i] -= 1.0 * embedding_learning_rate * di
+                    if HYPERPARAMETERS["NORMALIZE_EMBEDDINGS"]:
+                        to_normalize.add(i)
+            else:
+                for (i, di) in zip(correct_sequence, dcorrect_inputs):
+                    assert di.shape[0] == 1
+                    di.resize(di.size)
+#                    print i, di
+                    self.parameters.embeddings[i] -= 1.0 * embedding_learning_rate * di
+                    if HYPERPARAMETERS["NORMALIZE_EMBEDDINGS"]:
+                        to_normalize.add(i)
+                for (i, di) in zip(noise_sequence, dnoise_inputs):
+                    assert di.shape[0] == 1
+                    di.resize(di.size)
+#                    print i, di
+                    self.parameters.embeddings[i] -= 1.0 * embedding_learning_rate * di
+                    if HYPERPARAMETERS["NORMALIZE_EMBEDDINGS"]:
+                        to_normalize.add(i)
+#                print to_normalize
+
             if len(to_normalize) > 0:
                 to_normalize = [i for i in to_normalize]
 #                print "NORMALIZING", to_normalize
@@ -160,6 +189,7 @@ class Model:
 
     def verbose_predict(self, sequence):
         (score, prehidden) = graph.verbose_predict(self.embed(sequence), self.parameters)
+        print score.shape
         return score, prehidden
 
     def validate(self, sequence):
