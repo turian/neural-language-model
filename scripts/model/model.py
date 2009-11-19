@@ -134,8 +134,8 @@ class Model:
         if self.train_cnt % 10000 == 0:
             logging.info(("After %d updates, pre-update train loss %s" % (self.train_cnt, self.train_loss.verbose_string())))
             logging.info(("After %d updates, pre-update train error %s" % (self.train_cnt, self.train_err.verbose_string())))
-            print(("After %d updates, pre-update train loss %s" % (self.train_cnt, self.train_loss.verbose_string())))
-            print(("After %d updates, pre-update train error %s" % (self.train_cnt, self.train_err.verbose_string())))
+#            print(("After %d updates, pre-update train loss %s" % (self.train_cnt, self.train_loss.verbose_string())))
+#            print(("After %d updates, pre-update train error %s" % (self.train_cnt, self.train_err.verbose_string())))
 
         learning_rate = HYPERPARAMETERS["LEARNING_RATE"] * weight
         embedding_learning_rate = HYPERPARAMETERS["EMBEDDING_LEARNING_RATE"] * weight

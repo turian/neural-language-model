@@ -62,8 +62,8 @@ def validate(cnt):
             logging.info(stats())
     logging.info("FINAL VALIDATION AT TRAINING STEP %d: mean(logrank) = %.2f, stddev(logrank) = %.2f, cnt = %d" % (cnt, numpy.mean(numpy.array(logranks)), numpy.std(numpy.array(logranks)), i+1))
     logging.info(stats())
-    print "FINAL VALIDATION AT TRAINING STEP %d: mean(logrank) = %.2f, stddev(logrank) = %.2f, cnt = %d" % (cnt, numpy.mean(numpy.array(logranks)), numpy.std(numpy.array(logranks)), i+1)
-    print stats()
+#    print "FINAL VALIDATION AT TRAINING STEP %d: mean(logrank) = %.2f, stddev(logrank) = %.2f, cnt = %d" % (cnt, numpy.mean(numpy.array(logranks)), numpy.std(numpy.array(logranks)), i+1)
+#    print stats()
 
 def verbose_predict(cnt):
     for (i, ve) in enumerate(get_validation_example()):
@@ -116,12 +116,12 @@ def embeddings_debug(cnt):
     e = m.parameters.embeddings[:100]
     l2norm = numpy.sqrt(numpy.square(e).sum(axis=1))
     logging.info("%d l2norm of top 100 words: mean = %f stddev=%f" % (cnt, numpy.mean(l2norm), numpy.std(l2norm),))
-    print("%d l2norm of top 100 words: mean = %f stddev=%f" % (cnt, numpy.mean(l2norm), numpy.std(l2norm),))
+#    print("%d l2norm of top 100 words: mean = %f stddev=%f" % (cnt, numpy.mean(l2norm), numpy.std(l2norm),))
     l2norm = l2norm.tolist()
     l2norm.sort()
     l2norm.reverse()
     logging.info("top 5 = %s" % `l2norm[:5]`)
-    print("top 5 = %s" % `l2norm[:5]`)
+#    print("top 5 = %s" % `l2norm[:5]`)
 
 def save_state(m, cnt):
     import os.path
@@ -136,7 +136,7 @@ def save_state(m, cnt):
 if __name__ == "__main__":
     import common.hyperparameters, common.options
     HYPERPARAMETERS = common.hyperparameters.read("language-model")
-    HYPERPARAMETERS, options, args = common.options.reparse(HYPERPARAMETERS)
+    HYPERPARAMETERS, options, args, newkeystr = common.options.reparse(HYPERPARAMETERS)
     import hyperparameters
 
     from common import myyaml
@@ -148,9 +148,11 @@ if __name__ == "__main__":
 
     rundir = common.dump.create_canonical_directory(HYPERPARAMETERS)
 
-    import os.path
+    import os.path, os
     logfile = os.path.join(rundir, "log")
-    print >> sys.stderr, "Logging to %s" % logfile
+    verboselogfile = os.path.join(rundir, "log%s" % newkeystr)
+    print >> sys.stderr, "Logging to %s, and creating link %s" % (logfile, verboselogfile)
+    os.system("ln -s log %s " % (verboselogfile))
     #logging.basicConfig(filename=logfile,level=logging.DEBUG)
     logging.basicConfig(filename=logfile, filemode="w", level=logging.DEBUG)
     logging.info(myyaml.dump(common.dump.vars_seq([hyperparameters, miscglobals])))
@@ -170,7 +172,6 @@ if __name__ == "__main__":
     embeddings_debug(0)
     epoch = 0
     cnt = 0
-    validate(cnt)
     while 1:
         epoch += 1
         logging.info("STARTING EPOCH #%d" % epoch)
@@ -181,8 +182,8 @@ if __name__ == "__main__":
 
             #validate(cnt)
             if cnt % 1000 == 0:
-                print ("Finished training step %d (epoch %d)" % (cnt, epoch))
                 logging.info("Finished training step %d (epoch %d)" % (cnt, epoch))
+#                print ("Finished training step %d (epoch %d)" % (cnt, epoch))
             if cnt % 10000 == 0:
                 logging.info(stats())
 #                verbose_predict(cnt)
