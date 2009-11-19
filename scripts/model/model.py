@@ -90,13 +90,13 @@ class Model:
             sequence = correct_sequence[:-1]
             r = graph.train(self.embed(sequence), self.embed(correct_repr)[0], self.embed(noise_repr)[0], self.parameters)
             (loss, predictrepr, correct_score, noise_score, dsequence, dcorrect_repr, dnoise_repr, doutput_weights, doutput_biases) = r
-            print
-            print "loss = ", loss
-            print "predictrepr = ", predictrepr
-            print "correct_repr = ", correct_repr
-            print "noise_repr = ", noise_repr
-            print "correct_score = ", correct_score
-            print "noise_score = ", noise_score
+#            print
+#            print "loss = ", loss
+#            print "predictrepr = ", predictrepr
+#            print "correct_repr = ", correct_repr, self.embed(correct_repr)[0]
+#            print "noise_repr = ", noise_repr, self.embed(noise_repr)[0]
+#            print "correct_score = ", correct_score
+#            print "noise_score = ", noise_score
         else:
             noise_sequence, weight = self.corrupt_example(correct_sequence)
             r = graph.train(self.embed(correct_sequence), self.embed(noise_sequence), self.parameters)
@@ -193,6 +193,16 @@ class Model:
 #           (dcorrect_inputs, dnoise_inputs, loss, correct_score, noise_score, dhidden_weights, dhidden_biases, doutput_weights, doutput_biases) = r
 #           print loss, correct_score, noise_score
 #           print "NEW: loss = %.3f, correct score = %.3f, noise score = %.3f" % (loss, correct_score, noise_score)
+
+#            r = graph.train(self.embed(sequence), self.embed(correct_repr)[0], self.embed(noise_repr)[0], self.parameters)
+#            (loss, predictrepr, correct_score, noise_score, dsequence, dcorrect_repr, dnoise_repr, doutput_weights, doutput_biases) = r
+#            print
+#            print "loss = ", loss
+#            print "predictrepr = ", predictrepr
+#            print "correct_repr = ", correct_repr, self.embed(correct_repr)[0]
+#            print "noise_repr = ", noise_repr, self.embed(noise_repr)[0]
+#            print "correct_score = ", correct_score
+#            print "noise_score = ", noise_score
 
     def predict(self, sequence):
         if LBL:

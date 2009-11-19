@@ -165,7 +165,7 @@ if __name__ == "__main__":
             cnt += 1
         #    print [wordmap.str(id) for id in e]
             m.train(e)
-        
+
             #validate(cnt)
             if cnt % 100 == 0:
                 print >> sys.stderr, "Finished training step %d (epoch %d)" % (cnt, epoch)
