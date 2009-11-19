@@ -11,6 +11,7 @@ else:
 
 import sys, pickle
 import math
+import logging
 
 from common.file import myopen
 from common.movingaverage import MovingAverage
@@ -131,15 +132,27 @@ class Model:
         self.train_err.add(correct_score <= noise_score)
         self.train_cnt += 1
         if self.train_cnt % 10000 == 0:
-            print >> sys.stderr, "After %d updates, pre-update train loss %s" % (self.train_cnt, self.train_loss.verbose_string())
-            print >> sys.stderr, "After %d updates, pre-update train error %s" % (self.train_cnt, self.train_err.verbose_string())
+            logging.info(("After %d updates, pre-update train loss %s" % (self.train_cnt, self.train_loss.verbose_string())))
+            logging.info(("After %d updates, pre-update train error %s" % (self.train_cnt, self.train_err.verbose_string())))
+            print(("After %d updates, pre-update train loss %s" % (self.train_cnt, self.train_loss.verbose_string())))
+            print(("After %d updates, pre-update train error %s" % (self.train_cnt, self.train_err.verbose_string())))
 
         learning_rate = HYPERPARAMETERS["LEARNING_RATE"] * weight
         embedding_learning_rate = HYPERPARAMETERS["EMBEDDING_LEARNING_RATE"] * weight
         if loss == 0:
             if LBL:
                 for di in dsequence + [dcorrect_repr, dnoise_repr, doutput_weights, doutput_biases]:
+                    # This tends to trigger if training diverges (NaN)
                     assert (di == 0).all()
+#                    if not (di == 0).all():
+#                        print "WARNING:", di
+#                        print "WARNING in ", dsequence + [dcorrect_repr, dnoise_repr, doutput_weights, doutput_biases]
+#                        print "loss = ", loss
+#                        print "predictrepr = ", predictrepr
+#                        print "correct_repr = ", correct_repr, self.embed(correct_repr)[0]
+#                        print "noise_repr = ", noise_repr, self.embed(noise_repr)[0]
+#                        print "correct_score = ", correct_score
+#                        print "noise_score = ", noise_score
             else:
                 for di in dcorrect_inputs + dnoise_inputs + [dhidden_weights, dhidden_biases, doutput_weights, doutput_biases]:
                     assert (di == 0).all()
