@@ -62,8 +62,8 @@ def validate(cnt):
             logging.info(stats())
     logging.info("FINAL VALIDATION AT TRAINING STEP %d: mean(logrank) = %.2f, stddev(logrank) = %.2f, cnt = %d" % (cnt, numpy.mean(numpy.array(logranks)), numpy.std(numpy.array(logranks)), i+1))
     logging.info(stats())
-    print("FINAL VALIDATION AT TRAINING STEP %d: mean(logrank) = %.2f, stddev(logrank) = %.2f, cnt = %d" % (cnt, numpy.mean(numpy.array(logranks)), numpy.std(numpy.array(logranks)), i+1))
-    print(stats())
+    print "FINAL VALIDATION AT TRAINING STEP %d: mean(logrank) = %.2f, stddev(logrank) = %.2f, cnt = %d" % (cnt, numpy.mean(numpy.array(logranks)), numpy.std(numpy.array(logranks)), i+1)
+    print stats()
 
 def verbose_predict(cnt):
     for (i, ve) in enumerate(get_validation_example()):
@@ -115,13 +115,13 @@ def visualize(cnt, WORDCNT=500, randomized=False):
 def embeddings_debug(cnt):
     e = m.parameters.embeddings[:100]
     l2norm = numpy.sqrt(numpy.square(e).sum(axis=1))
-    logging.info(cnt, "l2norm of top 100 words: mean =", numpy.mean(l2norm), "stddev =", numpy.std(l2norm),)
-    print(cnt, "l2norm of top 100 words: mean =", numpy.mean(l2norm), "stddev =", numpy.std(l2norm),)
+    logging.info("%d l2norm of top 100 words: mean = %f stddev=%f" % (cnt, numpy.mean(l2norm), numpy.std(l2norm),))
+    print("%d l2norm of top 100 words: mean = %f stddev=%f" % (cnt, numpy.mean(l2norm), numpy.std(l2norm),))
     l2norm = l2norm.tolist()
     l2norm.sort()
     l2norm.reverse()
-    logging.info("top 5 =", l2norm[:5])
-    print("top 5 =", l2norm[:5])
+    logging.info("top 5 = %s" % `l2norm[:5]`)
+    print("top 5 = %s" % `l2norm[:5]`)
 
 def save_state(m, cnt):
     import os.path
