@@ -219,7 +219,10 @@ class Model:
 
     def predict(self, sequence):
         if LBL:
-            assert 0
+            targetrepr = sequence[-1:]
+            sequence = sequence[:-1]
+            (predictrepr, score) = graph.predict(self.embed(sequence), self.embed(targetrepr)[0], self.parameters)
+            return score
         else:
             (score) = graph.predict(self.embed(sequence), self.parameters)
             return score

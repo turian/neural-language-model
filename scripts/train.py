@@ -170,6 +170,7 @@ if __name__ == "__main__":
     embeddings_debug(0)
     epoch = 0
     cnt = 0
+    validate(cnt)
     while 1:
         epoch += 1
         logging.info("STARTING EPOCH #%d" % epoch)

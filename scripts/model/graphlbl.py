@@ -83,11 +83,9 @@ def functions(sequence_length):
         #print "REMOVEME", len(dcorrect_inputs)
         predict_inputs = sequence + [correct_repr, output_weights, output_biases]
         train_inputs = sequence + [correct_repr, noise_repr, output_weights, output_biases]
-#        verbose_predict_inputs = predict_inputs
         predict_outputs = [predictrepr, correct_score]
         train_outputs = [loss, predictrepr, correct_score, noise_score] + dsequence + [dcorrect_repr, dnoise_repr, doutput_weights, doutput_biases]
 #        train_outputs = [loss, correct_repr, correct_score, noise_repr, noise_score]
-#        verbose_predict_outputs = [correct_score, correct_prehidden]
 
         import theano.gof.graph
 
@@ -96,17 +94,11 @@ def functions(sequence_length):
         predict_function = theano.function(predict_inputs, predict_outputs, mode=COMPILE_MODE)
         print "...done constructing graph for sequence_length=%d" % (sequence_length)
 
-#        nnodes = len(theano.gof.graph.ops(verbose_predict_inputs, verbose_predict_outputs))
-#        print "About to compile predict function over %d ops [nodes]..." % nnodes
-#        verbose_predict_function = theano.function(verbose_predict_inputs, verbose_predict_outputs, mode=COMPILE_MODE)
-#        print "...done constructing graph for sequence_length=%d" % (sequence_length)
-
         nnodes = len(theano.gof.graph.ops(train_inputs, train_outputs))
         print "About to compile train function over %d ops [nodes]..." % nnodes
         train_function = theano.function(train_inputs, train_outputs, mode=COMPILE_MODE)
         print "...done constructing graph for sequence_length=%d" % (sequence_length)
 
-#        cached_functions[p] = (predict_function, train_function, verbose_predict_function)
         cached_functions[p] = (predict_function, train_function)
     return cached_functions[p]
 
@@ -125,20 +117,10 @@ def functions(sequence_length):
 #        return fn(*(inputs + [parameters.hidden_weights, parameters.hidden_biases, parameters.output_weights, parameters.output_biases]))
 #
 
-#def predict(correct_sequence, parameters):
-#    fn = functions(sequence_length=len(correct_sequence))[0]
-#    r = fn(*(correct_sequence + [parameters.hidden_weights, parameters.hidden_biases, parameters.output_weights, parameters.output_biases]))
-#    assert len(r) == 1
-#    r = r[0]
-#    assert r.shape == (1, 1)
-#    return r[0,0]
-#def verbose_predict(correct_sequence, parameters):
-#    fn = functions(sequence_length=len(correct_sequence))[2]
-#    r = fn(*(correct_sequence + [parameters.hidden_weights, parameters.hidden_biases, parameters.output_weights, parameters.output_biases]))
-#    assert len(r) == 2
-#    (score, prehidden) = r
-#    assert score.shape == (1, 1)
-#    return score[0,0], prehidden
+def predict(sequence, targetrepr, parameters):
+    fn = functions(sequence_length=len(sequence))[0]
+    (predictrepr, score) = fn(*(sequence + [targetrepr, parameters.output_weights, parameters.output_biases]))
+    return predictrepr, score
 
 def train(sequence, correct_repr, noise_repr, parameters):
     fn = functions(sequence_length=len(sequence))[1]
