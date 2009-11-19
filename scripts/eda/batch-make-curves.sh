@@ -5,6 +5,10 @@
 ../../eda/make-graphs-trainloss.pl
 ../../eda/make-graphs-validationlogrankloss.pl
 
+ln -s ../*/*trainerror.dat .
+ln -s ../*/*trainloss.dat .
+ln -s ../*/*validationlogrankloss.dat .
+
 # Sort all dat files
 # First perl recipe adds gnuplot codes
 # Second perl recipe strips final ', \'  to prevent gnuplot error
@@ -27,7 +31,7 @@ echo "set terminal postscript color 12" >> graphs-validationlogrankloss.gp
 echo "set output 'graphs-validationlogrankloss.ps'" >> graphs-validationlogrankloss.gp
 #echo "set logscale y" >> graphs-validationlogrankloss.gp
 echo "plot [] [:2] \\" >> graphs-validationlogrankloss.gp
-~/dev/common-scripts/sort-curves.py *validationlogrankloss.dat | perl -ne "chop; print \"\\t'\$_' with lp, \\\\\\n\""  | perl -e '$str = ""; while(<>){ $str .= $_; } $str =~ s/, \\$//s; print $str' >> graphs-validationlogrankloss.gp
+~/dev/common-scripts/sort-curves.py */*validationlogrankloss.dat | perl -ne "chop; print \"\\t'\$_' with lp, \\\\\\n\""  | perl -e '$str = ""; while(<>){ $str .= $_; } $str =~ s/, \\$//s; print $str' >> graphs-validationlogrankloss.gp
 
 gnuplot graphs-trainerror.gp
 gnuplot graphs-trainloss.gp

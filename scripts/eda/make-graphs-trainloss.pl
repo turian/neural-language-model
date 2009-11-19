@@ -5,8 +5,9 @@
 
 $gnuplot = "plot";
 $first = 1;
-foreach $f (split(/[\r\n]+/, `ls [0-9]*out`)) {
-    ($fnew = $f) =~ s/.out/-trainloss.dat/;
+#foreach $f (split(/[\r\n]+/, `ls [0-9]*out`)) {
+foreach $f (split(/[\r\n]+/, `ls ../*/log.* | grep -v 'dat\$'`)) {
+    ($fnew = $f) =~ s/$/-trainloss.dat/;
     die $! if $fnew eq $f;
     print STDERR "$f => $fnew\n";
     $cmd = "cat $f | grep --text 'pre-update train loss' | perl -ne 's/=/ /g; print' | cut -d ' ' -f 2,10 | grep -v '[a-zA-Z]' | grep '000000 ' > $fnew";
