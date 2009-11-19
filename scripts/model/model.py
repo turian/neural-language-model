@@ -83,12 +83,20 @@ class Model:
         from hyperparameters import HYPERPARAMETERS
         if LBL:
             noise_sequence, weight = self.corrupt_example(correct_sequence)
-            noise_repr = noise_sequence[-1]
-            correct_repr = correct_sequence[-1]
+            noise_repr = noise_sequence[-1:]
+            correct_repr = correct_sequence[-1:]
+            assert noise_repr != correct_repr
             assert noise_sequence[:-1] == correct_sequence[:-1]
             sequence = correct_sequence[:-1]
             r = graph.train(self.embed(sequence), self.embed(correct_repr)[0], self.embed(noise_repr)[0], self.parameters)
-            (dsequence, loss, correct_score, noise_score, doutput_weights, doutput_biases) = r
+            (loss, predictrepr, correct_score, noise_score, dsequence, dcorrect_repr, dnoise_repr, doutput_weights, doutput_biases) = r
+            print
+            print "loss = ", loss
+            print "predictrepr = ", predictrepr
+            print "correct_repr = ", correct_repr
+            print "noise_repr = ", noise_repr
+            print "correct_score = ", correct_score
+            print "noise_score = ", noise_score
         else:
             noise_sequence, weight = self.corrupt_example(correct_sequence)
             r = graph.train(self.embed(correct_sequence), self.embed(noise_sequence), self.parameters)
@@ -130,7 +138,7 @@ class Model:
         embedding_learning_rate = HYPERPARAMETERS["EMBEDDING_LEARNING_RATE"] * weight
         if loss == 0:
             if LBL:
-                for di in dsequence + [doutput_weights, doutput_biases]:
+                for di in dsequence + [dcorrect_repr, dnoise_repr, doutput_weights, doutput_biases]:
                     assert (di == 0).all()
             else:
                 for di in dcorrect_inputs + dnoise_inputs + [dhidden_weights, dhidden_biases, doutput_weights, doutput_biases]:
@@ -143,13 +151,16 @@ class Model:
                 self.parameters.hidden_biases    -= 1.0 * learning_rate * dhidden_biases
             self.parameters.output_weights   -= 1.0 * learning_rate * doutput_weights
             self.parameters.output_biases    -= 1.0 * learning_rate * doutput_biases
-    
+
             import sets
             to_normalize = sets.Set()
 
             import math
             if LBL:
-                for (i, di) in zip(sequence, dsequence):
+                val = sequence + [correct_repr, noise_repr]
+                dval = dsequence + [dcorrect_repr, dnoise_repr]
+                for (i, di) in zip(val, dval):
+#                for (i, di) in zip(tuple(sequence + [correct_repr, noise_repr]), tuple(dsequence + [dcorrect_repr, dnoise_repr])):
                     assert di.shape[0] == 1
                     di.resize(di.size)
 #                    print i, di
@@ -184,13 +195,18 @@ class Model:
 #           print "NEW: loss = %.3f, correct score = %.3f, noise score = %.3f" % (loss, correct_score, noise_score)
 
     def predict(self, sequence):
-        (score) = graph.predict(self.embed(sequence), self.parameters)
-        return score
+        if LBL:
+            assert 0
+        else:
+            (score) = graph.predict(self.embed(sequence), self.parameters)
+            return score
 
     def verbose_predict(self, sequence):
-        (score, prehidden) = graph.verbose_predict(self.embed(sequence), self.parameters)
-        print score.shape
-        return score, prehidden
+        if LBL:
+            assert 0
+        else:
+            (score, prehidden) = graph.verbose_predict(self.embed(sequence), self.parameters)
+            return score, prehidden
 
     def validate(self, sequence):
         """

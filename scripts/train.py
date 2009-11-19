@@ -154,7 +154,7 @@ if __name__ == "__main__":
     import model
     m = model.Model()
     #validate(0)
-    verbose_predict(0)
+#    verbose_predict(0)
     embeddings_debug(0)
     epoch = 0
     cnt = 0
@@ -171,7 +171,7 @@ if __name__ == "__main__":
                 print >> sys.stderr, "Finished training step %d (epoch %d)" % (cnt, epoch)
             if cnt % 10000 == 0:
                 print >> sys.stderr, stats()
-                verbose_predict(cnt)
+#                verbose_predict(cnt)
                 embeddings_debug(cnt)
             if cnt % HYPERPARAMETERS["VALIDATE_EVERY"] == 0:
                 save_state(m, cnt)

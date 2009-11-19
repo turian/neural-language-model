@@ -11,8 +11,8 @@ VOCABULARY_SIZE: 651704
 # Use the log-bilinear model or not?
 # If True, we predict the Mnih log-bilinear model
 # If False, we predict the C&W language model.
-#LOG BILINEAR MODEL: True
-LOG BILINEAR MODEL: False
+LOG BILINEAR MODEL: True
+#LOG BILINEAR MODEL: False
 
 NORMALIZE_EMBEDDINGS: False
 #NORMALIZE_EMBEDDINGS: True
