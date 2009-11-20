@@ -152,7 +152,8 @@ if __name__ == "__main__":
     logfile = os.path.join(rundir, "log")
     verboselogfile = os.path.join(rundir, "log%s" % newkeystr)
     print >> sys.stderr, "Logging to %s, and creating link %s" % (logfile, verboselogfile)
-    os.system("ln -s log %s " % (verboselogfile))
+    if verboselogfile != "log":
+        os.system("ln -s log %s " % (verboselogfile))
     #logging.basicConfig(filename=logfile,level=logging.DEBUG)
     logging.basicConfig(filename=logfile, filemode="w", level=logging.DEBUG)
     logging.info(myyaml.dump(common.dump.vars_seq([hyperparameters, miscglobals])))
