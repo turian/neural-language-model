@@ -155,7 +155,7 @@ if __name__ == "__main__":
         print >> sys.stderr, "Logging to %s, and creating link %s" % (logfile, verboselogfile)
         os.system("ln -s log %s " % (verboselogfile))
     else:
-        print >> sys.stderr, "Logging to %s, not creating any link because of default settings"
+        print >> sys.stderr, "Logging to %s, not creating any link because of default settings" % logfile
     #logging.basicConfig(filename=logfile,level=logging.DEBUG)
     logging.basicConfig(filename=logfile, filemode="w", level=logging.DEBUG)
     logging.info(myyaml.dump(common.dump.vars_seq([hyperparameters, miscglobals])))
