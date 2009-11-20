@@ -69,22 +69,27 @@ def functions(sequence_length):
         sequence = [t.dmatrix() for i in range(sequence_length)]
         correct_repr = t.dmatrix()
         noise_repr = t.dmatrix()
+#        correct_scorebias = t.dscalar()
+#        noise_scorebias = t.dscalar()
+        correct_scorebias = t.dvector()
+        noise_scorebias = t.dvector()
 
         stackedsequence = stack(sequence)
         predictrepr = dot(stackedsequence, output_weights) + output_biases
 
-        correct_score = score(correct_repr, predictrepr)
-        noise_score = score(noise_repr, predictrepr)
+        correct_score = score(correct_repr, predictrepr) + correct_scorebias
+        noise_score = score(noise_repr, predictrepr) + noise_scorebias
         loss = t.clip(1 - correct_score + noise_score, 0, 1e999)
 
         (doutput_weights, doutput_biases) = t.grad(loss, [output_weights, output_biases])
         dsequence = t.grad(loss, sequence)
         (dcorrect_repr, dnoise_repr) = t.grad(loss, [correct_repr, noise_repr])
+        (dcorrect_scorebias, dnoise_scorebias) = t.grad(loss, [correct_scorebias, noise_scorebias])
         #print "REMOVEME", len(dcorrect_inputs)
-        predict_inputs = sequence + [correct_repr, output_weights, output_biases]
-        train_inputs = sequence + [correct_repr, noise_repr, output_weights, output_biases]
+        predict_inputs = sequence + [correct_repr, correct_scorebias, output_weights, output_biases]
+        train_inputs = sequence + [correct_repr, noise_repr, correct_scorebias, noise_scorebias, output_weights, output_biases]
         predict_outputs = [predictrepr, correct_score]
-        train_outputs = [loss, predictrepr, correct_score, noise_score] + dsequence + [dcorrect_repr, dnoise_repr, doutput_weights, doutput_biases]
+        train_outputs = [loss, predictrepr, correct_score, noise_score] + dsequence + [dcorrect_repr, dnoise_repr, doutput_weights, doutput_biases, dcorrect_scorebias, dnoise_scorebias]
 #        train_outputs = [loss, correct_repr, correct_score, noise_repr, noise_score]
 
         import theano.gof.graph
@@ -117,15 +122,17 @@ def functions(sequence_length):
 #        return fn(*(inputs + [parameters.hidden_weights, parameters.hidden_biases, parameters.output_weights, parameters.output_biases]))
 #
 
-def predict(sequence, targetrepr, parameters):
+def predict(sequence, targetrepr, target_scorebias, parameters):
     fn = functions(sequence_length=len(sequence))[0]
-    (predictrepr, score) = fn(*(sequence + [targetrepr, parameters.output_weights, parameters.output_biases]))
+    (predictrepr, score) = fn(*(sequence + [targetrepr, target_scorebias, parameters.output_weights, parameters.output_biases]))
     return predictrepr, score
 
-def train(sequence, correct_repr, noise_repr, parameters):
+def train(sequence, correct_repr, noise_repr, correct_scorebias, noise_scorebias, parameters):
     fn = functions(sequence_length=len(sequence))[1]
-    r = fn(*(sequence + [correct_repr, noise_repr, parameters.output_weights, parameters.output_biases]))
+#    print "REMOVEME", correct_scorebias, noise_scorebias
+#    print "REMOVEME", correct_scorebias[0], noise_scorebias[0]
+    r = fn(*(sequence + [correct_repr, noise_repr, correct_scorebias, noise_scorebias, parameters.output_weights, parameters.output_biases]))
 
-    (loss, predictrepr, correct_score, noise_score, dsequence, dcorrect_repr, dnoise_repr, doutput_weights, doutput_biases) = chopargs(r, (0,0,0,0,len(sequence),0,0,0,0))
+    (loss, predictrepr, correct_score, noise_score, dsequence, dcorrect_repr, dnoise_repr, doutput_weights, doutput_biases, dcorrect_scorebias, dnoise_scorebias) = chopargs(r, (0,0,0,0,len(sequence),0,0,0,0,0,0))
     dsequence = list(dsequence)
-    return (loss, predictrepr, correct_score, noise_score, dsequence, dcorrect_repr, dnoise_repr, doutput_weights, doutput_biases)
+    return (loss, predictrepr, correct_score, noise_score, dsequence, dcorrect_repr, dnoise_repr, doutput_weights, doutput_biases, dcorrect_scorebias, dnoise_scorebias)

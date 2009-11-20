@@ -89,8 +89,8 @@ class Model:
             assert noise_repr != correct_repr
             assert noise_sequence[:-1] == correct_sequence[:-1]
             sequence = correct_sequence[:-1]
-            r = graph.train(self.embed(sequence), self.embed(correct_repr)[0], self.embed(noise_repr)[0], self.parameters)
-            (loss, predictrepr, correct_score, noise_score, dsequence, dcorrect_repr, dnoise_repr, doutput_weights, doutput_biases) = r
+            r = graph.train(self.embed(sequence), self.embed(correct_repr)[0], self.embed(noise_repr)[0], self.parameters.score_biases[correct_repr], self.parameters.score_biases[noise_repr], self.parameters)
+            (loss, predictrepr, correct_score, noise_score, dsequence, dcorrect_repr, dnoise_repr, doutput_weights, doutput_biases, dcorrect_scorebias, dnoise_scorebias) = r
 #            print
 #            print "loss = ", loss
 #            print "predictrepr = ", predictrepr
@@ -134,6 +134,14 @@ class Model:
         if self.train_cnt % 10000 == 0:
             logging.info(("After %d updates, pre-update train loss %s" % (self.train_cnt, self.train_loss.verbose_string())))
             logging.info(("After %d updates, pre-update train error %s" % (self.train_cnt, self.train_err.verbose_string())))
+
+            i = 1.
+            while i < wordmap.len:
+                inti = int(i)
+                str = "word %s, rank %d, score %f" % (wordmap.str(inti), inti, self.parameters.score_biases[inti])
+                logging.info("After %d updates, score biases: %s" % (self.train_cnt, str))
+                i *= 3.2
+
 #            print(("After %d updates, pre-update train loss %s" % (self.train_cnt, self.train_loss.verbose_string())))
 #            print(("After %d updates, pre-update train error %s" % (self.train_cnt, self.train_err.verbose_string())))
 
@@ -180,6 +188,10 @@ class Model:
                     self.parameters.embeddings[i] -= 1.0 * embedding_learning_rate * di
                     if HYPERPARAMETERS["NORMALIZE_EMBEDDINGS"]:
                         to_normalize.add(i)
+
+                for (i, di) in zip([correct_repr, noise_repr], [dcorrect_scorebias, dnoise_scorebias]):
+                    self.parameters.score_biases[i] -= 1.0 * embedding_learning_rate * di
+#                    print "REMOVEME", i, self.parameters.score_biases[i]
             else:
                 for (i, di) in zip(correct_sequence, dcorrect_inputs):
                     assert di.shape[0] == 1
@@ -221,7 +233,7 @@ class Model:
         if LBL:
             targetrepr = sequence[-1:]
             sequence = sequence[:-1]
-            (predictrepr, score) = graph.predict(self.embed(sequence), self.embed(targetrepr)[0], self.parameters)
+            (predictrepr, score) = graph.predict(self.embed(sequence), self.embed(targetrepr)[0], self.parameters.score_biases[targetrepr], self.parameters)
             return score
         else:
             (score) = graph.predict(self.embed(sequence), self.parameters)

@@ -41,6 +41,7 @@ class Parameters:
         if LBL:
             self.output_weights = random_weights(self.input_size, self.output_size, scale_by=HYPERPARAMETERS["SCALE_INITIAL_WEIGHTS_BY"])
             self.output_biases = numpy.zeros((1, self.output_size))
+            self.score_biases = numpy.zeros(self.vocab_size)
         else:
             self.hidden_weights = random_weights(self.input_size, self.hidden_size, scale_by=HYPERPARAMETERS["SCALE_INITIAL_WEIGHTS_BY"])
             self.output_weights = random_weights(self.hidden_size, self.output_size, scale_by=HYPERPARAMETERS["SCALE_INITIAL_WEIGHTS_BY"])
