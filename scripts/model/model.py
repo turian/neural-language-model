@@ -86,12 +86,19 @@ class Model:
         from hyperparameters import HYPERPARAMETERS
         if LBL:
             noise_sequence, weight = self.corrupt_example(correct_sequence)
+#            noise_repr = noise_sequence[-1]
+#            correct_repr = correct_sequence[-1]
             noise_repr = noise_sequence[-1:]
             correct_repr = correct_sequence[-1:]
             assert noise_repr != correct_repr
             assert noise_sequence[:-1] == correct_sequence[:-1]
             sequence = correct_sequence[:-1]
+#            r = graph.train(self.embed(sequence), self.embed([correct_repr])[0], self.embed([noise_repr])[0], self.parameters.score_biases[correct_repr], self.parameters.score_biases[noise_repr], self.parameters)
             r = graph.train(self.embed(sequence), self.embed(correct_repr)[0], self.embed(noise_repr)[0], self.parameters.score_biases[correct_repr], self.parameters.score_biases[noise_repr], self.parameters)
+            assert len(noise_repr) == 1
+            assert len(correct_repr) == 1
+            noise_repr = noise_repr[0]
+            correct_repr = correct_repr[0]
             (loss, predictrepr, correct_score, noise_score, dsequence, dcorrect_repr, dnoise_repr, doutput_weights, doutput_biases, dcorrect_scorebias, dnoise_scorebias) = r
 #            print
 #            print "loss = ", loss
@@ -185,6 +192,7 @@ class Model:
             if LBL:
                 val = sequence + [correct_repr, noise_repr]
                 dval = dsequence + [dcorrect_repr, dnoise_repr]
+#                print val
                 for (i, di) in zip(val, dval):
 #                for (i, di) in zip(tuple(sequence + [correct_repr, noise_repr]), tuple(dsequence + [dcorrect_repr, dnoise_repr])):
                     assert di.shape[0] == 1
