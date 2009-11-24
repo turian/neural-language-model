@@ -112,15 +112,30 @@ def visualize(cnt, WORDCNT=500, randomized=False):
     except IOError:
         logging.info("ERROR visualizing", filename, ". Continuing...")
 
-def embeddings_debug(cnt):
-    e = m.parameters.embeddings[:100]
-    l2norm = numpy.sqrt(numpy.square(e).sum(axis=1))
-    logging.info("%d l2norm of top 100 words: mean = %f stddev=%f" % (cnt, numpy.mean(l2norm), numpy.std(l2norm),))
+def embeddings_debug(w, cnt, str):
+    """
+    Output the l2norm mean and max of the embeddings, including in debug out the str and training cnt
+    """
+    l2norm = numpy.sqrt(numpy.square(w).sum(axis=1))
+    logging.info("%d l2norm of %s: mean = %f stddev=%f" % (cnt, str, numpy.mean(l2norm), numpy.std(l2norm),))
 #    print("%d l2norm of top 100 words: mean = %f stddev=%f" % (cnt, numpy.mean(l2norm), numpy.std(l2norm),))
     l2norm = l2norm.tolist()
     l2norm.sort()
     l2norm.reverse()
-    logging.info("top 5 = %s" % `l2norm[:5]`)
+    logging.info("\ttop 5 = %s" % `l2norm[:5]`)
+#    print("top 5 = %s" % `l2norm[:5]`)
+
+def weights_debug(w, cnt, str):
+    """
+    Output the abs median, mean, and max of the weights w, including in debug out the str and training cnt
+    """
+    w = numpy.abs(w)
+    logging.info("%d abs of %s: median=%f mean=%f stddev=%f" % (cnt, str, numpy.median(w), numpy.mean(w), numpy.std(w),))
+#    print("%d l2norm of top 100 words: mean = %f stddev=%f" % (cnt, numpy.mean(l2norm), numpy.std(l2norm),))
+#    w = w.tolist()
+#    w.sort()
+#    w.reverse()
+#    logging.info("\ttop 5 = %s" % `w[:5]`)
 #    print("top 5 = %s" % `l2norm[:5]`)
 
 def save_state(m, cnt):
@@ -172,9 +187,10 @@ if __name__ == "__main__":
     m = model.Model()
     #validate(0)
 #    verbose_predict(0)
-    embeddings_debug(0)
     epoch = 0
     cnt = 0
+    embeddings_debug(m.parameters.embeddings[:100], 0, "top 100 words")
+    weights_debug(m.parameters.output_weights, cnt, "output weights")
     while 1:
         epoch += 1
         logging.info("STARTING EPOCH #%d" % epoch)
@@ -190,7 +206,8 @@ if __name__ == "__main__":
             if cnt % 10000 == 0:
                 logging.info(stats())
 #                verbose_predict(cnt)
-                embeddings_debug(cnt)
+                embeddings_debug(m.parameters.embeddings[:100], cnt, "top 100 words")
+                weights_debug(m.parameters.output_weights, cnt, "output weights")
             if cnt % HYPERPARAMETERS["VALIDATE_EVERY"] == 0:
                 save_state(m, cnt)
                 visualize(cnt, randomized=False)

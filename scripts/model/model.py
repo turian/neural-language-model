@@ -31,17 +31,19 @@ class Model:
         import sets
         self.train_loss = MovingAverage()
         self.train_err = MovingAverage()
+        self.train_lossnonzero = MovingAverage()
+        self.train_squashloss = MovingAverage()
         self.train_cnt = 0
 
     def load(self, filename):
         sys.stderr.write("Loading model from: %s\n" % filename)
         f = myopen(filename, "rb")
-        (self.parameters, self.train_loss, self.train_err, self.train_cnt) = pickle.load(f)
+        (self.parameters, self.train_loss, self.train_err, self.train_lossnonzero, self.train_squashloss, self.train_cnt) = pickle.load(f)
 
     def save(self, filename):
         sys.stderr.write("Saving model to: %s\n" % filename)
         f = myopen(filename, "wb")
-        pickle.dump((self.parameters, self.train_loss, self.train_err, self.train_cnt), f)
+        pickle.dump((self.parameters, self.train_loss, self.train_err, self.train_lossnonzero, self.train_squashloss, self.train_cnt), f)
 
     def embed(self, sequence):
         """
@@ -130,10 +132,15 @@ class Model:
 
         self.train_loss.add(loss)
         self.train_err.add(correct_score <= noise_score)
+        self.train_lossnonzero.add(loss > 0)
+        squashloss = 1./(1.+math.exp(-loss))
+        self.train_squashloss.add(squashloss)
         self.train_cnt += 1
         if self.train_cnt % 10000 == 0:
             logging.info(("After %d updates, pre-update train loss %s" % (self.train_cnt, self.train_loss.verbose_string())))
             logging.info(("After %d updates, pre-update train error %s" % (self.train_cnt, self.train_err.verbose_string())))
+            logging.info(("After %d updates, pre-update train Pr(loss != 0) %s" % (self.train_cnt, self.train_lossnonzero.verbose_string())))
+            logging.info(("After %d updates, pre-update train squash(loss) %s" % (self.train_cnt, self.train_squashloss.verbose_string())))
 
             i = 1.
             while i < wordmap.len:
@@ -166,7 +173,6 @@ class Model:
                     assert (di == 0).all()
 
         else:
-            import math
             if not LBL:
                 self.parameters.hidden_weights   -= 1.0 * learning_rate * dhidden_weights
                 self.parameters.hidden_biases    -= 1.0 * learning_rate * dhidden_biases
@@ -176,7 +182,6 @@ class Model:
             import sets
             to_normalize = sets.Set()
 
-            import math
             if LBL:
                 val = sequence + [correct_repr, noise_repr]
                 dval = dsequence + [dcorrect_repr, dnoise_repr]
