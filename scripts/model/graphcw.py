@@ -52,8 +52,7 @@ def stack(x):
     assert len(x) >= 2
     return horizontal_stack(*x)
 
-def score(inputs):
-    x = stack(inputs)
+def score(x):
     prehidden = dot(x, hidden_weights) + hidden_biases
     hidden = activation_function(prehidden)
     score = dot(hidden, output_weights) + output_biases
@@ -76,9 +75,19 @@ def functions(sequence_length):
         correct_inputs = [t.dmatrix() for i in range(sequence_length)]
         noise_inputs = [t.dmatrix() for i in range(sequence_length)]
 
-        correct_score, correct_prehidden = score(correct_inputs)
-        noise_score, noise_prehidden = score(noise_inputs)
-        loss = t.clip(1 - correct_score + noise_score, 0, 1e999)
+        stacked_correct_inputs = stack(correct_inputs)
+        stacked_noise_inputs = stack(noise_inputs)
+
+        correct_score, correct_prehidden = score(stacked_correct_inputs)
+        noise_score, noise_prehidden = score(stacked_noise_inputs)
+        unpenalized_loss = t.clip(1 - correct_score + noise_score, 0, 1e999)
+
+        from hyperparameters import HYPERPARAMETERS
+        if HYPERPARAMETERS["CW_EMBEDDING_L1_PENALTY"] != 0:
+            l1penalty = t.sum(t.abs_(stacked_correct_inputs) + t.abs_(stacked_noise_inputs)) * HYPERPARAMETERS["CW_EMBEDDING_L1_PENALTY"]
+        else:
+            l1penalty = 0
+        loss = unpenalized_loss + l1penalty
 
         (dhidden_weights, dhidden_biases, doutput_weights, doutput_biases) = t.grad(loss, [hidden_weights, hidden_biases, output_weights, output_biases])
         dcorrect_inputs = t.grad(loss, correct_inputs)
@@ -88,7 +97,7 @@ def functions(sequence_length):
         train_inputs = correct_inputs + noise_inputs + [hidden_weights, hidden_biases, output_weights, output_biases]
         verbose_predict_inputs = predict_inputs
         predict_outputs = [correct_score]
-        train_outputs = dcorrect_inputs + dnoise_inputs + [loss, correct_score, noise_score, dhidden_weights, dhidden_biases, doutput_weights, doutput_biases]
+        train_outputs = dcorrect_inputs + dnoise_inputs + [loss, unpenalized_loss, l1penalty, correct_score, noise_score, dhidden_weights, dhidden_biases, doutput_weights, doutput_biases]
         verbose_predict_outputs = [correct_score, correct_prehidden]
 
         import theano.gof.graph
@@ -148,5 +157,5 @@ def train(correct_sequence, noise_sequence, parameters):
     dnoise_inputs = r[:len(noise_sequence)]
     r = r[len(correct_sequence):]
 #    print "REMOVEME", len(dcorrect_inputs), len(dnoise_inputs)
-    (loss, correct_score, noise_score, dhidden_weights, dhidden_biases, doutput_weights, doutput_biases) = r
-    return (dcorrect_inputs, dnoise_inputs, loss, correct_score, noise_score, dhidden_weights, dhidden_biases, doutput_weights, doutput_biases)
+    (loss, unpenalized_loss, l1penalty, correct_score, noise_score, dhidden_weights, dhidden_biases, doutput_weights, doutput_biases) = r
+    return (dcorrect_inputs, dnoise_inputs, loss, unpenalized_loss, l1penalty, correct_score, noise_score, dhidden_weights, dhidden_biases, doutput_weights, doutput_biases)

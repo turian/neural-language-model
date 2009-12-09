@@ -5,14 +5,17 @@ locations: {"DATA_DIR": "/home/fringant2/lisa/turian/dev/python/language-model/d
 # Should we induce an embedding for OOV words?
 INCLUDE_UNKNOWN_WORD: True
 
-RUN_NAME: "rcv1.unclean.tokenized-CoNLL03.case-intact"
-VOCABULARY_SIZE: 651704
+RUN_NAME: "simplified-rcv1cleanbrown"
+VOCABULARY_SIZE: 1000
 
 # Use the log-bilinear model or not?
 # If True, we predict the Mnih log-bilinear model
 # If False, we predict the C&W language model.
-LOG BILINEAR MODEL: True
-#LOG BILINEAR MODEL: False
+#LOG BILINEAR MODEL: True
+LOG BILINEAR MODEL: False
+
+# l1 penalty appliedto C&W embeddings
+CW_EMBEDDING_L1_PENALTY: 0.
 
 NORMALIZE_EMBEDDINGS: False
 #NORMALIZE_EMBEDDINGS: True
@@ -37,13 +40,15 @@ NGRAM_FOR_TRAINING_NOISE: 0
 TRAINING_NOISE_SMOOTHING_ADDITION: 0
 
 # Each embedded word representation has this width
-EMBEDDING_SIZE: 50
+#EMBEDDING_SIZE: 50
+EMBEDDING_SIZE: 20
 #EMBEDDING_SIZE: 5
 
 # Predict with a window of five words at a time
 WINDOW_SIZE: 5
 
-HIDDEN_SIZE: 100
+#HIDDEN_SIZE: 100
+HIDDEN_SIZE: 40
 #HIDDEN_SIZE: 10
 
 #: Scaling value to control range for weight initialization
