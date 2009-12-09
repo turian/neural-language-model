@@ -23,7 +23,7 @@ def get_example(f):
 if __name__ == "__main__":
     import common.hyperparameters, common.options
     HYPERPARAMETERS = common.hyperparameters.read("language-model")
-    HYPERPARAMETERS, options, args = common.options.reparse(HYPERPARAMETERS)
+    HYPERPARAMETERS, options, args, newkeystr = common.options.reparse(HYPERPARAMETERS)
     import hyperparameters
 
     print >> sys.stderr, "Reading examples from %s" % HYPERPARAMETERS["ORIGINAL VALIDATION_SENTENCES"]

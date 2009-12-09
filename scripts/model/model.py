@@ -149,12 +149,13 @@ class Model:
             logging.info(("After %d updates, pre-update train Pr(loss != 0) %s" % (self.train_cnt, self.train_lossnonzero.verbose_string())))
             logging.info(("After %d updates, pre-update train squash(loss) %s" % (self.train_cnt, self.train_squashloss.verbose_string())))
 
-            i = 1.
-            while i < wordmap.len:
-                inti = int(i)
-                str = "word %s, rank %d, score %f" % (wordmap.str(inti), inti, self.parameters.score_biases[inti])
-                logging.info("After %d updates, score biases: %s" % (self.train_cnt, str))
-                i *= 3.2
+            if LBL:
+                i = 1.
+                while i < wordmap.len:
+                    inti = int(i)
+                    str = "word %s, rank %d, score %f" % (wordmap.str(inti), inti, self.parameters.score_biases[inti])
+                    logging.info("After %d updates, score biases: %s" % (self.train_cnt, str))
+                    i *= 3.2
 
 #            print(("After %d updates, pre-update train loss %s" % (self.train_cnt, self.train_loss.verbose_string())))
 #            print(("After %d updates, pre-update train error %s" % (self.train_cnt, self.train_err.verbose_string())))
