@@ -52,7 +52,7 @@
 dbidispatch --exp_dir="T" ./train.py \
     '--no_LOG_BILINEAR_MODEL' \
     '--no_NORMALIZE_EMBEDDINGS' \
-    '--EMBEDDING_SIZE=20' \
+    '--EMBEDDING_SIZE={{100,200}}' \
     '--HIDDEN_SIZE=40' \
     '--CW_EMBEDDING_L1_PENALTY={{0.1,0.01,0.001}}' \
     '--NGRAM_FOR_TRAINING_NOISE=0' \
