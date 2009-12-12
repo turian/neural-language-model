@@ -86,7 +86,7 @@ def functions(sequence_length):
         if HYPERPARAMETERS["CW_EMBEDDING_L1_PENALTY"] != 0:
             l1penalty = t.sum(t.abs_(stacked_correct_inputs) + t.abs_(stacked_noise_inputs)) * HYPERPARAMETERS["CW_EMBEDDING_L1_PENALTY"]
         else:
-            l1penalty = 0
+            l1penalty = t.as_tensor_variable(0)
         loss = unpenalized_loss + l1penalty
 
         (dhidden_weights, dhidden_biases, doutput_weights, doutput_biases) = t.grad(loss, [hidden_weights, hidden_biases, output_weights, output_biases])
