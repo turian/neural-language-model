@@ -208,6 +208,10 @@ if __name__ == "__main__":
 #                verbose_predict(cnt)
                 embeddings_debug(m.parameters.embeddings[:100], cnt, "top 100 words")
                 weights_debug(m.parameters.output_weights, cnt, "output weights")
+                if os.path.exists(os.path.join(rundir, "BAD")):
+                    logging.info("Detected file: %s\nSTOPPING" % os.path.join(rundir, "BAD"))
+                    sys.stderr.write("Detected file: %s\nSTOPPING\n" % os.path.join(rundir, "BAD"))
+                    sys.exit(0)
             if cnt % HYPERPARAMETERS["VALIDATE_EVERY"] == 0:
                 save_state(m, cnt)
                 visualize(cnt, randomized=False)
