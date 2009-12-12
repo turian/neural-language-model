@@ -1,5 +1,8 @@
 #!/bin/sh
 
+rm *trainerror.dat *trainloss.dat *validationlogrankloss.dat
+#rm ../run*/*trainerror.dat ../run*/*trainloss.dat ../run*/*validationlogrankloss.dat
+
 # Make all dat files
 ../../eda/make-graphs-trainerror.pl
 ../../eda/make-graphs-trainloss.pl

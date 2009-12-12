@@ -6,7 +6,10 @@
 $gnuplot = "plot";
 $first = 1;
 #foreach $f (split(/[\r\n]+/, `ls [0-9]*out`)) {
-foreach $f (split(/[\r\n]+/, `ls ../*/log.* | grep -v 'dat\$'`)) {
+foreach $f (split(/[\r\n]+/, `ls ../run*/log.* | grep -v 'dat\$'`)) {
+    next if $f =~ m/\.dat$/;
+    ($badf = $f) =~ s/\/[^\/]*$/\/BAD/;
+    next if -e $badf;
     ($fnew = $f) =~ s/$/-validationlogrankloss.dat/;
     die $! if $fnew eq $f;
     print STDERR "$f => $fnew\n";

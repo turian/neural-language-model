@@ -22,5 +22,7 @@ while 1:
         newf = os.path.join(d, "BAD")
         print newf
         if os.path.exists(newf): continue
-        print >> sys.stderr, "Creating %s" % newf
+        cmd = "rm %s" % os.path.join(d, "*.dat")
+        print >> sys.stderr, "Creating %s, %s" % (newf, cmd)
         open(newf, "wt").close()
+        os.system("rm %s" % os.path.join(d, "*.dat"))
