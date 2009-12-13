@@ -75,7 +75,7 @@ def verbose_predict(cnt):
         abs_prehidden = abs_prehidden[0]
         abs_prehidden.sort()
         abs_prehidden.reverse()
-        logging.info(cnt, "AbsPrehidden median =", med, "max =", abs_prehidden[:5])
+        logging.info("%s %s %s %s %s" % (cnt, "AbsPrehidden median =", med, "max =", abs_prehidden[:5]))
         if i > 5: break
 
 def visualize(cnt, WORDCNT=500, randomized=False):
@@ -186,7 +186,7 @@ if __name__ == "__main__":
     import model
     m = model.Model()
     #validate(0)
-#    verbose_predict(0)
+    verbose_predict(0)
     epoch = 0
     cnt = 0
     embeddings_debug(m.parameters.embeddings[:100], 0, "top 100 words")
@@ -205,7 +205,7 @@ if __name__ == "__main__":
 #                print ("Finished training step %d (epoch %d)" % (cnt, epoch))
             if cnt % 10000 == 0:
                 logging.info(stats())
-#                verbose_predict(cnt)
+                verbose_predict(cnt)
                 embeddings_debug(m.parameters.embeddings[:100], cnt, "top 100 words")
                 weights_debug(m.parameters.output_weights, cnt, "output weights")
                 if os.path.exists(os.path.join(rundir, "BAD")):
