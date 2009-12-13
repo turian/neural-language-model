@@ -36,7 +36,7 @@ class Parameters:
 
         from pylearn.algorithms.weights import random_weights
         numpy.random.seed(seed)
-        self.embeddings = numpy.random.rand(self.vocab_size, HYPERPARAMETERS["EMBEDDING_SIZE"]) * 2 - 1
+        self.embeddings = (numpy.random.rand(self.vocab_size, HYPERPARAMETERS["EMBEDDING_SIZE"]) - 0.5)*2 * HYPERPARAMETERS["INITIAL_EMBEDDING_RANGE"]
         if HYPERPARAMETERS["NORMALIZE_EMBEDDINGS"]: self.normalize(range(self.vocab_size))
         if LBL:
             self.output_weights = random_weights(self.input_size, self.output_size, scale_by=HYPERPARAMETERS["SCALE_INITIAL_WEIGHTS_BY"])
