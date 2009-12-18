@@ -3,6 +3,8 @@ Theano graph of Collobert & Weston language model.
 """
 
 import theano
+import theano.sandbox.cuda
+theano.sandbox.cuda.use()
 
 from theano import tensor as t
 from theano import scalar as s
@@ -15,20 +17,22 @@ from theano import gradient
 import theano.compile
 #from miscglobals import LINKER, OPTIMIZER
 #mode = theano.compile.Mode(LINKER, OPTIMIZER)
+import theano.compile.debugmode
+#COMPILE_MODE = theano.compile.debugmode.DebugMode(optimizer='fast_run', check_isfinite=False)
 COMPILE_MODE = theano.compile.Mode('c|py', 'fast_run')
 #COMPILE_MODE = theano.compile.Mode('py', 'fast_compile')
 
 import numpy
 
-hidden_weights = t.dmatrix()
-hidden_biases = t.dmatrix()
+hidden_weights = t.xmatrix()
+hidden_biases = t.xmatrix()
 
 #if HYPERPARAMETERS["USE_SECOND_HIDDEN_LAYER"] == True:
-#    hidden2_weights = t.dmatrix()
-#    hidden2_biases = t.dmatrix()
+#    hidden2_weights = t.xmatrix()
+#    hidden2_biases = t.xmatrix()
 
-output_weights = t.dmatrix()
-output_biases = t.dmatrix()
+output_weights = t.xmatrix()
+output_biases = t.xmatrix()
 
 # TODO: Include gradient steps in actual function, don't do them manually
 
@@ -69,11 +73,11 @@ def functions(sequence_length):
     if p not in cached_functions:
         print "Need to construct graph for sequence_length=%d..." % (sequence_length)
         # Create the sequence_length inputs.
-        # Each is a t.dmatrix(), initial word embeddings (provided by
+        # Each is a t.xmatrix(), initial word embeddings (provided by
         # Jason + Ronan) to be transformed into an initial representation.
         # We could use a vector, but instead we use a matrix with one row.
-        correct_inputs = [t.dmatrix() for i in range(sequence_length)]
-        noise_inputs = [t.dmatrix() for i in range(sequence_length)]
+        correct_inputs = [t.xmatrix() for i in range(sequence_length)]
+        noise_inputs = [t.xmatrix() for i in range(sequence_length)]
 
         stacked_correct_inputs = stack(correct_inputs)
         stacked_noise_inputs = stack(noise_inputs)

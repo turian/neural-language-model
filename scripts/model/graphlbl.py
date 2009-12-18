@@ -3,6 +3,8 @@ Theano graph of Mnih log bi-linear model.
 """
 
 import theano
+import theano.sandbox.cuda
+theano.sandbox.cuda.use()
 
 from theano import tensor as t
 from theano import scalar as s
@@ -22,8 +24,8 @@ import numpy
 
 from common.chopargs import chopargs
 
-output_weights = t.dmatrix()
-output_biases = t.dmatrix()
+output_weights = t.xmatrix()
+output_biases = t.xmatrix()
 
 # TODO: Include gradient steps in actual function, don't do them manually
 
@@ -63,16 +65,16 @@ def functions(sequence_length):
     if p not in cached_functions:
         print "Need to construct graph for sequence_length=%d..." % (sequence_length)
         # Create the sequence_length inputs.
-        # Each is a t.dmatrix(), initial word embeddings (provided by
+        # Each is a t.xmatrix(), initial word embeddings (provided by
         # Jason + Ronan) to be transformed into an initial representation.
         # We could use a vector, but instead we use a matrix with one row.
-        sequence = [t.dmatrix() for i in range(sequence_length)]
-        correct_repr = t.dmatrix()
-        noise_repr = t.dmatrix()
-#        correct_scorebias = t.dscalar()
-#        noise_scorebias = t.dscalar()
-        correct_scorebias = t.dvector()
-        noise_scorebias = t.dvector()
+        sequence = [t.xmatrix() for i in range(sequence_length)]
+        correct_repr = t.xmatrix()
+        noise_repr = t.xmatrix()
+#        correct_scorebias = t.xscalar()
+#        noise_scorebias = t.xscalar()
+        correct_scorebias = t.xvector()
+        noise_scorebias = t.xvector()
 
         stackedsequence = stack(sequence)
         predictrepr = dot(stackedsequence, output_weights) + output_biases

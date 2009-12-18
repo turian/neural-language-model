@@ -2,7 +2,9 @@
 @todo: WRITEME
 """
 
-from hyperparameters import HYPERPARAMETERS
+import theano.config
+
+floatX = theano.config.config.get('scalar.floatX')
 
 from hyperparameters import HYPERPARAMETERS
 LBL = HYPERPARAMETERS["LOG BILINEAR MODEL"]
@@ -36,17 +38,17 @@ class Parameters:
 
         from pylearn.algorithms.weights import random_weights
         numpy.random.seed(seed)
-        self.embeddings = (numpy.random.rand(self.vocab_size, HYPERPARAMETERS["EMBEDDING_SIZE"]) - 0.5)*2 * HYPERPARAMETERS["INITIAL_EMBEDDING_RANGE"]
+        self.embeddings = numpy.asarray((numpy.random.rand(self.vocab_size, HYPERPARAMETERS["EMBEDDING_SIZE"]) - 0.5)*2 * HYPERPARAMETERS["INITIAL_EMBEDDING_RANGE"], dtype=floatX)
         if HYPERPARAMETERS["NORMALIZE_EMBEDDINGS"]: self.normalize(range(self.vocab_size))
         if LBL:
-            self.output_weights = random_weights(self.input_size, self.output_size, scale_by=HYPERPARAMETERS["SCALE_INITIAL_WEIGHTS_BY"])
-            self.output_biases = numpy.zeros((1, self.output_size))
-            self.score_biases = numpy.zeros(self.vocab_size)
+            self.output_weights = numpy.asarray(random_weights(self.input_size, self.output_size, scale_by=HYPERPARAMETERS["SCALE_INITIAL_WEIGHTS_BY"]), dtype=floatX)
+            self.output_biases = numpy.asarray(numpy.zeros((1, self.output_size)), dtype=floatX)
+            self.score_biases = numpy.asarray(numpy.zeros(self.vocab_size), dtype=floatX)
         else:
-            self.hidden_weights = random_weights(self.input_size, self.hidden_size, scale_by=HYPERPARAMETERS["SCALE_INITIAL_WEIGHTS_BY"])
-            self.output_weights = random_weights(self.hidden_size, self.output_size, scale_by=HYPERPARAMETERS["SCALE_INITIAL_WEIGHTS_BY"])
-            self.hidden_biases = numpy.zeros((1, self.hidden_size))
-            self.output_biases = numpy.zeros((1, self.output_size))
+            self.hidden_weights = numpy.asarray(random_weights(self.input_size, self.hidden_size, scale_by=HYPERPARAMETERS["SCALE_INITIAL_WEIGHTS_BY"]), dtype=floatX)
+            self.output_weights = numpy.asarray(random_weights(self.hidden_size, self.output_size, scale_by=HYPERPARAMETERS["SCALE_INITIAL_WEIGHTS_BY"]), dtype=floatX)
+            self.hidden_biases = numpy.asarray(numpy.zeros((1, self.hidden_size)), dtype=floatX)
+            self.output_biases = numpy.asarray(numpy.zeros((1, self.output_size)), dtype=floatX)
 
     input_size = property(lambda self:
                                 LBL*((self.window_size-1) * self.embedding_size) + (1-LBL)*(self.window_size * self.embedding_size))
