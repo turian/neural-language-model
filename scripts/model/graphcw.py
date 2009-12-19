@@ -152,7 +152,7 @@ def verbose_predict(correct_sequence, parameters):
     (score, prehidden) = r
     assert score.shape == (1, 1)
     return score[0,0], prehidden
-def train(correct_sequence, noise_sequence, parameters):
+def train(correct_sequence, noise_sequence, parameters, learning_rate):
     assert len(correct_sequence) == len(noise_sequence)
     fn = functions(sequence_length=len(correct_sequence))[1]
     r = fn(*(correct_sequence + noise_sequence + [parameters.hidden_weights, parameters.hidden_biases, parameters.output_weights, parameters.output_biases]))
@@ -162,4 +162,13 @@ def train(correct_sequence, noise_sequence, parameters):
     r = r[len(correct_sequence):]
 #    print "REMOVEME", len(dcorrect_inputs), len(dnoise_inputs)
     (loss, unpenalized_loss, l1penalty, correct_score, noise_score, dhidden_weights, dhidden_biases, doutput_weights, doutput_biases) = r
-    return (dcorrect_inputs, dnoise_inputs, loss, unpenalized_loss, l1penalty, correct_score, noise_score, dhidden_weights, dhidden_biases, doutput_weights, doutput_biases)
+    if loss == 0:
+        for di in [dhidden_weights, dhidden_biases, doutput_weights, doutput_biases]:
+            assert (di == 0).all()
+
+    parameters.hidden_weights   -= 1.0 * learning_rate * dhidden_weights
+    parameters.hidden_biases    -= 1.0 * learning_rate * dhidden_biases
+    parameters.output_weights   -= 1.0 * learning_rate * doutput_weights
+    parameters.output_biases    -= 1.0 * learning_rate * doutput_biases
+
+    return (dcorrect_inputs, dnoise_inputs, loss, unpenalized_loss, l1penalty, correct_score, noise_score)

@@ -87,6 +87,7 @@ class Model:
 
     def train(self, correct_sequence):
         from hyperparameters import HYPERPARAMETERS
+        learning_rate = HYPERPARAMETERS["LEARNING_RATE"]
         if LBL:
             noise_sequence, weight = self.corrupt_example(correct_sequence)
 #            noise_repr = noise_sequence[-1]
@@ -97,12 +98,12 @@ class Model:
             assert noise_sequence[:-1] == correct_sequence[:-1]
             sequence = correct_sequence[:-1]
 #            r = graph.train(self.embed(sequence), self.embed([correct_repr])[0], self.embed([noise_repr])[0], self.parameters.score_biases[correct_repr], self.parameters.score_biases[noise_repr], self.parameters)
-            r = graph.train(self.embed(sequence), self.embed(correct_repr)[0], self.embed(noise_repr)[0], self.parameters.score_biases[correct_repr], self.parameters.score_biases[noise_repr], self.parameters)
+            r = graph.train(self.embed(sequence), self.embed(correct_repr)[0], self.embed(noise_repr)[0], self.parameters.score_biases[correct_repr], self.parameters.score_biases[noise_repr], self.parameters, learning_rate * weight)
             assert len(noise_repr) == 1
             assert len(correct_repr) == 1
             noise_repr = noise_repr[0]
             correct_repr = correct_repr[0]
-            (loss, predictrepr, correct_score, noise_score, dsequence, dcorrect_repr, dnoise_repr, doutput_weights, doutput_biases, dcorrect_scorebias, dnoise_scorebias) = r
+            (loss, predictrepr, correct_score, noise_score, dsequence, dcorrect_repr, dnoise_repr, dcorrect_scorebias, dnoise_scorebias) = r
 #            print
 #            print "loss = ", loss
 #            print "predictrepr = ", predictrepr
@@ -112,8 +113,8 @@ class Model:
 #            print "noise_score = ", noise_score
         else:
             noise_sequence, weight = self.corrupt_example(correct_sequence)
-            r = graph.train(self.embed(correct_sequence), self.embed(noise_sequence), self.parameters)
-            (dcorrect_inputs, dnoise_inputs, loss, unpenalized_loss, l1penalty, correct_score, noise_score, dhidden_weights, dhidden_biases, doutput_weights, doutput_biases) = r
+            r = graph.train(self.embed(correct_sequence), self.embed(noise_sequence), self.parameters, learning_rate * weight)
+            (dcorrect_inputs, dnoise_inputs, loss, unpenalized_loss, l1penalty, correct_score, noise_score) = r
 #            print unpenalized_loss, l1penalty, self.embed(correct_sequence), self.embed(noise_sequence)
 #        print loss, correct_score, noise_score,
 #        print loss, correct_score, noise_score
@@ -173,33 +174,26 @@ class Model:
 #            print(("After %d updates, pre-update train loss %s" % (self.train_cnt, self.train_loss.verbose_string())))
 #            print(("After %d updates, pre-update train error %s" % (self.train_cnt, self.train_err.verbose_string())))
 
-        learning_rate = HYPERPARAMETERS["LEARNING_RATE"] * weight
         embedding_learning_rate = HYPERPARAMETERS["EMBEDDING_LEARNING_RATE"] * weight
         if loss == 0:
             if LBL:
-                for di in dsequence + [dcorrect_repr, dnoise_repr, doutput_weights, doutput_biases]:
+                for di in dsequence + [dcorrect_repr, dnoise_repr]:
                     # This tends to trigger if training diverges (NaN)
                     assert (di == 0).all()
-#                    if not (di == 0).all():
-#                        print "WARNING:", di
-#                        print "WARNING in ", dsequence + [dcorrect_repr, dnoise_repr, doutput_weights, doutput_biases]
-#                        print "loss = ", loss
-#                        print "predictrepr = ", predictrepr
-#                        print "correct_repr = ", correct_repr, self.embed(correct_repr)[0]
-#                        print "noise_repr = ", noise_repr, self.embed(noise_repr)[0]
-#                        print "correct_score = ", correct_score
-#                        print "noise_score = ", noise_score
+#                if not (di == 0).all():
+#                    print "WARNING:", di
+#                    print "WARNING in ", dsequence + [dcorrect_repr, dnoise_repr]
+#                    print "loss = ", loss
+#                    print "predictrepr = ", predictrepr
+#                    print "correct_repr = ", correct_repr, self.embed(correct_repr)[0]
+#                    print "noise_repr = ", noise_repr, self.embed(noise_repr)[0]
+#                    print "correct_score = ", correct_score
+#                    print "noise_score = ", noise_score
             else:
-                for di in dcorrect_inputs + dnoise_inputs + [dhidden_weights, dhidden_biases, doutput_weights, doutput_biases]:
+                for di in dcorrect_inputs + dnoise_inputs:
                     assert (di == 0).all()
 
-        else:
-            if not LBL:
-                self.parameters.hidden_weights   -= 1.0 * learning_rate * dhidden_weights
-                self.parameters.hidden_biases    -= 1.0 * learning_rate * dhidden_biases
-            self.parameters.output_weights   -= 1.0 * learning_rate * doutput_weights
-            self.parameters.output_biases    -= 1.0 * learning_rate * doutput_biases
-
+        if loss != 0:
             import sets
             to_normalize = sets.Set()
 

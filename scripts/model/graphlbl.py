@@ -129,12 +129,20 @@ def predict(sequence, targetrepr, target_scorebias, parameters):
     (predictrepr, score) = fn(*(sequence + [targetrepr, target_scorebias, parameters.output_weights, parameters.output_biases]))
     return predictrepr, score
 
-def train(sequence, correct_repr, noise_repr, correct_scorebias, noise_scorebias, parameters):
+def train(sequence, correct_repr, noise_repr, correct_scorebias, noise_scorebias, parameters, learning_rate):
     fn = functions(sequence_length=len(sequence))[1]
 #    print "REMOVEME", correct_scorebias, noise_scorebias
 #    print "REMOVEME", correct_scorebias[0], noise_scorebias[0]
     r = fn(*(sequence + [correct_repr, noise_repr, correct_scorebias, noise_scorebias, parameters.output_weights, parameters.output_biases]))
 
     (loss, predictrepr, correct_score, noise_score, dsequence, dcorrect_repr, dnoise_repr, doutput_weights, doutput_biases, dcorrect_scorebias, dnoise_scorebias) = chopargs(r, (0,0,0,0,len(sequence),0,0,0,0,0,0))
+    if loss == 0:
+        for di in [doutput_weights, doutput_biases]:
+            # This tends to trigger if training diverges (NaN)
+            assert (di == 0).all()
+
+    parameters.output_weights   -= 1.0 * learning_rate * doutput_weights
+    parameters.output_biases    -= 1.0 * learning_rate * doutput_biases
+
     dsequence = list(dsequence)
-    return (loss, predictrepr, correct_score, noise_score, dsequence, dcorrect_repr, dnoise_repr, doutput_weights, doutput_biases, dcorrect_scorebias, dnoise_scorebias)
+    return (loss, predictrepr, correct_score, noise_score, dsequence, dcorrect_repr, dnoise_repr, dcorrect_scorebias, dnoise_scorebias)
