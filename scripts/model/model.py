@@ -1,4 +1,3 @@
-
 from parameters import Parameters
 
 from hyperparameters import HYPERPARAMETERS
@@ -28,6 +27,17 @@ class Model:
 
     def __init__(self):
         self.parameters = Parameters()
+        if LBL:
+            graph.output_weights = self.parameters.output_weights
+            graph.output_biases = self.parameters.output_biases
+            graph.score_biases = self.parameters.score_biases
+        else:
+            graph.hidden_weights = self.parameters.hidden_weights
+            graph.hidden_biases = self.parameters.hidden_biases
+            graph.output_weights = self.parameters.output_weights
+            graph.output_biases = self.parameters.output_biases
+
+#        (self.graph_train, self.graph_predict, self.graph_verbose_predict) = graph.functions(self.parameters)
         import sets
         self.train_loss = MovingAverage()
         self.train_err = MovingAverage()
@@ -97,8 +107,8 @@ class Model:
             assert noise_repr != correct_repr
             assert noise_sequence[:-1] == correct_sequence[:-1]
             sequence = correct_sequence[:-1]
-#            r = graph.train(self.embed(sequence), self.embed([correct_repr])[0], self.embed([noise_repr])[0], self.parameters.score_biases[correct_repr], self.parameters.score_biases[noise_repr], self.parameters)
-            r = graph.train(self.embed(sequence), self.embed(correct_repr)[0], self.embed(noise_repr)[0], self.parameters.score_biases[correct_repr], self.parameters.score_biases[noise_repr], self.parameters, learning_rate * weight)
+#            r = graph.train(self.embed(sequence), self.embed([correct_repr])[0], self.embed([noise_repr])[0], self.parameters.score_biases[correct_repr], self.parameters.score_biases[noise_repr])
+            r = graph.train(self.embed(sequence), self.embed(correct_repr)[0], self.embed(noise_repr)[0], self.parameters.score_biases[correct_repr], self.parameters.score_biases[noise_repr], learning_rate * weight)
             assert len(noise_repr) == 1
             assert len(correct_repr) == 1
             noise_repr = noise_repr[0]
@@ -113,7 +123,7 @@ class Model:
 #            print "noise_score = ", noise_score
         else:
             noise_sequence, weight = self.corrupt_example(correct_sequence)
-            r = graph.train(self.embed(correct_sequence), self.embed(noise_sequence), self.parameters, learning_rate * weight)
+            r = graph.train(self.embed(correct_sequence), self.embed(noise_sequence), learning_rate * weight)
             (dcorrect_inputs, dnoise_inputs, loss, unpenalized_loss, l1penalty, correct_score, noise_score) = r
 #            print unpenalized_loss, l1penalty, self.embed(correct_sequence), self.embed(noise_sequence)
 #        print loss, correct_score, noise_score,

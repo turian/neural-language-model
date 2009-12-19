@@ -24,8 +24,8 @@ import numpy
 
 from common.chopargs import chopargs
 
-output_weights = t.xmatrix()
-output_biases = t.xmatrix()
+#output_weights = t.xmatrix()
+#output_biases = t.xmatrix()
 
 # TODO: Include gradient steps in actual function, don't do them manually
 
@@ -61,7 +61,12 @@ def functions(sequence_length):
      * The first function does prediction.
      * The second function does learning.
     """
+    global cached_functions
     p = (sequence_length)
+    if len(cached_functions.keys()) > 1:
+        # This is problematic because we use global variables for the model parameters.
+        # Hence, we might be unsafe, if we are using the wrong model parameters globally.
+        assert 0
     if p not in cached_functions:
         print "Need to construct graph for sequence_length=%d..." % (sequence_length)
         # Create the sequence_length inputs.
@@ -124,16 +129,16 @@ def functions(sequence_length):
 #        return fn(*(inputs + [parameters.hidden_weights, parameters.hidden_biases, parameters.output_weights, parameters.output_biases]))
 #
 
-def predict(sequence, targetrepr, target_scorebias, parameters):
+def predict(sequence, targetrepr, target_scorebias):
     fn = functions(sequence_length=len(sequence))[0]
-    (predictrepr, score) = fn(*(sequence + [targetrepr, target_scorebias, parameters.output_weights, parameters.output_biases]))
+    (predictrepr, score) = fn(*(sequence + [targetrepr, target_scorebias]))
     return predictrepr, score
 
-def train(sequence, correct_repr, noise_repr, correct_scorebias, noise_scorebias, parameters, learning_rate):
+def train(sequence, correct_repr, noise_repr, correct_scorebias, noise_scorebias, learning_rate):
     fn = functions(sequence_length=len(sequence))[1]
 #    print "REMOVEME", correct_scorebias, noise_scorebias
 #    print "REMOVEME", correct_scorebias[0], noise_scorebias[0]
-    r = fn(*(sequence + [correct_repr, noise_repr, correct_scorebias, noise_scorebias, parameters.output_weights, parameters.output_biases]))
+    r = fn(*(sequence + [correct_repr, noise_repr, correct_scorebias, noise_scorebias]))
 
     (loss, predictrepr, correct_score, noise_score, dsequence, dcorrect_repr, dnoise_repr, doutput_weights, doutput_biases, dcorrect_scorebias, dnoise_scorebias) = chopargs(r, (0,0,0,0,len(sequence),0,0,0,0,0,0))
     if loss == 0:
@@ -143,6 +148,9 @@ def train(sequence, correct_repr, noise_repr, correct_scorebias, noise_scorebias
 
     parameters.output_weights   -= 1.0 * learning_rate * doutput_weights
     parameters.output_biases    -= 1.0 * learning_rate * doutput_biases
+
+    # You also need to update score_biases here
+    assert 0
 
     dsequence = list(dsequence)
     return (loss, predictrepr, correct_score, noise_score, dsequence, dcorrect_repr, dnoise_repr, dcorrect_scorebias, dnoise_scorebias)

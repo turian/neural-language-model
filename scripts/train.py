@@ -190,7 +190,7 @@ if __name__ == "__main__":
     epoch = 0
     cnt = 0
     embeddings_debug(m.parameters.embeddings[:100], 0, "top 100 words")
-    weights_debug(m.parameters.output_weights, cnt, "output weights")
+    weights_debug(m.parameters.output_weights.value, cnt, "output weights")
     while 1:
         epoch += 1
         logging.info("STARTING EPOCH #%d" % epoch)
@@ -207,7 +207,7 @@ if __name__ == "__main__":
                 logging.info(stats())
                 verbose_predict(cnt)
                 embeddings_debug(m.parameters.embeddings[:100], cnt, "top 100 words")
-                weights_debug(m.parameters.output_weights, cnt, "output weights")
+                weights_debug(m.parameters.output_weights.value, cnt, "output weights")
                 if os.path.exists(os.path.join(rundir, "BAD")):
                     logging.info("Detected file: %s\nSTOPPING" % os.path.join(rundir, "BAD"))
                     sys.stderr.write("Detected file: %s\nSTOPPING\n" % os.path.join(rundir, "BAD"))

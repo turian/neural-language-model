@@ -6,6 +6,10 @@ import theano
 import theano.sandbox.cuda
 theano.sandbox.cuda.use()
 
+from theano.compile.sandbox import pfunc, shared
+floatX = theano.config.config.get('scalar.floatX')
+
+
 from theano import tensor as t
 from theano import scalar as s
 
@@ -17,22 +21,24 @@ from theano import gradient
 import theano.compile
 #from miscglobals import LINKER, OPTIMIZER
 #mode = theano.compile.Mode(LINKER, OPTIMIZER)
-import theano.compile.debugmode
+#import theano.compile.debugmode
 #COMPILE_MODE = theano.compile.debugmode.DebugMode(optimizer='fast_run', check_isfinite=False)
-COMPILE_MODE = theano.compile.Mode('c|py', 'fast_run')
+import theano.compile.profilemode
+COMPILE_MODE = theano.compile.profilemode.ProfileMode()
+#COMPILE_MODE = theano.compile.Mode('c|py', 'fast_run')
 #COMPILE_MODE = theano.compile.Mode('py', 'fast_compile')
 
 import numpy
 
-hidden_weights = t.xmatrix()
-hidden_biases = t.xmatrix()
+#hidden_weights = t.xmatrix()
+#hidden_biases = t.xmatrix()
 
 #if HYPERPARAMETERS["USE_SECOND_HIDDEN_LAYER"] == True:
 #    hidden2_weights = t.xmatrix()
 #    hidden2_biases = t.xmatrix()
 
-output_weights = t.xmatrix()
-output_biases = t.xmatrix()
+#output_weights = t.xmatrix()
+#output_biases = t.xmatrix()
 
 # TODO: Include gradient steps in actual function, don't do them manually
 
@@ -69,8 +75,13 @@ def functions(sequence_length):
      * The first function does prediction.
      * The second function does learning.
     """
-    p = (sequence_length)
-    if p not in cached_functions:
+    global cached_functions
+    cachekey = (sequence_length)
+    if len(cached_functions.keys()) > 1:
+        # This is problematic because we use global variables for the model parameters.
+        # Hence, we might be unsafe, if we are using the wrong model parameters globally.
+        assert 0
+    if cachekey not in cached_functions:
         print "Need to construct graph for sequence_length=%d..." % (sequence_length)
         # Create the sequence_length inputs.
         # Each is a t.xmatrix(), initial word embeddings (provided by
@@ -90,39 +101,43 @@ def functions(sequence_length):
         if HYPERPARAMETERS["CW_EMBEDDING_L1_PENALTY"] != 0:
             l1penalty = t.sum(t.abs_(stacked_correct_inputs) + t.abs_(stacked_noise_inputs)) * HYPERPARAMETERS["CW_EMBEDDING_L1_PENALTY"]
         else:
-            l1penalty = t.as_tensor_variable(0)
+            l1penalty = t.as_tensor_variable(numpy.asarray(0, dtype=floatX))
         loss = unpenalized_loss + l1penalty
+
+        import sys
+        print >> sys.stderr, "FIXME: MODEL_LEARNING_RATE = fixed at 0.001"
+        MODEL_LEARNING_RATE = t.as_tensor_variable(numpy.asarray(0.001, dtype=floatX))
 
         (dhidden_weights, dhidden_biases, doutput_weights, doutput_biases) = t.grad(loss, [hidden_weights, hidden_biases, output_weights, output_biases])
         dcorrect_inputs = t.grad(loss, correct_inputs)
         dnoise_inputs = t.grad(loss, noise_inputs)
         #print "REMOVEME", len(dcorrect_inputs)
-        predict_inputs = correct_inputs + [hidden_weights, hidden_biases, output_weights, output_biases]
-        train_inputs = correct_inputs + noise_inputs + [hidden_weights, hidden_biases, output_weights, output_biases]
+        predict_inputs = correct_inputs
+        train_inputs = correct_inputs + noise_inputs
         verbose_predict_inputs = predict_inputs
         predict_outputs = [correct_score]
-        train_outputs = dcorrect_inputs + dnoise_inputs + [loss, unpenalized_loss, l1penalty, correct_score, noise_score, dhidden_weights, dhidden_biases, doutput_weights, doutput_biases]
+        train_outputs = dcorrect_inputs + dnoise_inputs + [loss, unpenalized_loss, l1penalty, correct_score, noise_score]
         verbose_predict_outputs = [correct_score, correct_prehidden]
 
         import theano.gof.graph
 
         nnodes = len(theano.gof.graph.ops(predict_inputs, predict_outputs))
         print "About to compile predict function over %d ops [nodes]..." % nnodes
-        predict_function = theano.function(predict_inputs, predict_outputs, mode=COMPILE_MODE)
+        predict_function = pfunc(predict_inputs, predict_outputs, mode=COMPILE_MODE)
         print "...done constructing graph for sequence_length=%d" % (sequence_length)
 
         nnodes = len(theano.gof.graph.ops(verbose_predict_inputs, verbose_predict_outputs))
         print "About to compile predict function over %d ops [nodes]..." % nnodes
-        verbose_predict_function = theano.function(verbose_predict_inputs, verbose_predict_outputs, mode=COMPILE_MODE)
+        verbose_predict_function = pfunc(verbose_predict_inputs, verbose_predict_outputs, mode=COMPILE_MODE)
         print "...done constructing graph for sequence_length=%d" % (sequence_length)
 
         nnodes = len(theano.gof.graph.ops(train_inputs, train_outputs))
         print "About to compile train function over %d ops [nodes]..." % nnodes
-        train_function = theano.function(train_inputs, train_outputs, mode=COMPILE_MODE)
+        train_function = pfunc(train_inputs, train_outputs, mode=COMPILE_MODE, updates=[(p, p-MODEL_LEARNING_RATE*gp) for p, gp in zip((hidden_weights, hidden_biases, output_weights, output_biases), (dhidden_weights, dhidden_biases, doutput_weights, doutput_biases))])
         print "...done constructing graph for sequence_length=%d" % (sequence_length)
 
-        cached_functions[p] = (predict_function, train_function, verbose_predict_function)
-    return cached_functions[p]
+        cached_functions[cachekey] = (predict_function, train_function, verbose_predict_function)
+    return cached_functions[cachekey]
 
 #def apply_function(fn, sequence, target_output, parameters):
 #    assert len(sequence) == parameters.hidden_width
@@ -140,35 +155,31 @@ def functions(sequence_length):
 #
 def predict(correct_sequence, parameters):
     fn = functions(sequence_length=len(correct_sequence))[0]
-    r = fn(*(correct_sequence + [parameters.hidden_weights, parameters.hidden_biases, parameters.output_weights, parameters.output_biases]))
+#    print "REMOVEME", correct_sequence
+    r = fn(*(correct_sequence))
     assert len(r) == 1
     r = r[0]
     assert r.shape == (1, 1)
     return r[0,0]
 def verbose_predict(correct_sequence, parameters):
     fn = functions(sequence_length=len(correct_sequence))[2]
-    r = fn(*(correct_sequence + [parameters.hidden_weights, parameters.hidden_biases, parameters.output_weights, parameters.output_biases]))
+    r = fn(*(correct_sequence))
     assert len(r) == 2
     (score, prehidden) = r
     assert score.shape == (1, 1)
     return score[0,0], prehidden
-def train(correct_sequence, noise_sequence, parameters, learning_rate):
+def train(correct_sequence, noise_sequence, learning_rate):
     assert len(correct_sequence) == len(noise_sequence)
     fn = functions(sequence_length=len(correct_sequence))[1]
-    r = fn(*(correct_sequence + noise_sequence + [parameters.hidden_weights, parameters.hidden_biases, parameters.output_weights, parameters.output_biases]))
+    r = fn(*(correct_sequence + noise_sequence))
     dcorrect_inputs = r[:len(correct_sequence)]
     r = r[len(correct_sequence):]
     dnoise_inputs = r[:len(noise_sequence)]
     r = r[len(correct_sequence):]
 #    print "REMOVEME", len(dcorrect_inputs), len(dnoise_inputs)
-    (loss, unpenalized_loss, l1penalty, correct_score, noise_score, dhidden_weights, dhidden_biases, doutput_weights, doutput_biases) = r
-    if loss == 0:
-        for di in [dhidden_weights, dhidden_biases, doutput_weights, doutput_biases]:
-            assert (di == 0).all()
-
-    parameters.hidden_weights   -= 1.0 * learning_rate * dhidden_weights
-    parameters.hidden_biases    -= 1.0 * learning_rate * dhidden_biases
-    parameters.output_weights   -= 1.0 * learning_rate * doutput_weights
-    parameters.output_biases    -= 1.0 * learning_rate * doutput_biases
+    (loss, unpenalized_loss, l1penalty, correct_score, noise_score) = r
+#    if loss == 0:
+#        for di in [dhidden_weights, dhidden_biases, doutput_weights, doutput_biases]:
+#            assert (di == 0).all()
 
     return (dcorrect_inputs, dnoise_inputs, loss, unpenalized_loss, l1penalty, correct_score, noise_score)

@@ -3,6 +3,7 @@
 """
 
 import theano.config
+from theano.compile.sandbox import shared
 
 floatX = theano.config.config.get('scalar.floatX')
 
@@ -41,14 +42,14 @@ class Parameters:
         self.embeddings = numpy.asarray((numpy.random.rand(self.vocab_size, HYPERPARAMETERS["EMBEDDING_SIZE"]) - 0.5)*2 * HYPERPARAMETERS["INITIAL_EMBEDDING_RANGE"], dtype=floatX)
         if HYPERPARAMETERS["NORMALIZE_EMBEDDINGS"]: self.normalize(range(self.vocab_size))
         if LBL:
-            self.output_weights = numpy.asarray(random_weights(self.input_size, self.output_size, scale_by=HYPERPARAMETERS["SCALE_INITIAL_WEIGHTS_BY"]), dtype=floatX)
-            self.output_biases = numpy.asarray(numpy.zeros((1, self.output_size)), dtype=floatX)
-            self.score_biases = numpy.asarray(numpy.zeros(self.vocab_size), dtype=floatX)
+            self.output_weights = shared(numpy.asarray(random_weights(self.input_size, self.output_size, scale_by=HYPERPARAMETERS["SCALE_INITIAL_WEIGHTS_BY"]), dtype=floatX))
+            self.output_biases = shared(numpy.asarray(numpy.zeros((1, self.output_size)), dtype=floatX))
+            self.score_biases = shared(numpy.asarray(numpy.zeros(self.vocab_size), dtype=floatX))
         else:
-            self.hidden_weights = numpy.asarray(random_weights(self.input_size, self.hidden_size, scale_by=HYPERPARAMETERS["SCALE_INITIAL_WEIGHTS_BY"]), dtype=floatX)
-            self.output_weights = numpy.asarray(random_weights(self.hidden_size, self.output_size, scale_by=HYPERPARAMETERS["SCALE_INITIAL_WEIGHTS_BY"]), dtype=floatX)
-            self.hidden_biases = numpy.asarray(numpy.zeros((1, self.hidden_size)), dtype=floatX)
-            self.output_biases = numpy.asarray(numpy.zeros((1, self.output_size)), dtype=floatX)
+            self.hidden_weights = shared(numpy.asarray(random_weights(self.input_size, self.hidden_size, scale_by=HYPERPARAMETERS["SCALE_INITIAL_WEIGHTS_BY"]), dtype=floatX))
+            self.output_weights = shared(numpy.asarray(random_weights(self.hidden_size, self.output_size, scale_by=HYPERPARAMETERS["SCALE_INITIAL_WEIGHTS_BY"]), dtype=floatX))
+            self.hidden_biases = shared(numpy.asarray(numpy.zeros((1, self.hidden_size)), dtype=floatX))
+            self.output_biases = shared(numpy.asarray(numpy.zeros((1, self.output_size)), dtype=floatX))
 
     input_size = property(lambda self:
                                 LBL*((self.window_size-1) * self.embedding_size) + (1-LBL)*(self.window_size * self.embedding_size))
