@@ -34,7 +34,8 @@ NORMALIZE_EMBEDDINGS: False
 
 # Number of validation examples
 #VALIDATION EXAMPLES: 10000
-VALIDATION EXAMPLES: 2500
+#VALIDATION EXAMPLES: 2500
+VALIDATION EXAMPLES: 1000
 
 # What percent of noise examples should we use for computing the logrank
 # during validation?

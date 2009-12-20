@@ -225,4 +225,4 @@ if __name__ == "__main__":
                 save_state(m, cnt)
                 visualize(cnt, randomized=False)
                 visualize(cnt, randomized=True)
-                validate(cnt)
+#                validate(cnt)
