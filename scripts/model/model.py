@@ -176,7 +176,8 @@ class Model:
         for ecnt in range(len(correct_sequences)):
             (loss, unpenalized_loss, correct_score, noise_score) = \
                 (losss[ecnt], unpenalized_losss[ecnt], correct_scores[ecnt], noise_scores[ecnt])
-            if l1penaltys == 0:
+            if l1penaltys.shape == ():
+                assert l1penaltys
                 l1penalty = 0
             else:
                 l1penalty = l1penaltys[ecnt]

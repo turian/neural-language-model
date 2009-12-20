@@ -25,8 +25,8 @@ import theano.compile
 #COMPILE_MODE = theano.compile.debugmode.DebugMode(optimizer='fast_run', check_isfinite=False)
 #import theano.compile.profilemode
 #COMPILE_MODE = theano.compile.profilemode.ProfileMode()
-#COMPILE_MODE = theano.compile.Mode('c|py', 'fast_run')
-COMPILE_MODE = theano.compile.Mode('py', 'fast_compile')
+COMPILE_MODE = theano.compile.Mode('c|py', 'fast_run')
+#COMPILE_MODE = theano.compile.Mode('py', 'fast_compile')
 
 import numpy
 
@@ -89,6 +89,7 @@ def functions(sequence_length):
         # We could use a vector, but instead we use a matrix with one row.
         correct_inputs = [t.xmatrix() for i in range(sequence_length)]
         noise_inputs = [t.xmatrix() for i in range(sequence_length)]
+        learning_rate = t.xscalar()
 
         stacked_correct_inputs = stack(correct_inputs)
         stacked_noise_inputs = stack(noise_inputs)
@@ -105,9 +106,9 @@ def functions(sequence_length):
 #            l1penalty = t.as_tensor_variable(numpy.asarray((0,), dtype=floatX))
         loss = (unpenalized_loss.T + l1penalty).T
 
-        import sys
-        print >> sys.stderr, "FIXME: MODEL_LEARNING_RATE = fixed at 0.001"
-        MODEL_LEARNING_RATE = t.as_tensor_variable(numpy.asarray(0.001, dtype=floatX))
+#        import sys
+#        print >> sys.stderr, "FIXME: MODEL_LEARNING_RATE = fixed at 0.001"
+#        MODEL_LEARNING_RATE = t.as_tensor_variable(numpy.asarray(0.001, dtype=floatX))
 
         total_loss = t.sum(loss)
 
@@ -116,7 +117,7 @@ def functions(sequence_length):
         dnoise_inputs = t.grad(total_loss, noise_inputs)
         #print "REMOVEME", len(dcorrect_inputs)
         predict_inputs = correct_inputs
-        train_inputs = correct_inputs + noise_inputs
+        train_inputs = correct_inputs + noise_inputs + [learning_rate]
         verbose_predict_inputs = predict_inputs
         predict_outputs = [correct_score]
         train_outputs = dcorrect_inputs + dnoise_inputs + [loss, unpenalized_loss, l1penalty, correct_score, noise_score]
@@ -136,7 +137,7 @@ def functions(sequence_length):
 
         nnodes = len(theano.gof.graph.ops(train_inputs, train_outputs))
         print "About to compile train function over %d ops [nodes]..." % nnodes
-        train_function = pfunc(train_inputs, train_outputs, mode=COMPILE_MODE, updates=[(p, p-MODEL_LEARNING_RATE*gp) for p, gp in zip((hidden_weights, hidden_biases, output_weights, output_biases), (dhidden_weights, dhidden_biases, doutput_weights, doutput_biases))])
+        train_function = pfunc(train_inputs, train_outputs, mode=COMPILE_MODE, updates=[(p, p-learning_rate*gp) for p, gp in zip((hidden_weights, hidden_biases, output_weights, output_biases), (dhidden_weights, dhidden_biases, doutput_weights, doutput_biases))])
         print "...done constructing graph for sequence_length=%d" % (sequence_length)
 
         cached_functions[cachekey] = (predict_function, train_function, verbose_predict_function)
@@ -174,7 +175,7 @@ def verbose_predict(correct_sequence, parameters):
 def train(correct_sequence, noise_sequence, learning_rate):
     assert len(correct_sequence) == len(noise_sequence)
     fn = functions(sequence_length=len(correct_sequence))[1]
-    r = fn(*(correct_sequence + noise_sequence))
+    r = fn(*(correct_sequence + noise_sequence + [learning_rate]))
     dcorrect_inputs = r[:len(correct_sequence)]
     r = r[len(correct_sequence):]
     dnoise_inputs = r[:len(noise_sequence)]
