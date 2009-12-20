@@ -48,8 +48,8 @@ class Parameters:
         else:
             self.hidden_weights = shared(numpy.asarray(random_weights(self.input_size, self.hidden_size, scale_by=HYPERPARAMETERS["SCALE_INITIAL_WEIGHTS_BY"]), dtype=floatX))
             self.output_weights = shared(numpy.asarray(random_weights(self.hidden_size, self.output_size, scale_by=HYPERPARAMETERS["SCALE_INITIAL_WEIGHTS_BY"]), dtype=floatX))
-            self.hidden_biases = shared(numpy.asarray(numpy.zeros((1, self.hidden_size)), dtype=floatX))
-            self.output_biases = shared(numpy.asarray(numpy.zeros((1, self.output_size)), dtype=floatX))
+            self.hidden_biases = shared(numpy.asarray(numpy.zeros((self.hidden_size,)), dtype=floatX))
+            self.output_biases = shared(numpy.asarray(numpy.zeros((self.output_size,)), dtype=floatX))
 
     input_size = property(lambda self:
                                 LBL*((self.window_size-1) * self.embedding_size) + (1-LBL)*(self.window_size * self.embedding_size))

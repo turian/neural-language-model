@@ -67,6 +67,26 @@ class Model:
         return [numpy.resize(s, (1, s.size)) for s in seq]
 #        return [self.parameters.embeddings[s] for s in sequence]
 
+    def embeds(self, sequences):
+        """
+        Embed sequences of vocabulary IDs.
+        If we are given a list of MINIBATCH lists of SEQLEN items, return a list of SEQLEN matrices of shape (MINIBATCH, EMBSIZE)
+        """
+        embs = []
+        for sequence in sequences:
+            embs.append(self.embed(sequence))
+
+        for emb in embs: assert len(emb) == len(embs[0])
+
+        new_embs = []
+        for i in range(len(embs[0])):
+            colembs = [embs[j][i] for j in range(len(embs))]
+            import numpy
+            new_embs.append(numpy.vstack(colembs))
+            assert new_embs[-1].shape == (len(sequences), self.parameters.embedding_size)
+        assert len(new_embs) == len(sequences[0])
+        return new_embs
+
     def corrupt_example(self, e):
         """
         Return a corrupted version of example e, plus the weight of this example.
@@ -95,11 +115,26 @@ class Model:
         weight = 1./pr
         return e, weight
 
-    def train(self, correct_sequence):
+    def corrupt_examples(self, correct_sequences):
+        noise_sequences = []
+        weights = []
+        for e in correct_sequences:
+            noise_sequence, weight = self.corrupt_example(e)
+            noise_sequences.append(noise_sequence)
+            weights.append(weight)
+        return noise_sequences, weights
+
+    def train(self, correct_sequences):
         from hyperparameters import HYPERPARAMETERS
         learning_rate = HYPERPARAMETERS["LEARNING_RATE"]
         if LBL:
-            noise_sequence, weight = self.corrupt_example(correct_sequence)
+            noise_sequences, weights = self.corrupt_examples(correct_sequences)
+            # All weights must be the same, if we first multiply by the learning rate
+            for w in weights: assert w == weights[0]
+
+            # REWRITE FOR MINIBATCH
+            assert 0
+
 #            noise_repr = noise_sequence[-1]
 #            correct_repr = correct_sequence[-1]
             noise_repr = noise_sequence[-1:]
@@ -122,143 +157,141 @@ class Model:
 #            print "correct_score = ", correct_score
 #            print "noise_score = ", noise_score
         else:
-            noise_sequence, weight = self.corrupt_example(correct_sequence)
-            r = graph.train(self.embed(correct_sequence), self.embed(noise_sequence), learning_rate * weight)
-            (dcorrect_inputs, dnoise_inputs, loss, unpenalized_loss, l1penalty, correct_score, noise_score) = r
-#            print unpenalized_loss, l1penalty, self.embed(correct_sequence), self.embed(noise_sequence)
-#        print loss, correct_score, noise_score,
-#        print loss, correct_score, noise_score
-#        print ""
-#        print "OLD: loss = %.3f, correct score = %.3f, noise score = %.3f" % (loss, correct_score, noise_score)
-#        print "OLD: w1", self.parameters.hidden_weights
-#        print "OLD: b1", self.parameters.hidden_biases
-#        print "OLD: w2", self.parameters.output_weights
-#        print "OLD: b2", self.parameters.output_biases
-#        def st(x):
-#            import numpy
-#            s = ""
-#            s += "avg=%.3f, std=%.3f" % (numpy.mean(x), numpy.std(x))
-#            s += " "
-#            s += "avgabs=%.3f, stdabs=%.3f" % (numpy.mean(numpy.abs(x)), numpy.std(numpy.abs(x)))
-#            return s
-#        print "OLD: w1", st(self.parameters.hidden_weights)
-#        print "OLD: b1", st(self.parameters.hidden_biases)
-#        print "OLD: w2", st(self.parameters.output_weights)
-#        print "OLD: b2", st(self.parameters.output_biases)
-#
-#        if loss == 0:
-#            print "OLD: dw1", st(dhidden_weights)
-#            print "OLD: db1", st(dhidden_biases)
-#            print "OLD: dw2", st(doutput_weights)
-#            print "OLD: db2", st(doutput_biases)
+            noise_sequences, weights = self.corrupt_examples(correct_sequences)
+            # All weights must be the same, if we first multiply by the learning rate
+            for w in weights: assert w == weights[0]
 
-        self.train_loss.add(loss)
-        self.train_err.add(correct_score <= noise_score)
-        self.train_lossnonzero.add(loss > 0)
-        squashloss = 1./(1.+math.exp(-loss))
-        self.train_squashloss.add(squashloss)
-        if not LBL:
-            self.train_unpenalized_loss.add(unpenalized_loss)
-            self.train_l1penalty.add(l1penalty)
-            self.train_unpenalized_lossnonzero.add(unpenalized_loss > 0)
+            r = graph.train(self.embeds(correct_sequences), self.embeds(noise_sequences), learning_rate * weights[0])
+            (dcorrect_inputss, dnoise_inputss, losss, unpenalized_losss, l1penaltys, correct_scores, noise_scores) = r
+#            print [d.shape for d in dcorrect_inputss]
+#            print [d.shape for d in dnoise_inputss]
+#            print "losss", losss.shape, losss
+#            print "unpenalized_losss", unpenalized_losss.shape, unpenalized_losss
+#            print "l1penaltys", l1penaltys.shape, l1penaltys
+#            print "correct_scores", correct_scores.shape, correct_scores
+#            print "noise_scores", noise_scores.shape, noise_scores
 
-        self.train_cnt += 1
-        if self.train_cnt % 10000 == 0:
-            logging.info(("After %d updates, pre-update train loss %s" % (self.train_cnt, self.train_loss.verbose_string())))
-            logging.info(("After %d updates, pre-update train error %s" % (self.train_cnt, self.train_err.verbose_string())))
-            logging.info(("After %d updates, pre-update train Pr(loss != 0) %s" % (self.train_cnt, self.train_lossnonzero.verbose_string())))
-            logging.info(("After %d updates, pre-update train squash(loss) %s" % (self.train_cnt, self.train_squashloss.verbose_string())))
+        import sets
+        to_normalize = sets.Set()
+        for ecnt in range(len(correct_sequences)):
+            # We have not correctly converted l1penalty into a column in the Theano graph
+            assert l1penaltys == 0
+            (loss, unpenalized_loss, correct_score, noise_score) = \
+                (losss[ecnt], unpenalized_losss[ecnt], correct_scores[ecnt], noise_scores[ecnt])
+            #(dcorrect_inputs, dnoise_inputs, loss, unpenalized_loss, l1penalty, correct_score, noise_score) = \
+            #    (dcorrect_inputss[ecnt], dnoise_inputss[ecnt], losss[ecnt], unpenalized_losss[ecnt], l1penaltys[ecnt], correct_scores[ecnt], noise_scores[ecnt])
+            correct_sequence = correct_sequences[ecnt]
+            noise_sequence = noise_sequences[ecnt]
+
+            dcorrect_inputs = [d[ecnt] for d in dcorrect_inputss]
+            dnoise_inputs = [d[ecnt] for d in dnoise_inputss]
+
+#            print [d.shape for d in dcorrect_inputs]
+#            print [d.shape for d in dnoise_inputs]
+#            print "loss", loss.shape, loss
+#            print "unpenalized_loss", unpenalized_loss.shape, unpenalized_loss
+#            print "l1penalty", l1penalty.shape, l1penalty
+#            print "correct_score", correct_score.shape, correct_score
+#            print "noise_score", noise_score.shape, noise_score
+
+
+            self.train_loss.add(loss)
+            self.train_err.add(correct_score <= noise_score)
+            self.train_lossnonzero.add(loss > 0)
+            squashloss = 1./(1.+math.exp(-loss))
+            self.train_squashloss.add(squashloss)
             if not LBL:
-                logging.info(("After %d updates, pre-update train unpenalized loss %s" % (self.train_cnt, self.train_unpenalized_loss.verbose_string())))
-                logging.info(("After %d updates, pre-update train l1penalty %s" % (self.train_cnt, self.train_l1penalty.verbose_string())))
-                logging.info(("After %d updates, pre-update train Pr(unpenalized loss != 0) %s" % (self.train_cnt, self.train_unpenalized_lossnonzero.verbose_string())))
-
-            if LBL:
-                i = 1.
-                while i < wordmap.len:
-                    inti = int(i)
-                    str = "word %s, rank %d, score %f" % (wordmap.str(inti), inti, self.parameters.score_biases[inti])
-                    logging.info("After %d updates, score biases: %s" % (self.train_cnt, str))
-                    i *= 3.2
-
-#            print(("After %d updates, pre-update train loss %s" % (self.train_cnt, self.train_loss.verbose_string())))
-#            print(("After %d updates, pre-update train error %s" % (self.train_cnt, self.train_err.verbose_string())))
-
-        embedding_learning_rate = HYPERPARAMETERS["EMBEDDING_LEARNING_RATE"] * weight
-        if loss == 0:
-            if LBL:
-                for di in dsequence + [dcorrect_repr, dnoise_repr]:
-                    # This tends to trigger if training diverges (NaN)
-                    assert (di == 0).all()
-#                if not (di == 0).all():
-#                    print "WARNING:", di
-#                    print "WARNING in ", dsequence + [dcorrect_repr, dnoise_repr]
-#                    print "loss = ", loss
-#                    print "predictrepr = ", predictrepr
-#                    print "correct_repr = ", correct_repr, self.embed(correct_repr)[0]
-#                    print "noise_repr = ", noise_repr, self.embed(noise_repr)[0]
-#                    print "correct_score = ", correct_score
-#                    print "noise_score = ", noise_score
-            else:
-                for di in dcorrect_inputs + dnoise_inputs:
-                    assert (di == 0).all()
-
-        if loss != 0:
-            import sets
-            to_normalize = sets.Set()
-
-            if LBL:
-                val = sequence + [correct_repr, noise_repr]
-                dval = dsequence + [dcorrect_repr, dnoise_repr]
-#                print val
-                for (i, di) in zip(val, dval):
-#                for (i, di) in zip(tuple(sequence + [correct_repr, noise_repr]), tuple(dsequence + [dcorrect_repr, dnoise_repr])):
-                    assert di.shape[0] == 1
-                    di.resize(di.size)
-#                    print i, di
-                    self.parameters.embeddings[i] -= 1.0 * embedding_learning_rate * di
-                    if HYPERPARAMETERS["NORMALIZE_EMBEDDINGS"]:
-                        to_normalize.add(i)
-
-                for (i, di) in zip([correct_repr, noise_repr], [dcorrect_scorebias, dnoise_scorebias]):
-                    self.parameters.score_biases[i] -= 1.0 * embedding_learning_rate * di
-#                    print "REMOVEME", i, self.parameters.score_biases[i]
-            else:
-                for (i, di) in zip(correct_sequence, dcorrect_inputs):
-                    assert di.shape[0] == 1
-                    di.resize(di.size)
-#                    print i, di
-                    self.parameters.embeddings[i] -= 1.0 * embedding_learning_rate * di
-                    if HYPERPARAMETERS["NORMALIZE_EMBEDDINGS"]:
-                        to_normalize.add(i)
-                for (i, di) in zip(noise_sequence, dnoise_inputs):
-                    assert di.shape[0] == 1
-                    di.resize(di.size)
-#                    print i, di
-                    self.parameters.embeddings[i] -= 1.0 * embedding_learning_rate * di
-                    if HYPERPARAMETERS["NORMALIZE_EMBEDDINGS"]:
-                        to_normalize.add(i)
-#                print to_normalize
-
-            if len(to_normalize) > 0:
-                to_normalize = [i for i in to_normalize]
-#                print "NORMALIZING", to_normalize
-                self.parameters.normalize(to_normalize)
+                self.train_unpenalized_loss.add(unpenalized_loss)
+#                self.train_l1penalty.add(l1penalty)
+                self.train_unpenalized_lossnonzero.add(unpenalized_loss > 0)
     
-#           r = graph.train(self.embed(correct_sequence), self.embed(noise_sequence), self.parameters)
-#           (dcorrect_inputs, dnoise_inputs, loss, correct_score, noise_score, dhidden_weights, dhidden_biases, doutput_weights, doutput_biases) = r
-#           print loss, correct_score, noise_score
-#           print "NEW: loss = %.3f, correct score = %.3f, noise score = %.3f" % (loss, correct_score, noise_score)
+            self.train_cnt += 1
+            if self.train_cnt % 10000 == 0:
+    #        if self.train_cnt % 1000 == 0:
+    #            print self.train_cnt
+#                graph.COMPILE_MODE.print_summary()
+                logging.info(("After %d updates, pre-update train loss %s" % (self.train_cnt, self.train_loss.verbose_string())))
+                logging.info(("After %d updates, pre-update train error %s" % (self.train_cnt, self.train_err.verbose_string())))
+                logging.info(("After %d updates, pre-update train Pr(loss != 0) %s" % (self.train_cnt, self.train_lossnonzero.verbose_string())))
+                logging.info(("After %d updates, pre-update train squash(loss) %s" % (self.train_cnt, self.train_squashloss.verbose_string())))
+                if not LBL:
+                    logging.info(("After %d updates, pre-update train unpenalized loss %s" % (self.train_cnt, self.train_unpenalized_loss.verbose_string())))
+#                    logging.info(("After %d updates, pre-update train l1penalty %s" % (self.train_cnt, self.train_l1penalty.verbose_string())))
+                    logging.info(("After %d updates, pre-update train Pr(unpenalized loss != 0) %s" % (self.train_cnt, self.train_unpenalized_lossnonzero.verbose_string())))
+    
+                if LBL:
+                    i = 1.
+                    while i < wordmap.len:
+                        inti = int(i)
+                        str = "word %s, rank %d, score %f" % (wordmap.str(inti), inti, self.parameters.score_biases[inti])
+                        logging.info("After %d updates, score biases: %s" % (self.train_cnt, str))
+                        i *= 3.2
+    
+    #            print(("After %d updates, pre-update train loss %s" % (self.train_cnt, self.train_loss.verbose_string())))
+    #            print(("After %d updates, pre-update train error %s" % (self.train_cnt, self.train_err.verbose_string())))
+    
+            for w in weights: assert w == weights[0]
+            embedding_learning_rate = HYPERPARAMETERS["EMBEDDING_LEARNING_RATE"] * weights[0]
+            if loss == 0:
+                if LBL:
+                    for di in dsequence + [dcorrect_repr, dnoise_repr]:
+                        # This tends to trigger if training diverges (NaN)
+                        assert (di == 0).all()
+    #                if not (di == 0).all():
+    #                    print "WARNING:", di
+    #                    print "WARNING in ", dsequence + [dcorrect_repr, dnoise_repr]
+    #                    print "loss = ", loss
+    #                    print "predictrepr = ", predictrepr
+    #                    print "correct_repr = ", correct_repr, self.embed(correct_repr)[0]
+    #                    print "noise_repr = ", noise_repr, self.embed(noise_repr)[0]
+    #                    print "correct_score = ", correct_score
+    #                    print "noise_score = ", noise_score
+                else:
+                    for di in dcorrect_inputs + dnoise_inputs:
+                        assert (di == 0).all()
+    
+            if loss != 0:
+                if LBL:
+                    val = sequence + [correct_repr, noise_repr]
+                    dval = dsequence + [dcorrect_repr, dnoise_repr]
+    #                print val
+                    for (i, di) in zip(val, dval):
+    #                for (i, di) in zip(tuple(sequence + [correct_repr, noise_repr]), tuple(dsequence + [dcorrect_repr, dnoise_repr])):
+                        assert di.shape[0] == 1
+                        di.resize(di.size)
+    #                    print i, di
+                        self.parameters.embeddings[i] -= 1.0 * embedding_learning_rate * di
+                        if HYPERPARAMETERS["NORMALIZE_EMBEDDINGS"]:
+                            to_normalize.add(i)
+    
+                    for (i, di) in zip([correct_repr, noise_repr], [dcorrect_scorebias, dnoise_scorebias]):
+                        self.parameters.score_biases[i] -= 1.0 * embedding_learning_rate * di
+    #                    print "REMOVEME", i, self.parameters.score_biases[i]
+                else:
+                    for (i, di) in zip(correct_sequence, dcorrect_inputs):
+#                        assert di.shape[0] == 1
+#                        di.resize(di.size)
+    #                    print i, di
+                        assert di.shape == (self.parameters.embedding_size,)
+                        self.parameters.embeddings[i] -= 1.0 * embedding_learning_rate * di
+                        if HYPERPARAMETERS["NORMALIZE_EMBEDDINGS"]:
+                            to_normalize.add(i)
+                    for (i, di) in zip(noise_sequence, dnoise_inputs):
+#                        assert di.shape[0] == 1
+#                        di.resize(di.size)
+    #                    print i, di
+                        assert di.shape == (self.parameters.embedding_size,)
+                        self.parameters.embeddings[i] -= 1.0 * embedding_learning_rate * di
+                        if HYPERPARAMETERS["NORMALIZE_EMBEDDINGS"]:
+                            to_normalize.add(i)
+    #                print to_normalize
+    
+        if len(to_normalize) > 0:
+            to_normalize = [i for i in to_normalize]
+#            print "NORMALIZING", to_normalize
+            self.parameters.normalize(to_normalize)
 
-#            r = graph.train(self.embed(sequence), self.embed(correct_repr)[0], self.embed(noise_repr)[0], self.parameters)
-#            (loss, predictrepr, correct_score, noise_score, dsequence, dcorrect_repr, dnoise_repr, doutput_weights, doutput_biases) = r
-#            print
-#            print "loss = ", loss
-#            print "predictrepr = ", predictrepr
-#            print "correct_repr = ", correct_repr, self.embed(correct_repr)[0]
-#            print "noise_repr = ", noise_repr, self.embed(noise_repr)[0]
-#            print "correct_score = ", correct_score
-#            print "noise_score = ", noise_score
+
 
     def predict(self, sequence):
         if LBL:

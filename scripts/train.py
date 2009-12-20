@@ -26,6 +26,15 @@ def get_train_example():
             else:
                 prevwords = []
 
+def get_train_minibatch():
+    minibatch = []
+    for e in get_train_example():
+        minibatch.append(e)
+        if len(minibatch) >= HYPERPARAMETERS["MINIBATCH SIZE"]:
+            assert len(minibatch) == HYPERPARAMETERS["MINIBATCH SIZE"]
+            yield minibatch
+            minibatch = []
+
 def get_validation_example():
     import common.hyperparameters
     HYPERPARAMETERS = common.hyperparameters.read("language-model")
@@ -194,16 +203,16 @@ if __name__ == "__main__":
     while 1:
         epoch += 1
         logging.info("STARTING EPOCH #%d" % epoch)
-        for e in get_train_example():
-            cnt += 1
+        for ebatch in get_train_minibatch():
+            cnt += len(ebatch)
         #    print [wordmap.str(id) for id in e]
-            m.train(e)
+            m.train(ebatch)
 
             #validate(cnt)
-            if cnt % 1000 == 0:
+            if cnt % (int(1000./HYPERPARAMETERS["MINIBATCH SIZE"])*HYPERPARAMETERS["MINIBATCH SIZE"]) == 0:
                 logging.info("Finished training step %d (epoch %d)" % (cnt, epoch))
 #                print ("Finished training step %d (epoch %d)" % (cnt, epoch))
-            if cnt % 10000 == 0:
+            if cnt % (int(10000./HYPERPARAMETERS["MINIBATCH SIZE"])*HYPERPARAMETERS["MINIBATCH SIZE"]) == 0:
                 logging.info(stats())
                 verbose_predict(cnt)
                 embeddings_debug(m.parameters.embeddings[:100], cnt, "top 100 words")
@@ -212,7 +221,7 @@ if __name__ == "__main__":
                     logging.info("Detected file: %s\nSTOPPING" % os.path.join(rundir, "BAD"))
                     sys.stderr.write("Detected file: %s\nSTOPPING\n" % os.path.join(rundir, "BAD"))
                     sys.exit(0)
-            if cnt % HYPERPARAMETERS["VALIDATE_EVERY"] == 0:
+            if cnt % (int(HYPERPARAMETERS["VALIDATE_EVERY"]*1./HYPERPARAMETERS["MINIBATCH SIZE"])*HYPERPARAMETERS["MINIBATCH SIZE"]) == 0:
                 save_state(m, cnt)
                 visualize(cnt, randomized=False)
                 visualize(cnt, randomized=True)

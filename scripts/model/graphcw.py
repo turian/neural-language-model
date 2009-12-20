@@ -3,8 +3,8 @@ Theano graph of Collobert & Weston language model.
 """
 
 import theano
-import theano.sandbox.cuda
-theano.sandbox.cuda.use()
+#import theano.sandbox.cuda
+#theano.sandbox.cuda.use()
 
 from theano.compile.sandbox import pfunc, shared
 floatX = theano.config.config.get('scalar.floatX')
@@ -23,9 +23,9 @@ import theano.compile
 #mode = theano.compile.Mode(LINKER, OPTIMIZER)
 #import theano.compile.debugmode
 #COMPILE_MODE = theano.compile.debugmode.DebugMode(optimizer='fast_run', check_isfinite=False)
-import theano.compile.profilemode
-COMPILE_MODE = theano.compile.profilemode.ProfileMode()
-#COMPILE_MODE = theano.compile.Mode('c|py', 'fast_run')
+#import theano.compile.profilemode
+#COMPILE_MODE = theano.compile.profilemode.ProfileMode()
+COMPILE_MODE = theano.compile.Mode('c|py', 'fast_run')
 #COMPILE_MODE = theano.compile.Mode('py', 'fast_compile')
 
 import numpy
@@ -99,18 +99,21 @@ def functions(sequence_length):
 
         from hyperparameters import HYPERPARAMETERS
         if HYPERPARAMETERS["CW_EMBEDDING_L1_PENALTY"] != 0:
-            l1penalty = t.sum(t.abs_(stacked_correct_inputs) + t.abs_(stacked_noise_inputs)) * HYPERPARAMETERS["CW_EMBEDDING_L1_PENALTY"]
+            l1penalty = t.sum(t.abs_(stacked_correct_inputs) + t.abs_(stacked_noise_inputs), axis=1).T * HYPERPARAMETERS["CW_EMBEDDING_L1_PENALTY"]
         else:
             l1penalty = t.as_tensor_variable(numpy.asarray(0, dtype=floatX))
+#            l1penalty = t.as_tensor_variable(numpy.asarray((0,), dtype=floatX))
         loss = unpenalized_loss + l1penalty
 
         import sys
         print >> sys.stderr, "FIXME: MODEL_LEARNING_RATE = fixed at 0.001"
         MODEL_LEARNING_RATE = t.as_tensor_variable(numpy.asarray(0.001, dtype=floatX))
 
-        (dhidden_weights, dhidden_biases, doutput_weights, doutput_biases) = t.grad(loss, [hidden_weights, hidden_biases, output_weights, output_biases])
-        dcorrect_inputs = t.grad(loss, correct_inputs)
-        dnoise_inputs = t.grad(loss, noise_inputs)
+        total_loss = t.sum(loss)
+
+        (dhidden_weights, dhidden_biases, doutput_weights, doutput_biases) = t.grad(total_loss, [hidden_weights, hidden_biases, output_weights, output_biases])
+        dcorrect_inputs = t.grad(total_loss, correct_inputs)
+        dnoise_inputs = t.grad(total_loss, noise_inputs)
         #print "REMOVEME", len(dcorrect_inputs)
         predict_inputs = correct_inputs
         train_inputs = correct_inputs + noise_inputs

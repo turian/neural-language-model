@@ -19,6 +19,9 @@ VOCABULARY_SIZE: 268810
 #LOG BILINEAR MODEL: True
 LOG BILINEAR MODEL: False
 
+# Number of examples per minibach
+MINIBATCH SIZE: 100
+
 # Randomly initialize embeddings uniformly in the range [-this value, +this value]
 INITIAL_EMBEDDING_RANGE: 1.
 
