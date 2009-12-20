@@ -12,12 +12,6 @@ import logging
 import examples
 import verbosedebug
 
-#ves = [e for e in get_validation_example()]
-#import random
-#random.shuffle(ves)
-#for e in ves[:1000]:
-#    print string.join([wordmap.str(id) for id in e])
-
 def validate(cnt):
     import math
     logranks = []
@@ -85,8 +79,8 @@ if __name__ == "__main__":
     #validate(0)
     epoch = 0
     cnt = 0
-
     verbosedebug.verbosedebug(cnt, m)
+    verbosedebug.visualizedebug(cnt, m, rundir)
     while 1:
         epoch += 1
         logging.info("STARTING EPOCH #%d" % epoch)
@@ -107,6 +101,5 @@ if __name__ == "__main__":
                     sys.exit(0)
             if cnt % (int(HYPERPARAMETERS["VALIDATE_EVERY"]*1./HYPERPARAMETERS["MINIBATCH SIZE"])*HYPERPARAMETERS["MINIBATCH SIZE"]) == 0:
                 save_state(m, cnt)
-                verbosedebug.visualize(cnt, m, rundir, randomized=False)
-                verbosedebug.visualize(cnt, m, rundir, randomized=True)
+                verbosedebug.visualizedebug(cnt, m, rundir)
 #                validate(cnt)

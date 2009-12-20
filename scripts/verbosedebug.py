@@ -8,6 +8,7 @@ from common.stats import stats
 import examples
 
 import numpy
+import random
 
 def verbosedebug(cnt, model):
     logging.info(stats())
@@ -18,6 +19,16 @@ def verbosedebug(cnt, model):
     weights_debug(model.parameters.hidden_weights.value, cnt, "hidden weights")
     weights_debug(model.parameters.output_weights.value, cnt, "output weights")
     logging.info(stats())
+
+def visualizedebug(cnt, model, rundir, WORDCNT=500):
+    idxs = range(model.parameters.vocab_size)
+    random.shuffle(idxs)
+    idxs = idxs[:WORDCNT]
+
+    visualize(cnt, model, rundir, idxs, "randomized")
+    visualize(cnt, model, rundir, range(WORDCNT), "mostcommon")
+    visualize(cnt, model, rundir, range(-1, -WORDCNT, -1), "leastcommon")
+    visualize(cnt, model, rundir, range(model.parameters.vocab_size/2-WORDCNT/2,model.parameters.vocab_size/2+WORDCNT/2), "midcommon")
 
 def debug_prehidden_values(cnt, model):
     """
@@ -35,31 +46,19 @@ def debug_prehidden_values(cnt, model):
         logging.info("%s %s %s %s %s" % (cnt, "abs(pre-squash hidden) median =", med, "max =", abs_prehidden[:3]))
         if i+1 >= 3: break
 
-def visualize(cnt, model, rundir, WORDCNT=500, randomized=False):
+def visualize(cnt, model, rundir, idxs, str):
     """
     Visualize a set of examples using t-SNE.
-    If randomized=False, visualize the most common words.
-    If randomized=True, visualize random words.
     """
     from vocabulary import wordmap
     PERPLEXITY=30
 
-    if randomized:
-        import random
-        idxs = range(model.parameters.vocab_size)
-        random.shuffle(idxs)
-        idxs = idxs[:WORDCNT]
-    else:
-        idxs = range(WORDCNT)
-
     x = model.parameters.embeddings[idxs]
     print x.shape
     titles = [wordmap.str(id) for id in idxs]
+
     import os.path
-    if randomized:
-        filename = os.path.join(rundir, "embeddings-randomized-%d.png" % cnt)
-    else:
-        filename = os.path.join(rundir, "embeddings-mostcommon-%d.png" % cnt)
+    filename = os.path.join(rundir, "embeddings-%s-%d.png" % (str, cnt))
     try:
         from textSNE.calc_tsne import tsne
 #       from textSNE.tsne import tsne
