@@ -46,17 +46,19 @@ class Model:
         self.train_unpenalized_loss = MovingAverage()
         self.train_l1penalty = MovingAverage()
         self.train_unpenalized_lossnonzero = MovingAverage()
+        self.train_correct_score = MovingAverage()
+        self.train_noise_score = MovingAverage()
         self.train_cnt = 0
 
     def load(self, filename):
         sys.stderr.write("Loading model from: %s\n" % filename)
         f = myopen(filename, "rb")
-        (self.parameters, self.train_loss, self.train_err, self.train_lossnonzero, self.train_squashloss, self.train_unpenalized_loss, self.train_l1penalty, self.train_unpenalized_lossnonzero, self.train_cnt) = pickle.load(f)
+        (self.parameters, self.train_loss, self.train_err, self.train_lossnonzero, self.train_squashloss, self.train_unpenalized_loss, self.train_l1penalty, self.train_unpenalized_lossnonzero, self.train_correct_score, self.train_noise_score, self.train_cnt) = pickle.load(f)
 
     def save(self, filename):
         sys.stderr.write("Saving model to: %s\n" % filename)
         f = myopen(filename, "wb")
-        pickle.dump((self.parameters, self.train_loss, self.train_err, self.train_lossnonzero, self.train_squashloss, self.train_unpenalized_loss, self.train_l1penalty, self.train_unpenalized_lossnonzero, self.train_cnt), f)
+        pickle.dump((self.parameters, self.train_loss, self.train_err, self.train_lossnonzero, self.train_squashloss, self.train_unpenalized_loss, self.train_l1penalty, self.train_unpenalized_lossnonzero, self.train_correct_score, self.train_noise_score, self.train_cnt), f)
 
     def embed(self, sequence):
         """
@@ -177,7 +179,7 @@ class Model:
             (loss, unpenalized_loss, correct_score, noise_score) = \
                 (losss[ecnt], unpenalized_losss[ecnt], correct_scores[ecnt], noise_scores[ecnt])
             if l1penaltys.shape == ():
-                assert l1penaltys
+                assert l1penaltys == 0
                 l1penalty = 0
             else:
                 l1penalty = l1penaltys[ecnt]
@@ -205,6 +207,8 @@ class Model:
                 self.train_unpenalized_loss.add(unpenalized_loss)
                 self.train_l1penalty.add(l1penalty)
                 self.train_unpenalized_lossnonzero.add(unpenalized_loss > 0)
+            self.train_correct_score.add(correct_score)
+            self.train_noise_score.add(noise_score)
     
             self.train_cnt += 1
             if self.train_cnt % 10000 == 0:
@@ -219,6 +223,8 @@ class Model:
                     logging.info(("After %d updates, pre-update train unpenalized loss %s" % (self.train_cnt, self.train_unpenalized_loss.verbose_string())))
                     logging.info(("After %d updates, pre-update train l1penalty %s" % (self.train_cnt, self.train_l1penalty.verbose_string())))
                     logging.info(("After %d updates, pre-update train Pr(unpenalized loss != 0) %s" % (self.train_cnt, self.train_unpenalized_lossnonzero.verbose_string())))
+                logging.info(("After %d updates, pre-update train correct score %s" % (self.train_cnt, self.train_correct_score.verbose_string())))
+                logging.info(("After %d updates, pre-update train noise score %s" % (self.train_cnt, self.train_noise_score.verbose_string())))
     
                 if LBL:
                     i = 1.

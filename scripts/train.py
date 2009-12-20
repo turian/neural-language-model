@@ -80,7 +80,7 @@ if __name__ == "__main__":
     epoch = 0
     cnt = 0
     verbosedebug.verbosedebug(cnt, m)
-    verbosedebug.visualizedebug(cnt, m, rundir)
+#    verbosedebug.visualizedebug(cnt, m, rundir)
     while 1:
         epoch += 1
         logging.info("STARTING EPOCH #%d" % epoch)
