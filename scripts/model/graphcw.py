@@ -3,8 +3,8 @@ Theano graph of Collobert & Weston language model.
 """
 
 import theano
-#import theano.sandbox.cuda
-#theano.sandbox.cuda.use()
+import theano.sandbox.cuda
+theano.sandbox.cuda.use()
 
 from theano.compile.sandbox import pfunc, shared
 floatX = theano.config.config.get('scalar.floatX')
@@ -25,8 +25,8 @@ import theano.compile
 #COMPILE_MODE = theano.compile.debugmode.DebugMode(optimizer='fast_run', check_isfinite=False)
 #import theano.compile.profilemode
 #COMPILE_MODE = theano.compile.profilemode.ProfileMode()
-COMPILE_MODE = theano.compile.Mode('c|py', 'fast_run')
-#COMPILE_MODE = theano.compile.Mode('py', 'fast_compile')
+#COMPILE_MODE = theano.compile.Mode('c|py', 'fast_run')
+COMPILE_MODE = theano.compile.Mode('py', 'fast_compile')
 
 import numpy
 
@@ -103,7 +103,7 @@ def functions(sequence_length):
         else:
             l1penalty = t.as_tensor_variable(numpy.asarray(0, dtype=floatX))
 #            l1penalty = t.as_tensor_variable(numpy.asarray((0,), dtype=floatX))
-        loss = unpenalized_loss + l1penalty
+        loss = (unpenalized_loss.T + l1penalty).T
 
         import sys
         print >> sys.stderr, "FIXME: MODEL_LEARNING_RATE = fixed at 0.001"

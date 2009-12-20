@@ -174,12 +174,12 @@ class Model:
         import sets
         to_normalize = sets.Set()
         for ecnt in range(len(correct_sequences)):
-            # We have not correctly converted l1penalty into a column in the Theano graph
-            assert l1penaltys == 0
             (loss, unpenalized_loss, correct_score, noise_score) = \
                 (losss[ecnt], unpenalized_losss[ecnt], correct_scores[ecnt], noise_scores[ecnt])
-            #(dcorrect_inputs, dnoise_inputs, loss, unpenalized_loss, l1penalty, correct_score, noise_score) = \
-            #    (dcorrect_inputss[ecnt], dnoise_inputss[ecnt], losss[ecnt], unpenalized_losss[ecnt], l1penaltys[ecnt], correct_scores[ecnt], noise_scores[ecnt])
+            if l1penaltys == 0:
+                l1penalty = 0
+            else:
+                l1penalty = l1penaltys[ecnt]
             correct_sequence = correct_sequences[ecnt]
             noise_sequence = noise_sequences[ecnt]
 
@@ -202,7 +202,7 @@ class Model:
             self.train_squashloss.add(squashloss)
             if not LBL:
                 self.train_unpenalized_loss.add(unpenalized_loss)
-#                self.train_l1penalty.add(l1penalty)
+                self.train_l1penalty.add(l1penalty)
                 self.train_unpenalized_lossnonzero.add(unpenalized_loss > 0)
     
             self.train_cnt += 1
@@ -216,7 +216,7 @@ class Model:
                 logging.info(("After %d updates, pre-update train squash(loss) %s" % (self.train_cnt, self.train_squashloss.verbose_string())))
                 if not LBL:
                     logging.info(("After %d updates, pre-update train unpenalized loss %s" % (self.train_cnt, self.train_unpenalized_loss.verbose_string())))
-#                    logging.info(("After %d updates, pre-update train l1penalty %s" % (self.train_cnt, self.train_l1penalty.verbose_string())))
+                    logging.info(("After %d updates, pre-update train l1penalty %s" % (self.train_cnt, self.train_l1penalty.verbose_string())))
                     logging.info(("After %d updates, pre-update train Pr(unpenalized loss != 0) %s" % (self.train_cnt, self.train_unpenalized_lossnonzero.verbose_string())))
     
                 if LBL:
