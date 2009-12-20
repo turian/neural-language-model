@@ -23,7 +23,7 @@ LOG BILINEAR MODEL: False
 MINIBATCH SIZE: 100
 
 # Randomly initialize embeddings uniformly in the range [-this value, +this value]
-INITIAL_EMBEDDING_RANGE: 1.
+INITIAL_EMBEDDING_RANGE: 0.01
 
 # l1 penalty appliedto C&W embeddings
 CW_EMBEDDING_L1_PENALTY: 0.
