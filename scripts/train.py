@@ -29,7 +29,10 @@ def validate(cnt):
 #    print "FINAL VALIDATION AT TRAINING STEP %d: mean(logrank) = %.2f, stddev(logrank) = %.2f, cnt = %d" % (cnt, numpy.mean(numpy.array(logranks)), numpy.std(numpy.array(logranks)), i+1)
 #    print stats()
 
+lastfilename = None
 def save_state(m, cnt):
+    global lastfilename
+
     import os.path
     filename = os.path.join(rundir, "model-%d.pkl" % cnt)
     logging.info("Writing model to %s..." % filename)
@@ -38,6 +41,15 @@ def save_state(m, cnt):
     cPickle.dump(m, myopen(filename, "wb"), protocol=-1)
     logging.info("...done writing model to %s" % filename)
     logging.info(stats())
+
+    if lastfilename is not None:
+        logging.info("Removing old model %s..." % lastfilename)
+        try:
+            os.remove(lastfilename)
+            logging.error("...removed %s" % lastfilename)
+        except:
+            logging.error("Could NOT remove %s" % lastfilename)
+    lastfilename = filename
 
 if __name__ == "__main__":
     import common.hyperparameters, common.options
