@@ -30,11 +30,11 @@ def validate(cnt):
 #    print stats()
 
 lastfilename = None
-def save_state(m, cnt):
+def save_state(m, cnt, rundir, newkeystr):
     global lastfilename
 
     import os.path
-    filename = os.path.join(rundir, "model-%d.pkl" % cnt)
+    filename = os.path.join(rundir, "model-%d%s.pkl" % (cnt, newkeystr))
     logging.info("Writing model to %s..." % filename)
     logging.info(stats())
     import cPickle
@@ -112,6 +112,6 @@ if __name__ == "__main__":
                     sys.stderr.write("Detected file: %s\nSTOPPING\n" % os.path.join(rundir, "BAD"))
                     sys.exit(0)
             if cnt % (int(HYPERPARAMETERS["VALIDATE_EVERY"]*1./HYPERPARAMETERS["MINIBATCH SIZE"])*HYPERPARAMETERS["MINIBATCH SIZE"]) == 0:
-                save_state(m, cnt)
-                verbosedebug.visualizedebug(cnt, m, rundir)
+                save_state(m, cnt, rundir, newkeystr)
+                verbosedebug.visualizedebug(cnt, m, rundir, newkeystr)
 #                validate(cnt)

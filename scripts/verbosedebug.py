@@ -20,15 +20,15 @@ def verbosedebug(cnt, model):
     weights_debug(model.parameters.output_weights.value, cnt, "output weights")
     logging.info(stats())
 
-def visualizedebug(cnt, model, rundir, WORDCNT=500):
+def visualizedebug(cnt, model, rundir, newkeystr, WORDCNT=500):
     idxs = range(model.parameters.vocab_size)
     random.shuffle(idxs)
     idxs = idxs[:WORDCNT]
 
-    visualize(cnt, model, rundir, idxs, "randomized")
-    visualize(cnt, model, rundir, range(WORDCNT), "mostcommon")
-    visualize(cnt, model, rundir, range(-1, -WORDCNT, -1), "leastcommon")
-    visualize(cnt, model, rundir, range(model.parameters.vocab_size/2-WORDCNT/2,model.parameters.vocab_size/2+WORDCNT/2), "midcommon")
+    visualize(cnt, model, rundir, idxs, "randomized%s" % newkeystr)
+    visualize(cnt, model, rundir, range(WORDCNT), "mostcommon%s" % newkeystr)
+    visualize(cnt, model, rundir, range(-1, -WORDCNT, -1), "leastcommon%s" % newkeystr)
+    visualize(cnt, model, rundir, range(model.parameters.vocab_size/2-WORDCNT/2,model.parameters.vocab_size/2+WORDCNT/2), "midcommon%s" % newkeystr)
 
 def debug_prehidden_values(cnt, model):
     """

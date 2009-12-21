@@ -3,8 +3,8 @@ Theano graph of Collobert & Weston language model.
 """
 
 import theano
-import theano.sandbox.cuda
-theano.sandbox.cuda.use()
+#import theano.sandbox.cuda
+#theano.sandbox.cuda.use()
 
 from theano.compile.sandbox import pfunc, shared
 floatX = theano.config.config.get('scalar.floatX')
