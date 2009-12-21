@@ -15,7 +15,7 @@ def verbosedebug(cnt, model):
     debug_prehidden_values(cnt, model)
     embeddings_debug(model.parameters.embeddings[:100], cnt, "top  100 words")
     embeddings_debug(model.parameters.embeddings[model.parameters.vocab_size/2-50:model.parameters.vocab_size/2+50], cnt, "mid  100 words")
-    embeddings_debug(model.parameters.embeddings[:-100], cnt, "last 100 words")
+    embeddings_debug(model.parameters.embeddings[-100:], cnt, "last 100 words")
     weights_debug(model.parameters.hidden_weights.value, cnt, "hidden weights")
     weights_debug(model.parameters.output_weights.value, cnt, "output weights")
     logging.info(stats())
