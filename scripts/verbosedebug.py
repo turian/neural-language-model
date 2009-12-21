@@ -73,13 +73,14 @@ def embeddings_debug(w, cnt, str):
     Output the l2norm mean and max of the embeddings, including in debug out the str and training cnt
     """
     l2norm = numpy.sqrt(numpy.square(w).sum(axis=1))
+    median = numpy.median(l2norm)
     mean = numpy.mean(l2norm)
     std = numpy.std(l2norm)
 #    print("%d l2norm of top 100 words: mean = %f stddev=%f" % (cnt, numpy.mean(l2norm), numpy.std(l2norm),))
     l2norm = l2norm.tolist()
     l2norm.sort()
     l2norm.reverse()
-    logging.info("%d l2norm of %s: mean = %f stddev=%f top3=%s" % (cnt, str, mean, std, `l2norm[:3]`))
+    logging.info("%d l2norm of %s: median = %f mean = %f stddev=%f top3=%s" % (cnt, str, median, mean, std, `l2norm[:3]`))
 #    print("top 5 = %s" % `l2norm[:5]`)
 
 def weights_debug(w, cnt, str):
