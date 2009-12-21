@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/env python
 #
 #  Plot a histogram of the absolute values of model embeddings
 #
