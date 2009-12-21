@@ -43,3 +43,4 @@ ps2pdf graphs-trainerror.ps
 ps2pdf graphs-trainloss.ps
 ps2pdf graphs-validationlogrankloss.ps
 cp *pdf ~/public_html/priv ; chmod a+r ~/public_html/priv/*pdf
+#scp  *pdf turian@joyeux.iro.umontreal.ca:public_html/priv/

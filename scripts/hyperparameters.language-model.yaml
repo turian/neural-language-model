@@ -1,6 +1,7 @@
 #: Not actually used directly, just for convenience
 #
-locations: {"DATA_DIR": "/home/fringant2/lisa/turian/dev/python/language-model/data/"}
+#locations: {"DATA_DIR": "/home/fringant2/lisa/turian/dev/python/language-model/data/"}
+locations: {"DATA_DIR": "/home/turianjo/dev/python/language-model/data/"}
 
 ## 32-bit for the GPU
 ##import theano.config as config
