@@ -4,6 +4,9 @@
 #
 #
 
+PERCENT = 0.01
+import random
+
 import sys
 import matplotlib
 matplotlib.use( 'Agg' ) # Use non-GUI backend
@@ -26,8 +29,11 @@ values = []
 from vocabulary import wordmap
 for i in range(m.parameters.vocab_size):
     for v in m.parameters.embeddings[i]:
-        values.append(abs(v))
+        if random.random() < PERCENT:
+            values.append(abs(v))
 values.sort()
+
+print >> sys.stderr, "%d values read (at %f percent) of %d embeddings, %d/%f/%d = %f" % (len(values), PERCENT, m.parameters.vocab_size, len(values), PERCENT, m.parameters.vocab_size, len(values)/PERCENT/m.parameters.vocab_size)
 
 x = []
 for i, v in enumerate(values):
