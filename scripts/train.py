@@ -10,7 +10,7 @@ import miscglobals
 import logging
 
 import examples
-import verbosedebug
+import diagnostics
 import state
 
 def validate(cnt):
@@ -85,8 +85,8 @@ if __name__ == "__main__":
     logging.info(myyaml.dump(common.dump.vars_seq([hyperparameters, miscglobals])))
 
     #validate(0)
-    verbosedebug.verbosedebug(cnt, m)
-#    verbosedebug.visualizedebug(cnt, m, rundir)
+    diagnostics.diagnostics(cnt, m)
+#    diagnostics.visualizedebug(cnt, m, rundir)
     while 1:
         logging.info("STARTING EPOCH #%d" % epoch)
         for ebatch in get_train_minibatch:
@@ -99,14 +99,14 @@ if __name__ == "__main__":
                 logging.info("Finished training step %d (epoch %d)" % (cnt, epoch))
 #                print ("Finished training step %d (epoch %d)" % (cnt, epoch))
             if cnt % (int(100000./HYPERPARAMETERS["MINIBATCH SIZE"])*HYPERPARAMETERS["MINIBATCH SIZE"]) == 0:
-                verbosedebug.verbosedebug(cnt, m)
+                diagnostics.diagnostics(cnt, m)
                 if os.path.exists(os.path.join(rundir, "BAD")):
                     logging.info("Detected file: %s\nSTOPPING" % os.path.join(rundir, "BAD"))
                     sys.stderr.write("Detected file: %s\nSTOPPING\n" % os.path.join(rundir, "BAD"))
                     sys.exit(0)
             if cnt % (int(HYPERPARAMETERS["VALIDATE_EVERY"]*1./HYPERPARAMETERS["MINIBATCH SIZE"])*HYPERPARAMETERS["MINIBATCH SIZE"]) == 0:
                 state.save(m, cnt, epoch, get_train_minibatch, rundir, newkeystr)
-#                verbosedebug.visualizedebug(cnt, m, rundir, newkeystr)
+                diagnostics.visualizedebug(cnt, m, rundir, newkeystr)
 #                validate(cnt)
         get_train_minibatch = examples.TrainingMinibatchStream()
         epoch += 1

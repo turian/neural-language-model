@@ -10,7 +10,7 @@ import examples
 import numpy
 import random
 
-def verbosedebug(cnt, model):
+def diagnostics(cnt, model):
     logging.info(stats())
     debug_prehidden_values(cnt, model)
     embeddings_debug(model.parameters.embeddings[:100], cnt, "top  100 words")
