@@ -2,6 +2,7 @@
 Methods for getting examples.
 """
 
+from common.stats import stats
 from common.file import myopen
 import string
 
@@ -14,7 +15,9 @@ class TrainingExampleStream(object):
     def __iter__(self):
         HYPERPARAMETERS = common.hyperparameters.read("language-model")
         from vocabulary import wordmap
-        for l in myopen(HYPERPARAMETERS["TRAIN_SENTENCES"]):
+        self.filename = HYPERPARAMETERS["TRAIN_SENTENCES"]
+        self.count = 0
+        for l in myopen(self.filename):
             prevwords = []
             for w in string.split(l):
                 w = string.strip(w)
@@ -22,20 +25,59 @@ class TrainingExampleStream(object):
                 if wordmap.exists(w):
                     prevwords.append(wordmap.id(w))
                     if len(prevwords) >= HYPERPARAMETERS["WINDOW_SIZE"]:
+                        self.count += 1
                         yield prevwords[-HYPERPARAMETERS["WINDOW_SIZE"]:]
                 else:
                     prevwords = []
 
-def get_train_minibatch():
-    HYPERPARAMETERS = common.hyperparameters.read("language-model")
-    minibatch = []
-    get_train_example = TrainingExampleStream()
-    for e in get_train_example:
-        minibatch.append(e)
-        if len(minibatch) >= HYPERPARAMETERS["MINIBATCH SIZE"]:
-            assert len(minibatch) == HYPERPARAMETERS["MINIBATCH SIZE"]
-            yield minibatch
-            minibatch = []
+    def __getstate__(self):
+        return self.filename, self.count
+
+    def __setstate__(self, state):
+        """
+        @warning: We ignore the filename.  If we wanted
+        to be really fastidious, we would assume that
+        HYPERPARAMETERS["TRAIN_SENTENCES"] might change.  The only
+        problem is that if we change filesystems, the filename
+        might change just because the base file is in a different
+        path. So we issue a warning if the filename is different from
+        """
+        filename, count = state
+        logging.info("__setstate__(%s)..." % state)
+        logging.info(stats())
+        while count != self.count:
+            self.next()
+        if self.filename != filename:
+            assert self.filename == HYPERPARAMETERS["TRAIN_SENTENCES"]
+            logging.warning("self.filename %s != filename given to __setstate__ %s" % (self.filename, filename))
+        logging.info("...__setstate__(%s)" % state)
+        logging.info(stats())
+
+class TrainingMinibatchStream(object):
+    def __init__(self):
+        pass
+    
+    def __iter__(self):
+        HYPERPARAMETERS = common.hyperparameters.read("language-model")
+        minibatch = []
+        self.get_train_example = TrainingExampleStream()
+        for e in self.get_train_example:
+#            print self.get_train_example.__getstate__()
+            minibatch.append(e)
+            if len(minibatch) >= HYPERPARAMETERS["MINIBATCH SIZE"]:
+                assert len(minibatch) == HYPERPARAMETERS["MINIBATCH SIZE"]
+                yield minibatch
+                minibatch = []
+
+    def __getstate__(self):
+        return (self.get_train_example.__getstate__(),)
+
+    def __setstate__(self, state):
+        """
+        @warning: We ignore the filename.
+        """
+        self.get_train_example = TrainingExampleStream()
+        self.get_train_example.__setstate__(state[0])
 
 def get_validation_example():
     HYPERPARAMETERS = common.hyperparameters.read("language-model")

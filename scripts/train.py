@@ -96,7 +96,8 @@ if __name__ == "__main__":
     while 1:
         epoch += 1
         logging.info("STARTING EPOCH #%d" % epoch)
-        for ebatch in examples.get_train_minibatch():
+        get_train_minibatch = examples.TrainingMinibatchStream()
+        for ebatch in get_train_minibatch:
             cnt += len(ebatch)
         #    print [wordmap.str(id) for id in e]
             m.train(ebatch)
