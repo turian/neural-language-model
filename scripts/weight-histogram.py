@@ -41,6 +41,8 @@ for i, v in enumerate(values):
 
 print >> sys.stderr, 'Writing weight histogram to %s' % histfile
 
+pylab.ylim(ymin=0, ymax=1.)
 pylab.plot(x, values)
+pylab.ylim(ymin=0, ymax=1.)
 pylab.savefig(histfile)
 pylab.show()
