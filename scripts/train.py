@@ -11,6 +11,7 @@ import logging
 
 import examples
 import verbosedebug
+import state
 
 def validate(cnt):
     import math
@@ -28,28 +29,6 @@ def validate(cnt):
     logging.info(stats())
 #    print "FINAL VALIDATION AT TRAINING STEP %d: mean(logrank) = %.2f, stddev(logrank) = %.2f, cnt = %d" % (cnt, numpy.mean(numpy.array(logranks)), numpy.std(numpy.array(logranks)), i+1)
 #    print stats()
-
-lastfilename = None
-def save_state(m, cnt, rundir, newkeystr):
-    global lastfilename
-
-    import os.path
-    filename = os.path.join(rundir, "model-%d%s.pkl" % (cnt, newkeystr))
-    logging.info("Writing model to %s..." % filename)
-    logging.info(stats())
-    import cPickle
-    cPickle.dump(m, myopen(filename, "wb"), protocol=-1)
-    logging.info("...done writing model to %s" % filename)
-    logging.info(stats())
-
-    if lastfilename is not None:
-        logging.info("Removing old model %s..." % lastfilename)
-        try:
-            os.remove(lastfilename)
-            logging.error("...removed %s" % lastfilename)
-        except:
-            logging.error("Could NOT remove %s" % lastfilename)
-    lastfilename = filename
 
 if __name__ == "__main__":
     import common.hyperparameters, common.options
@@ -74,9 +53,6 @@ if __name__ == "__main__":
         os.system("ln -s log %s " % (verboselogfile))
     else:
         print >> sys.stderr, "Logging to %s, not creating any link because of default settings" % logfile
-    #logging.basicConfig(filename=logfile,level=logging.DEBUG)
-    logging.basicConfig(filename=logfile, filemode="w", level=logging.DEBUG)
-    logging.info(myyaml.dump(common.dump.vars_seq([hyperparameters, miscglobals])))
 
     import random, numpy
     random.seed(miscglobals.RANDOMSEED)
@@ -87,16 +63,32 @@ if __name__ == "__main__":
 #    vocabulary.read()
     
     import model
-    m = model.Model()
+    try:
+        print >> sys.stderr, ("Trying to read training state for %s %s..." % (newkeystr, rundir))
+        (m, cnt, epoch, get_train_minibatch) = state.load(rundir, newkeystr)
+        print >> sys.stderr, ("...success reading training state for %s %s" % (newkeystr, rundir))
+        print >> sys.stderr, logfile
+        logging.basicConfig(filename=logfile, level=logging.DEBUG)
+#        logging.basicConfig(filename=logfile, filemode="w", level=logging.DEBUG)
+        logging.info("CONTINUING FROM TRAINING STATE")
+    except IOError:
+        print >> sys.stderr, ("...FAILURE reading training state for %s %s" % (newkeystr, rundir))
+        print >> sys.stderr, ("INITIALIZING")
+
+        m = model.Model()
+        cnt = 0
+        epoch = 1
+        get_train_minibatch = examples.TrainingMinibatchStream()
+        logging.basicConfig(filename=logfile, filemode="w", level=logging.DEBUG)
+        logging.info("INITIALIZING TRAINING STATE")
+
+    logging.info(myyaml.dump(common.dump.vars_seq([hyperparameters, miscglobals])))
+
     #validate(0)
-    epoch = 0
-    cnt = 0
     verbosedebug.verbosedebug(cnt, m)
 #    verbosedebug.visualizedebug(cnt, m, rundir)
     while 1:
-        epoch += 1
         logging.info("STARTING EPOCH #%d" % epoch)
-        get_train_minibatch = examples.TrainingMinibatchStream()
         for ebatch in get_train_minibatch:
             cnt += len(ebatch)
         #    print [wordmap.str(id) for id in e]
@@ -113,6 +105,8 @@ if __name__ == "__main__":
                     sys.stderr.write("Detected file: %s\nSTOPPING\n" % os.path.join(rundir, "BAD"))
                     sys.exit(0)
             if cnt % (int(HYPERPARAMETERS["VALIDATE_EVERY"]*1./HYPERPARAMETERS["MINIBATCH SIZE"])*HYPERPARAMETERS["MINIBATCH SIZE"]) == 0:
-                save_state(m, cnt, rundir, newkeystr)
-                verbosedebug.visualizedebug(cnt, m, rundir, newkeystr)
+                state.save(m, cnt, epoch, get_train_minibatch, rundir, newkeystr)
+#                verbosedebug.visualizedebug(cnt, m, rundir, newkeystr)
 #                validate(cnt)
+        get_train_minibatch = examples.TrainingMinibatchStream()
+        epoch += 1

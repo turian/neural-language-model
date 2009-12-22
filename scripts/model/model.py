@@ -50,15 +50,39 @@ class Model:
         self.train_noise_score = MovingAverage()
         self.train_cnt = 0
 
-    def load(self, filename):
-        sys.stderr.write("Loading model from: %s\n" % filename)
-        f = myopen(filename, "rb")
-        (self.parameters, self.train_loss, self.train_err, self.train_lossnonzero, self.train_squashloss, self.train_unpenalized_loss, self.train_l1penalty, self.train_unpenalized_lossnonzero, self.train_correct_score, self.train_noise_score, self.train_cnt) = pickle.load(f)
+    def __getstate__(self):
+        return (self.parameters, self.train_loss, self.train_err, self.train_lossnonzero, self.train_squashloss, self.train_unpenalized_loss, self.train_l1penalty, self.train_unpenalized_lossnonzero, self.train_correct_score, self.train_noise_score, self.train_cnt)
 
-    def save(self, filename):
-        sys.stderr.write("Saving model to: %s\n" % filename)
-        f = myopen(filename, "wb")
-        pickle.dump((self.parameters, self.train_loss, self.train_err, self.train_lossnonzero, self.train_squashloss, self.train_unpenalized_loss, self.train_l1penalty, self.train_unpenalized_lossnonzero, self.train_correct_score, self.train_noise_score, self.train_cnt), f)
+    def __setstate__(self, state):
+        (self.parameters, self.train_loss, self.train_err, self.train_lossnonzero, self.train_squashloss, self.train_unpenalized_loss, self.train_l1penalty, self.train_unpenalized_lossnonzero, self.train_correct_score, self.train_noise_score, self.train_cnt) = state
+        if LBL:
+            graph.output_weights = self.parameters.output_weights
+            graph.output_biases = self.parameters.output_biases
+            graph.score_biases = self.parameters.score_biases
+        else:
+            graph.hidden_weights = self.parameters.hidden_weights
+            graph.hidden_biases = self.parameters.hidden_biases
+            graph.output_weights = self.parameters.output_weights
+            graph.output_biases = self.parameters.output_biases
+
+#    def load(self, filename):
+#        sys.stderr.write("Loading model from: %s\n" % filename)
+#        f = myopen(filename, "rb")
+#        (self.parameters, self.train_loss, self.train_err, self.train_lossnonzero, self.train_squashloss, self.train_unpenalized_loss, self.train_l1penalty, self.train_unpenalized_lossnonzero, self.train_correct_score, self.train_noise_score, self.train_cnt) = pickle.load(f)
+#        if LBL:
+#            graph.output_weights = self.parameters.output_weights
+#            graph.output_biases = self.parameters.output_biases
+#            graph.score_biases = self.parameters.score_biases
+#        else:
+#            graph.hidden_weights = self.parameters.hidden_weights
+#            graph.hidden_biases = self.parameters.hidden_biases
+#            graph.output_weights = self.parameters.output_weights
+#            graph.output_biases = self.parameters.output_biases
+#
+#    def save(self, filename):
+#        sys.stderr.write("Saving model to: %s\n" % filename)
+#        f = myopen(filename, "wb")
+#        pickle.dump((self.parameters, self.train_loss, self.train_err, self.train_lossnonzero, self.train_squashloss, self.train_unpenalized_loss, self.train_l1penalty, self.train_unpenalized_lossnonzero, self.train_correct_score, self.train_noise_score, self.train_cnt), f)
 
     def embed(self, sequence):
         """

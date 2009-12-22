@@ -7,9 +7,11 @@ from common.file import myopen
 import string
 
 import common.hyperparameters
+import sys
 
 class TrainingExampleStream(object):
     def __init__(self):
+        self.count = 0
         pass
     
     def __iter__(self):
@@ -43,15 +45,17 @@ class TrainingExampleStream(object):
         path. So we issue a warning if the filename is different from
         """
         filename, count = state
-        logging.info("__setstate__(%s)..." % state)
-        logging.info(stats())
+        print >> sys.stderr, ("__setstate__(%s)..." % `state`)
+        print >> sys.stderr, (stats())
+        iter = self.__iter__()
         while count != self.count:
-            self.next()
+#            print count, self.count
+            iter.next()
         if self.filename != filename:
             assert self.filename == HYPERPARAMETERS["TRAIN_SENTENCES"]
-            logging.warning("self.filename %s != filename given to __setstate__ %s" % (self.filename, filename))
-        logging.info("...__setstate__(%s)" % state)
-        logging.info(stats())
+            print >> sys.stderr, ("self.filename %s != filename given to __setstate__ %s" % (self.filename, filename))
+        print >> sys.stderr, ("...__setstate__(%s)" % `state`)
+        print >> sys.stderr, (stats())
 
 class TrainingMinibatchStream(object):
     def __init__(self):
