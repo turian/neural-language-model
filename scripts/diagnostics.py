@@ -4,6 +4,7 @@ Verbose debug output for the model.
 
 import logging
 from common.stats import stats
+from common.str import percent
 
 import examples
 
@@ -12,7 +13,12 @@ import random
 
 def diagnostics(cnt, model):
     logging.info(stats())
+    idxs = range(model.parameters.vocab_size)
+    random.shuffle(idxs)
+    idxs = idxs[:100]
+
     debug_prehidden_values(cnt, model)
+    embeddings_debug(model.parameters.embeddings[idxs], cnt, "rand 100 words")
     embeddings_debug(model.parameters.embeddings[:100], cnt, "top  100 words")
     embeddings_debug(model.parameters.embeddings[model.parameters.vocab_size/2-50:model.parameters.vocab_size/2+50], cnt, "mid  100 words")
     embeddings_debug(model.parameters.embeddings[-100:], cnt, "last 100 words")
@@ -72,6 +78,12 @@ def embeddings_debug(w, cnt, str):
     """
     Output the l2norm mean and max of the embeddings, including in debug out the str and training cnt
     """
+    totalcnt = numpy.sum(numpy.abs(w) >= 0)
+    notsmallcnt = numpy.sum(numpy.abs(w) >= 0.1)
+    logging.info("%d %s dimensions of %s have absolute value >= 0.1" % (cnt, percent(notsmallcnt, totalcnt), str))
+    notsmallcnt = numpy.sum(numpy.abs(w) >= 0.01)
+    logging.info("%d %s dimensions of %s have absolute value >= 0.01" % (cnt, percent(notsmallcnt, totalcnt), str))
+
     l2norm = numpy.sqrt(numpy.square(w).sum(axis=1))
     median = numpy.median(l2norm)
     mean = numpy.mean(l2norm)
