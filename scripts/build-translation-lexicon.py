@@ -13,13 +13,13 @@ if __name__ == "__main__":
 
     import string
     for i, l in enumerate(common.file.myopen(HYPERPARAMETERS["MONOLINGUAL VOCABULARY"])):
-        if HYPERPARAMETERS["INCLUDE_UNKNOWN_WORD"] and i+1 >= HYPERPARAMETERS["VOCABULARY_SIZE"]:
+        if HYPERPARAMETERS["INCLUDE_UNKNOWN_WORD"] and i+1 >= HYPERPARAMETERS["MONOLINGUAL VOCABULARY_SIZE"]:
             break
-        if not HYPERPARAMETERS["INCLUDE_UNKNOWN_WORD"] and i >= HYPERPARAMETERS["VOCABULARY_SIZE"]:
+        if not HYPERPARAMETERS["INCLUDE_UNKNOWN_WORD"] and i >= HYPERPARAMETERS["MONOLINGUAL VOCABULARY_SIZE"]:
             break
         (cnt, w) = string.split(l)
         words.append(w)
 
     v = common.idmap.IDmap(words, allow_unknown=HYPERPARAMETERS["INCLUDE_UNKNOWN_WORD"])
-    assert v.len == HYPERPARAMETERS["VOCABULARY_SIZE"]
+    assert v.len == HYPERPARAMETERS["MONOLINGUAL VOCABULARY_SIZE"]
     vocabulary.write(v)

@@ -14,14 +14,14 @@ def indexed_weights():
     global _indexed_weights
     if _indexed_weights is not None:
         return _indexed_weights
-    print >> sys.stderr, wordmap.len, "=?=", HYPERPARAMETERS["VOCABULARY_SIZE"]
-    assert wordmap.len == HYPERPARAMETERS["VOCABULARY_SIZE"]
+    print >> sys.stderr, wordmap.len, "=?=", HYPERPARAMETERS["MONOLINGUAL VOCABULARY_SIZE"]
+    assert wordmap.len == HYPERPARAMETERS["MONOLINGUAL VOCABULARY_SIZE"]
     if HYPERPARAMETERS["NGRAM_FOR_TRAINING_NOISE"] == 0:
         _indexed_weights = [1 for id in range(wordmap.len)]
     elif HYPERPARAMETERS["NGRAM_FOR_TRAINING_NOISE"] == 1:
         from common.json import load
         from common.file import myopen
-        ngrams_file = HYPERPARAMETERS["NGRAMS"][(HYPERPARAMETERS["NGRAM_FOR_TRAINING_NOISE"], HYPERPARAMETERS["VOCABULARY_SIZE"])]
+        ngrams_file = HYPERPARAMETERS["NGRAMS"][(HYPERPARAMETERS["NGRAM_FOR_TRAINING_NOISE"], HYPERPARAMETERS["MONOLINGUAL VOCABULARY_SIZE"])]
         print >> sys.stderr, "Reading ngrams from", ngrams_file, "..."
         from collections import defaultdict
         ngramcnt = defaultdict(int)

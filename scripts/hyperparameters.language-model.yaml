@@ -12,7 +12,7 @@ locations: {"DATA_DIR": "/home/turianjo/dev/python/language-model/data/"}
 INCLUDE_UNKNOWN_WORD: True
 
 RUN_NAME: "rcv1.case-intact"
-VOCABULARY_SIZE: 268810
+MONOLINGUAL VOCABULARY_SIZE: 268810
 
 # Use the log-bilinear model or not?
 # If True, we predict the Mnih log-bilinear model
