@@ -17,12 +17,13 @@ def get_training_biexample(l1, l2, f1, f2, falign):
     HYPERPARAMETERS = common.hyperparameters.read("language-model")
     WINDOW = HYPERPARAMETERS["WINDOW_SIZE"]
 
+    assert 0        # Share code with  w2w/build-target-vocabulary.py
     for (s1, s2, salign) in zip(open(f1), open(f2), open(falign)):
         # Read the two sentences and convert them to IDs.
         ws1 = [wordmap.id((l1, w1)) for w1 in string.split(s1)]
         ws2 = [wordmap.id((l2, w2)) for w2 in string.split(s2)]
         for link in string.split(salign):
-            i2, i1 = string.split(link, sep="-")    # NB The order of the link indices is switched
+            i1, i2 = string.split(link, sep="-")
             i1, i2 = int(i1), int(i2)
             w1 = ws1[i1]
             w2 = ws2[i2]

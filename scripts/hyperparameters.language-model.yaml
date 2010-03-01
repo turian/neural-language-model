@@ -16,7 +16,8 @@ RUN_NAME: "rcv1.case-intact"
 MONOLINGUAL_VOCABULARY_SIZE: 268810
 
 # Bilingual corpora language pairs
-W2W BICORPORA: [["en", "fr"]]
+W2W BICORPORA: [["en", "fr"], ["en", "nl"]]
+#W2W BICORPORA: [["en", "fr"]]
 # Monolingual corpora language singletons 
 W2W MONOCORPORA: []
 #W2W MONOCORPORA: ["en"]

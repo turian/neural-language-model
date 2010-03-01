@@ -22,12 +22,13 @@ def bicorpora_filenames():
         d = join(HYPERPARAMETERS["DATA_DIR"], "%s-%s" % (l1, l2))
         assert isdir(d)
         l1re = re.compile("%s$" % l1)
+        alignre = re.compile("align.*-%s$" % l1)
         for f1 in os.listdir(d):
             f1 = join(d, f1)
-            if not l1re.search(f1): continue
+            if not l1re.search(f1) or alignre.search(f1): continue
             f2 = l1re.sub(l2, f1)
             assert exists(f2)
-            falign = l1re.sub("align", f1)
+            falign = l1re.sub("align.%s-%s" % (l1, l2), f1)
             assert exists(falign)
             yield l1, l2, f1, f2, falign
 

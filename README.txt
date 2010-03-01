@@ -11,6 +11,11 @@ To train word-to-word multilingual model, probably you should run:
     * More than one target language.
     * Loss = logistic, not margin.
     ]
+
+    # [optional: Run the following if your alignment for language pair l1-l2
+    # is in form l2-l1]
+    ./scripts/preprocess/reverse-alignment.pl
+
     ./w2w/build-vocabulary.py
     ./w2w/build-target-vocabulary.py
     ./train-w2w.py

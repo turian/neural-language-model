@@ -7,10 +7,16 @@ Each corpus is weighted in proportion to its length. (i.e. all words are equally
 """
 
 import sys
+from common.stats import stats
 
 def readwords(filename):
     print >> sys.stderr, "Processing %s" % filename
+    i = 0
     for line in open(filename):
+        i += 1
+        if i % 100000 == 0:
+            print >> sys.stderr, "Read line %d of %s..." % (i, filename)
+            print >> sys.stderr, stats()
         for w in string.split(line):
             yield w
 
