@@ -30,6 +30,9 @@ class TrainingExampleStream(object):
                         self.count += 1
                         yield prevwords[-HYPERPARAMETERS["WINDOW_SIZE"]:]
                 else:
+                    # If we can learn an unknown word token, we should
+                    # delexicalize the word, not discard the example!
+                    if HYPERPARAMETERS["INCLUDE_UNKNOWN_WORD"]: assert 0
                     prevwords = []
 
     def __getstate__(self):
@@ -96,4 +99,7 @@ def get_validation_example():
                 if len(prevwords) >= HYPERPARAMETERS["WINDOW_SIZE"]:
                     yield prevwords[-HYPERPARAMETERS["WINDOW_SIZE"]:]
             else:
+                # If we can learn an unknown word token, we should
+                # delexicalize the word, not discard the example!
+                if HYPERPARAMETERS["INCLUDE_UNKNOWN_WORD"]: assert 0
                 prevwords = []
