@@ -9,7 +9,7 @@ import sys
 def _wordmap_filename():
     import common.hyperparameters, common.options
     HYPERPARAMETERS = common.hyperparameters.read("language-model")
-    return HYPERPARAMETERS["VOCABULARY_IDMAP_FILE"]
+    return HYPERPARAMETERS["MONOLINGUAL VOCABULARY_IDMAP_FILE"]
 
 wordmap = None
 try:
