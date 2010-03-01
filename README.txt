@@ -12,7 +12,7 @@ To train word-to-word multilingual model, probably you should run:
     * Loss = logistic, not margin.
     ]
     ./w2w/build-vocabulary.py
-    ./w2w/build-translation-vocabulary.py
+    ./w2w/build-target-vocabulary.py
     ./train-w2w.py
 
 TODO:
