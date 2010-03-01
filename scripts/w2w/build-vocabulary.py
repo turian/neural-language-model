@@ -32,23 +32,15 @@ if __name__ == "__main__":
     for l, f in w2w.corpora.monocorpora_filenames():
         assert 0
 
+    words = {}
     for (l, w) in wordfreq:
-        print l, w, wordfreq[(l, w)]
+        if l not in words: words[l] = []
+        if wordfreq[(l, w)] >= HYPERPARAMETERS["W2W MINIMUM WORD FREQUENCY"]:
+            words[l].append(w)
 
-#    import vocabulary
-#    import common.idmap
-#
-#    words = []
-#
-#    import string
-#    for i, l in enumerate(common.file.myopen(HYPERPARAMETERS["MONOLINGUAL_VOCABULARY"])):
-#        if HYPERPARAMETERS["INCLUDE_UNKNOWN_WORD"] and i+1 >= HYPERPARAMETERS["MONOLINGUAL_VOCABULARY_SIZE"]:
-#            break
-#        if not HYPERPARAMETERS["INCLUDE_UNKNOWN_WORD"] and i >= HYPERPARAMETERS["MONOLINGUAL_VOCABULARY_SIZE"]:
-#            break
-#        (cnt, w) = string.split(l)
-#        words.append(w)
-#
-#    v = common.idmap.IDmap(words, allow_unknown=HYPERPARAMETERS["INCLUDE_UNKNOWN_WORD"])
-#    assert v.len == HYPERPARAMETERS["MONOLINGUAL_VOCABULARY_SIZE"]
-#    vocabulary.write(v)
+    import w2w.vocabulary
+    import common.idmap
+
+    for l in words:
+        v = common.idmap.IDmap(words[l], allow_unknown=HYPERPARAMETERS["INCLUDE_UNKNOWN_WORD"])
+        w2w.vocabulary.write(v, l)
