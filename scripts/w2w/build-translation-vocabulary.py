@@ -26,17 +26,24 @@ if __name__ == "__main__":
     from collections import defaultdict
     from common.mydict import sort as dictsort
 
-    cnt = defaultdict(int)
+    cnt = {}
     for l1, l2, f1, f2, falign in w2w.corpora.bicorpora_filenames():
         for (s1, s2, salign) in zip(open(f1), open(f2), open(falign)):
-            ws1 = string.split(s1)
-            ws2 = string.split(s2)
+            # Read the two sentences and convert them to IDs.
+            ws1 = [w2w.vocabulary.wordmap(l1).id(w1) for w1 in string.split(s1)]
+            ws2 = [w2w.vocabulary.wordmap(l2).id(w2) for w2 in string.split(s2)]
             for link in string.split(salign):
                 i1, i2 = string.split(link, sep="-")
-                cnt[l1, l2, ws1[int(i2)], ws2[int(i1)]] += 1
+                w1 = ws1[int(i2)]
+                w2 = ws2[int(i1)]
+                tup = (l1, l2, w1)
+                if tup not in cnt: cnt[tup] = defaultdict(int)
+                cnt[tup][w2] += 1
 
-    for s in dictsort(cnt):
-        print s
+    for tup in cnt:
+        print tup, dictsort(cnt[tup])
+#        for s in dictsort(cnt[tup]):
+#            print s
 #    from collections import defaultdict
 #    wordfreq = defaultdict(int)
 #    for l1, l2, f1, f2, falign in w2w.corpora.bicorpora_filenames():

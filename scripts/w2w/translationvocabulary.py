@@ -14,15 +14,11 @@ def _wordmap_filename(language):
     HYPERPARAMETERS = common.hyperparameters.read("language-model")
     return join(rundir(), "idmap.%s.include_unknown=%s.pkl.gz" % (language, HYPERPARAMETERS["INCLUDE_UNKNOWN_WORD"]))
 
-_wordmap = {}
-def wordmap(language):
-    """
-    Read the wordmap for a particular language.
-    """
-    if language not in _wordmap:
-        _wordmap[language] = cPickle.load(myopen(_wordmap_filename(language)))
-        _wordmap[language].str = _wordmap[language].key
-    return _wordmap[language]
+#wordmap = None
+#try:
+#    wordmap = cPickle.load(myopen(_wordmap_filename()))
+#    wordmap.str = wordmap.key
+#except: pass
 
 def write(wordmap, language):
     """
