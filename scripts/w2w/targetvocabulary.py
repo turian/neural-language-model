@@ -9,7 +9,7 @@ import sys
 from os.path import join
 
 def _targetmap_filename():
-    import common.hyperparameters, common.options
+    import common.hyperparameters, common.options, hyperparameters
     HYPERPARAMETERS = common.hyperparameters.read("language-model")
     return join(HYPERPARAMETERS["DATA_DIR"], "targetmap.minfreq=%d.include_unknown=%s.pkl.gz" % (HYPERPARAMETERS["W2W MINIMUM WORD FREQUENCY"], HYPERPARAMETERS["INCLUDE_UNKNOWN_WORD"]))
 
