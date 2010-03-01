@@ -34,9 +34,10 @@ if __name__ == "__main__":
             ws2 = [w2w.vocabulary.wordmap.id((l2, w2)) for w2 in string.split(s2)]
 #            print ws2, [w2w.vocabulary.wordmap.str(w2) for w2 in ws2]
             for link in string.split(salign):
-                i1, i2 = string.split(link, sep="-")
-                w1 = ws1[int(i2)]
-                w2 = ws2[int(i1)]
+                i2, i1 = string.split(link, sep="-")    # NB The order of the link indices is switched
+                i1, i2 = int(i1), int(i2)
+                w1 = ws1[i1]
+                w2 = ws2[i2]
                 if w1 not in cnt: cnt[w1] = defaultdict(int)
                 cnt[w1][w2] += 1
 
