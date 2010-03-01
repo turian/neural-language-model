@@ -6,10 +6,10 @@ import cPickle
 from common.file import myopen
 import sys
 
-def _wordmap_filename():
+def _wordmap_filename(name):
     import common.hyperparameters, common.options
     HYPERPARAMETERS = common.hyperparameters.read("language-model")
-    return HYPERPARAMETERS["MONOLINGUAL VOCABULARY_IDMAP_FILE"]
+    return HYPERPARAMETERS["MONOLINGUAL_VOCABULARY_IDMAP_FILE"]
 
 wordmap = None
 try:
@@ -17,9 +17,9 @@ try:
     wordmap.str = wordmap.key
 except: pass
 
-def write(wordmap):
+def write(wordmap, name=""):
     """
     Write the word ID map, passed as a parameter.
     """
-    print >> sys.stderr, "Writing word map to %s..." % _wordmap_filename()
-    cPickle.dump(wordmap, myopen(_wordmap_filename(), "w"))
+    print >> sys.stderr, "Writing word map to %s..." % _wordmap_filename(name)
+    cPickle.dump(wordmap, myopen(_wordmap_filename(name), "w"))

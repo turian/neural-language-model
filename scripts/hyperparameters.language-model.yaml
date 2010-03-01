@@ -1,7 +1,8 @@
 #: Not actually used directly, just for convenience
 #
 #locations: {"DATA_DIR": "/home/fringant2/lisa/turian/dev/python/language-model/data/"}
-locations: {"DATA_DIR": "/home/turianjo/dev/python/language-model/data/"}
+#locations: {"DATA_DIR": "/home/turianjo/dev/python/language-model/data/"}
+locations: {"DATA_DIR": "../data/sample-bilingual/"}
 
 ## 32-bit for the GPU
 ##import theano.config as config
@@ -12,7 +13,13 @@ locations: {"DATA_DIR": "/home/turianjo/dev/python/language-model/data/"}
 INCLUDE_UNKNOWN_WORD: True
 
 RUN_NAME: "rcv1.case-intact"
-MONOLINGUAL VOCABULARY_SIZE: 268810
+MONOLINGUAL_VOCABULARY_SIZE: 268810
+
+# Bilingual corpora language pairs
+W2W BICORPORA: [["en", "fr"]]
+# Monolingual corpora language singletons 
+W2W MONOCORPORA: []
+#W2W MONOCORPORA: ["en"]
 
 # Use the log-bilinear model or not?
 # If True, we predict the Mnih log-bilinear model
