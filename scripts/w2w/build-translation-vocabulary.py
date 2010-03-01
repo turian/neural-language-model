@@ -30,8 +30,9 @@ if __name__ == "__main__":
     for l1, l2, f1, f2, falign in w2w.corpora.bicorpora_filenames():
         for (s1, s2, salign) in zip(open(f1), open(f2), open(falign)):
             # Read the two sentences and convert them to IDs.
-            ws1 = [w2w.vocabulary.wordmap(l1).id(w1) for w1 in string.split(s1)]
-            ws2 = [w2w.vocabulary.wordmap(l2).id(w2) for w2 in string.split(s2)]
+            ws1 = [w2w.vocabulary.wordmap.id((l1, w1)) for w1 in string.split(s1)]
+            ws2 = [w2w.vocabulary.wordmap.id((l2, w2)) for w2 in string.split(s2)]
+#            print ws2, [w2w.vocabulary.wordmap.str(w2) for w2 in ws2]
             for link in string.split(salign):
                 i1, i2 = string.split(link, sep="-")
                 w1 = ws1[int(i2)]
@@ -41,7 +42,9 @@ if __name__ == "__main__":
                 cnt[tup][w2] += 1
 
     for tup in cnt:
-        print tup, dictsort(cnt[tup])
+        l1, l2, w1 = tup
+        print w2w.vocabulary.wordmap.str(w1), l2, [(n, w2w.vocabulary.wordmap.str(w2)[1]) for n, w2 in dictsort(cnt[tup])]
+#        print tup, dictsort(cnt[tup])
 #        for s in dictsort(cnt[tup]):
 #            print s
 #    from collections import defaultdict
