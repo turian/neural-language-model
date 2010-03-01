@@ -11,7 +11,7 @@ To train word-to-word multilingual model, probably you should run:
     * More than one target language.
     * Loss = logistic, not margin.
     ]
-    ./build-translation-lexicon.py
+    ./w2w/build-vocabulary.py
     ./train-w2w.py
 
 TODO:
