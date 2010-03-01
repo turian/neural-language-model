@@ -43,7 +43,8 @@ if __name__ == "__main__":
     import noise
     indexed_weights = noise.indexed_weights()
 
-    rundir = common.dump.create_canonical_directory(HYPERPARAMETERS)
+    from rundir import rundir
+    rundir = rundir()
 
     import os.path, os
     logfile = os.path.join(rundir, "log")
