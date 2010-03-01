@@ -43,5 +43,5 @@ if __name__ == "__main__":
 
 #    for k in wordfreq.keys():
 #        print k
-    v = common.idmap.IDmap(wordfreq.keys(), allow_unknown=HYPERPARAMETERS["INCLUDE_UNKNOWN_WORD"], unknown_key=(None, "*UNKNOWN*"))
+    v = common.idmap.IDmap(wordfreq.keys() + [(None, "*LBOUNDARY*"), (None, "*RBOUNDARY*")], allow_unknown=HYPERPARAMETERS["INCLUDE_UNKNOWN_WORD"], unknown_key=(None, "*UNKNOWN*"))
     w2w.vocabulary.write(v)
