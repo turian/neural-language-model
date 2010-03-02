@@ -6,8 +6,9 @@ import theano
 #import theano.sandbox.cuda
 #theano.sandbox.cuda.use()
 
-from theano.compile.sandbox import pfunc, shared
-floatX = theano.config.config.get('scalar.floatX')
+from theano.compile import pfunc, shared
+from theano import config
+floatX = config.floatX
 
 
 from theano import tensor as t

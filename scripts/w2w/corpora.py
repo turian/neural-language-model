@@ -8,6 +8,7 @@ import os
 import re
 import itertools
 import string
+import logging
 
 from common.stats import stats
 from common.str import percent
@@ -57,16 +58,15 @@ def bicorpus_sentences_and_alignments(l1, l2, f1, f2, falign):
 
     i = 0
     emptycnt = 0
-    print >> sys.stderr, "\n"
-    print >> sys.stderr, "Reading %s,%s sentences and alignments from %s, %s, %s" % (l1, l2, f1, f2, falign)
+    logging.info("Reading %s,%s sentences and alignments from %s, %s, %s" % (l1, l2, f1, f2, falign))
     fil1, fil2, filalign = open(f1), open(f2), open(falign)
     for (s1, s2, salign) in itertools.izip(fil1, fil2, filalign):
    #     print s1, s2, salign,
         i += 1
         if i % 100000 == 0:
-            print >> sys.stderr, "\tRead line %d of %s, %s, %s..." % (i, f1, f2, falign)
-            print >> sys.stderr, "\tEmpty sentences are %s..." % (percent(emptycnt, i))
-            print >> sys.stderr, "\t%s" % stats()
+            logging.info("\tRead line %d of %s, %s, %s..." % (i, f1, f2, falign))
+            logging.info("\tEmpty sentences are %s..." % (percent(emptycnt, i)))
+            logging.info("\t%s" % stats())
 
         ws1 = [(l1, w1) for w1 in string.split(s1)]
         ws2 = [(l2, w2) for w2 in string.split(s2)]
@@ -93,9 +93,9 @@ def bicorpus_sentences_and_alignments(l1, l2, f1, f2, falign):
     except StopIteration: alldone += 1
     assert alldone == 3
    
-    print >> sys.stderr, "DONE. Read line %d of %s, %s, %s..." % (i, f1, f2, falign)
-    print >> sys.stderr, "Empty sentences are %s..." % (percent(emptycnt, i))
-    print >> sys.stderr, stats()
+    logging.info("DONE. Read line %d of %s, %s, %s..." % (i, f1, f2, falign))
+    logging.info("Empty sentences are %s..." % (percent(emptycnt, i)))
+    logging.info(stats())
 
 if __name__ == "__main__":
     for l1, l2, f1, f2, falign in bicorpora_filenames():

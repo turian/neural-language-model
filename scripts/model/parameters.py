@@ -2,10 +2,10 @@
 @todo: WRITEME
 """
 
-import theano.config
+from theano import config
 from theano.compile.sandbox import shared
 
-floatX = theano.config.config.get('scalar.floatX')
+floatX = config.floatX
 
 from hyperparameters import HYPERPARAMETERS
 LBL = HYPERPARAMETERS["LOG BILINEAR MODEL"]
@@ -19,7 +19,7 @@ class Parameters:
     import hyperparameters
     import miscglobals
     import vocabulary
-    def __init__(self, window_size=HYPERPARAMETERS["WINDOW_SIZE"], vocab_size=vocabulary.wordmap.len, embedding_size=HYPERPARAMETERS["EMBEDDING_SIZE"], hidden_size=HYPERPARAMETERS["HIDDEN_SIZE"], seed=miscglobals.RANDOMSEED):
+    def __init__(self, window_size=HYPERPARAMETERS["WINDOW_SIZE"], vocab_size=vocabulary.wordmap().len, embedding_size=HYPERPARAMETERS["EMBEDDING_SIZE"], hidden_size=HYPERPARAMETERS["HIDDEN_SIZE"], seed=miscglobals.RANDOMSEED):
         """
         Initialize L{Model} parameters.
         """

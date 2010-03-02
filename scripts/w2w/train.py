@@ -9,7 +9,7 @@ from common.stats import stats
 import miscglobals
 import logging
 
-import examples
+import w2w.examples
 #import diagnostics
 #import state
 
@@ -63,7 +63,7 @@ if __name__ == "__main__":
 ##    logging.info("Reading vocab")
 ##    vocabulary.read()
 #    
-#    import model
+    import model
 #    try:
 #        print >> sys.stderr, ("Trying to read training state for %s %s..." % (newkeystr, rundir))
 #        (m, cnt, epoch, get_train_minibatch) = state.load(rundir, newkeystr)
@@ -82,16 +82,36 @@ if __name__ == "__main__":
 #        get_train_minibatch = examples.TrainingMinibatchStream()
 #        logging.basicConfig(filename=logfile, filemode="w", level=logging.DEBUG)
 #        logging.info("INITIALIZING TRAINING STATE")
-#
-#    logging.info(myyaml.dump(common.dump.vars_seq([hyperparameters, miscglobals])))
-#
+
+
+    # TODO: Try to load old training state
+
+    translation_model = {}
+    for l1, l2 in HYPERPARAMETERS["W2W BICORPORA"]:
+        translation_model[l1] = model.Model()
+
+    # TODO: If we want more than one model, we should SHARE the embeddings parameters
+    assert len(translation_model) == 1
+    for l1 in HYPERPARAMETERS["W2W MONOCORPORA"]:
+        assert 0
+
+    cnt = 0
+    epoch = 1
+#    get_train_minibatch = examples.TrainingMinibatchStream()
+    get_train_minibatch = w2w.examples.get_training_minibatch()
+    logging.basicConfig(filename=logfile, filemode="w", level=logging.DEBUG)
+    logging.info("INITIALIZING TRAINING STATE")
+
+
+    logging.info(myyaml.dump(common.dump.vars_seq([hyperparameters, miscglobals])))
+
 #    #validate(0)
 #    diagnostics.diagnostics(cnt, m)
 ##    diagnostics.visualizedebug(cnt, m, rundir)
-#    while 1:
-#        logging.info("STARTING EPOCH #%d" % epoch)
-#        for ebatch in get_train_minibatch:
-#            cnt += len(ebatch)
+    while 1:
+        logging.info("STARTING EPOCH #%d" % epoch)
+        for ebatch in get_train_minibatch:
+            cnt += len(ebatch)
 #        #    print [wordmap.str(id) for id in e]
 #            m.train(ebatch)
 #
@@ -110,4 +130,5 @@ if __name__ == "__main__":
 #                diagnostics.visualizedebug(cnt, m, rundir, newkeystr)
 ##                validate(cnt)
 #        get_train_minibatch = examples.TrainingMinibatchStream()
-#        epoch += 1
+        get_train_minibatch = w2w.examples.get_training_minibatch()
+        epoch += 1
