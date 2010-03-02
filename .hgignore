@@ -10,6 +10,7 @@ data
 data-sample-bilingual/*.pkl.gz
 fmap*.pkl.gz
 html
+hyperparameters.language-model.yaml
 LOGS
 LOGS*/[A-Za-z]*
 *.o
