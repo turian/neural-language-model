@@ -2,7 +2,7 @@
 Streaming examples.
 """
 
-from w2w.corpora import bicorpora_filenames, monocorpora_filenames
+from w2w.corpora import bicorpora_filenames, monocorpora_filenames, bicorpus_sentences_and_alignments
 from common.file import myopen
 
 from w2w.targetvocabulary import targetmap
@@ -17,14 +17,8 @@ def get_training_biexample(l1, l2, f1, f2, falign):
     HYPERPARAMETERS = common.hyperparameters.read("language-model")
     WINDOW = HYPERPARAMETERS["WINDOW_SIZE"]
 
-    assert 0        # Share code with  w2w/build-target-vocabulary.py
-    for (s1, s2, salign) in zip(open(f1), open(f2), open(falign)):
-        # Read the two sentences and convert them to IDs.
-        ws1 = [wordmap.id((l1, w1)) for w1 in string.split(s1)]
-        ws2 = [wordmap.id((l2, w2)) for w2 in string.split(s2)]
-        for link in string.split(salign):
-            i1, i2 = string.split(link, sep="-")
-            i1, i2 = int(i1), int(i2)
+    for ws1, ws2, links in bicorpus_sentences_and_alignments(l1, l2, f1, f2, falign):
+        for i1, i2 in links:
             w1 = ws1[i1]
             w2 = ws2[i2]
             if w1 not in targetmap or w2 not in targetmap[w1]:
