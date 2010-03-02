@@ -93,7 +93,9 @@ if __name__ == "__main__":
         for ebatch in get_train_minibatch:
             cnt += len(ebatch)
         #    print [wordmap.str(id) for id in e]
-            m.train(ebatch)
+
+            noise_sequences, weights = examples.corrupt_examples(m, ebatch)
+            m.train(ebatch, noise_sequences, weights)
 
             #validate(cnt)
             if cnt % (int(1000./HYPERPARAMETERS["MINIBATCH SIZE"])*HYPERPARAMETERS["MINIBATCH SIZE"]) == 0:

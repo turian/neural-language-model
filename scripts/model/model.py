@@ -113,51 +113,14 @@ class Model:
         assert len(new_embs) == len(sequences[0])
         return new_embs
 
-    def corrupt_example(self, e):
-        """
-        Return a corrupted version of example e, plus the weight of this example.
-        """
-        from hyperparameters import HYPERPARAMETERS
-        import random
-        import copy
-        e = copy.copy(e)
-        last = e[-1]
-        cnt = 0
-        while e[-1] == last:
-            if HYPERPARAMETERS["NGRAM_FOR_TRAINING_NOISE"] == 0:
-                e[-1] = random.randint(0, self.parameters.vocab_size-1)
-                pr = 1./self.parameters.vocab_size
-            elif HYPERPARAMETERS["NGRAM_FOR_TRAINING_NOISE"] == 1:
-                import noise
-                from common.myrandom import weighted_sample
-                e[-1], pr = weighted_sample(noise.indexed_weights())
-#                from vocabulary import wordmap
-#                print wordmap.str(e[-1]), pr
-            else:
-                assert 0
-            cnt += 1
-            # Backoff to 0gram smoothing if we fail 10 times to get noise.
-            if cnt > 10: e[-1] = random.randint(0, self.parameters.vocab_size-1)
-        weight = 1./pr
-        return e, weight
-
-    def corrupt_examples(self, correct_sequences):
-        noise_sequences = []
-        weights = []
-        for e in correct_sequences:
-            noise_sequence, weight = self.corrupt_example(e)
-            noise_sequences.append(noise_sequence)
-            weights.append(weight)
-        return noise_sequences, weights
-
-    def train(self, correct_sequences):
+    def train(self, correct_sequences, noise_sequences, weights):
         from hyperparameters import HYPERPARAMETERS
         learning_rate = HYPERPARAMETERS["LEARNING_RATE"]
-        if LBL:
-            noise_sequences, weights = self.corrupt_examples(correct_sequences)
-            # All weights must be the same, if we first multiply by the learning rate
-            for w in weights: assert w == weights[0]
 
+        # All weights must be the same, if we first multiply by the learning rate
+        for w in weights: assert w == weights[0]
+
+        if LBL:
             # REWRITE FOR MINIBATCH
             assert 0
 
@@ -183,10 +146,6 @@ class Model:
 #            print "correct_score = ", correct_score
 #            print "noise_score = ", noise_score
         else:
-            noise_sequences, weights = self.corrupt_examples(correct_sequences)
-            # All weights must be the same, if we first multiply by the learning rate
-            for w in weights: assert w == weights[0]
-
             r = graph.train(self.embeds(correct_sequences), self.embeds(noise_sequences), learning_rate * weights[0])
             (dcorrect_inputss, dnoise_inputss, losss, unpenalized_losss, l1penaltys, correct_scores, noise_scores) = r
 #            print [d.shape for d in dcorrect_inputss]

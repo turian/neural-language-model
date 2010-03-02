@@ -113,6 +113,13 @@ if __name__ == "__main__":
         for ebatch in get_train_minibatch:
             cnt += len(ebatch)
 #        #    print [wordmap.str(id) for id in e]
+
+            # Make sure every example in the batch has the same source language.
+            for (l1, seq), w2 in ebatch:
+                assert l1 == ebatch[0][0][0]
+
+#            noise_sequences, weights = w2w.examples.corrupt_examples(m, correct_sequences)
+#            m.train(ebatch, noise_sequences, weights)
 #            m.train(ebatch)
 #
 #            #validate(cnt)
