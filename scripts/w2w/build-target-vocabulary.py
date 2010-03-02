@@ -14,8 +14,11 @@ if __name__ == "__main__":
     HYPERPARAMETERS, options, args, newkeystr = common.options.reparse(HYPERPARAMETERS)
     import hyperparameters
 
+    import logging
+    logging.basicConfig(level=logging.DEBUG)
+
     import w2w.corpora
-    from w2w.vocabulary import wordmap
+    from w2w.vocabulary import wordmap, language, wordform
     from collections import defaultdict
     from common.mydict import sort as dictsort
 
@@ -25,12 +28,22 @@ if __name__ == "__main__":
             for i1, i2 in links:
                 w1 = ws1[i1]
                 w2 = ws2[i2]
-                if w1 not in cnt: cnt[w1] = defaultdict(int)
+                if w1 not in cnt: cnt[w1] = {}
 #                print wordmap.str(w1)[1], wordmap.str(w2)[1]
-                cnt[w1][w2] += 1
+
+                l2new = language(w2)
+
+                assert HYPERPARAMETERS["W2W SKIP TRANSLATIONS TO UNKNOWN WORD"]
+                # Skip translations to unknown words
+                if wordform(w2) == "*UNKNOWN*": continue
+
+                assert l2new == l2
+                if l2 not in cnt[w1]: cnt[w1][l2] = defaultdict(int)
+                cnt[w1][l2][w2] += 1
 
     for w1 in cnt:
-        print wordmap().str(w1), [(n, wordmap().str(w2)) for n, w2 in dictsort(cnt[w1])]
+        for l2 in cnt[w1]:
+            print wordmap().str(w1), l2, [(n, wordmap().str(w2)) for n, w2 in dictsort(cnt[w1][l2])]
 
 #    words = {}
 #    for (l, w) in wordfreq:

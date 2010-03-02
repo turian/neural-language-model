@@ -6,8 +6,9 @@ from w2w.corpora import bicorpora_filenames, monocorpora_filenames, bicorpus_sen
 from common.file import myopen
 
 from w2w.targetvocabulary import targetmap
-from w2w.vocabulary import wordmap
+from w2w.vocabulary import wordmap, language, wordform
 import string
+import logging
 
 def get_training_biexample(l1, l2, f1, f2, falign):
     """
@@ -26,8 +27,27 @@ def get_training_biexample(l1, l2, f1, f2, falign):
         for i1, i2 in links:
             w1 = ws1[i1]
             w2 = ws2[i2]
-            if w1 not in targetmap() or w2 not in targetmap()[w1]:
-                print >> sys.stderr, "Translating %s to %s is not in target map, skipping" % (wordmap().str(w1), wordmap().str(w2))
+
+            l2new = language(w2)
+            assert HYPERPARAMETERS["W2W SKIP TRANSLATIONS TO UNKNOWN WORD"]
+            # Skip translations to unknown words
+            if wordform(w2) == "*UNKNOWN*": continue
+            assert l2new == l2
+
+            if w1 not in targetmap():
+                logging.warning("No translations for word %s, skipping" % (`wordmap().str(w1)`))
+                continue
+
+            if l2new not in targetmap()[w1]:
+                logging.warning("Word %s has no translations for language %s, skipping" % (`wordmap().str(w1)`, l2new))
+                continue
+
+            if w2 not in targetmap()[w1][l2new]:
+                logging.error("Word %s cannot translate to word %s, skipping" % (`wordmap().str(w1)`, `wordmap().str(w2)`))
+                continue
+
+            if len(targetmap()[w1][l2new]) == 1:
+                logging.info("Word %s has only one translation in language %s, skipping" % (`wordmap().str(w1)`, l2new))
                 continue
 
             # Extract the window of tokens around index i1. Pad with *LBOUNDARY* and *RBOUNDARY* as necessary.
@@ -49,6 +69,7 @@ def get_training_biexample(l1, l2, f1, f2, falign):
 #            print [wordmap.str(w) for w in seq]
             assert len(seq) == WINDOW
 #            print ws1[i1 - (WINDOW-1)/2:i1 + (WINDOW-1)/2]
+
             yield (l1, seq), w2
 
 def get_training_minibatch():

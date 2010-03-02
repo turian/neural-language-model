@@ -1,6 +1,6 @@
 """
-targetmap[w1][w2] = c means that source word ID w1 mapped to target word ID w2 with count c.
-Automatically load the targetmap, if available.
+targetmap[w1][l2][w2] = c means that source word ID w1 mapped to target
+language l2 and target word ID w2 with count c.
 """
 
 import cPickle

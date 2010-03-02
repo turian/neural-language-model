@@ -1,5 +1,5 @@
 """
-Automatically load the wordmap, if available.
+wordmap is a map from id to (language, wordform)
 """
 
 import cPickle
@@ -19,6 +19,18 @@ def wordmap():
         _wordmap = cPickle.load(myopen(_wordmap_filename()))
         _wordmap.str = _wordmap.key
     return _wordmap
+
+def language(id):
+    """
+    Get the language of this word id.
+    """
+    return wordmap().str(id)[0]
+
+def wordform(id):
+    """
+    Get the word form of this word id.
+    """
+    return wordmap().str(id)[1]
 
 def write(_wordmap_new):
     """

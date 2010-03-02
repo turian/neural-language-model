@@ -94,7 +94,7 @@ if __name__ == "__main__":
             cnt += len(ebatch)
         #    print [wordmap.str(id) for id in e]
 
-            noise_sequences, weights = examples.corrupt_examples(m, ebatch)
+            noise_sequences, weights = corrupt.corrupt_examples(m, ebatch)
             m.train(ebatch, noise_sequences, weights)
 
             #validate(cnt)

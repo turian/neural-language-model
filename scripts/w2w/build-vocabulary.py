@@ -26,6 +26,9 @@ if __name__ == "__main__":
     HYPERPARAMETERS, options, args, newkeystr = common.options.reparse(HYPERPARAMETERS)
     import hyperparameters
 
+    import logging
+    logging.basicConfig(level=logging.DEBUG)
+
     import w2w.corpora
     import string
 

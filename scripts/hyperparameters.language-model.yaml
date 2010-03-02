@@ -25,6 +25,14 @@ W2W MONOCORPORA: []
 W2W MINIMUM WORD FREQUENCY: 3
 #W2W MINIMUM WORD FREQUENCY: 5
 
+# Skip translations to unknown word.
+# This makes coding easy, because we treat the Unknown word as having its own language.
+# However, this means that we always will try to translate words to
+# something in the target vocab, whereas in practice we might want to
+# translate to *UNKNOWN* and in the target language just keep the word
+# form as is.
+W2W SKIP TRANSLATIONS TO UNKNOWN WORD: True
+
 # Use the log-bilinear model or not?
 # If True, we predict the Mnih log-bilinear model
 # If False, we predict the C&W language model.
