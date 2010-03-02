@@ -2,7 +2,8 @@
 #
 #locations: {"DATA_DIR": "/home/fringant2/lisa/turian/dev/python/language-model/data/"}
 #locations: {"DATA_DIR": "/home/turianjo/dev/python/language-model/data/"}
-locations: {"DATA_DIR": "../data-sample-bilingual/"}
+#locations: {"DATA_DIR": "../data-sample-bilingual/"}
+locations: {"DATA_DIR": "../data/full-bilingual/"}
 
 ## 32-bit for the GPU
 ##import theano.config as config
@@ -20,14 +21,15 @@ MONOLINGUAL_VOCABULARY_SIZE: 268810
 UNIFORM EXAMPLE WEIGHTS: True
 
 # Bilingual corpora language pairs
-W2W BICORPORA: [["en", "fr"], ["en", "nl"]]
+#W2W BICORPORA: [["en", "fr"], ["en", "nl"]]
+W2W BICORPORA: [["en", "nl"]]
 # Monolingual corpora language singletons 
 W2W MONOCORPORA: []
 #W2W MONOCORPORA: ["en"]
 
 # Delexicalize all words that occur fewer than this number of times.
-W2W MINIMUM WORD FREQUENCY: 3
-#W2W MINIMUM WORD FREQUENCY: 5
+#W2W MINIMUM WORD FREQUENCY: 3
+W2W MINIMUM WORD FREQUENCY: 10
 
 # Skip translations to unknown word.
 # This makes coding easy, because we treat the Unknown word as having its own language.

@@ -32,6 +32,8 @@ if __name__ == "__main__":
     import w2w.corpora
     import string
 
+    from common.mydict import sort as dictsort
+
     from collections import defaultdict
     wordfreq = defaultdict(int)
     for l1, l2, f1, f2, falign in w2w.corpora.bicorpora_filenames():

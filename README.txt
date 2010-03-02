@@ -22,7 +22,12 @@ To train word-to-word multilingual model, probably you should run:
     ./scripts/preprocess/reverse-alignment.pl
 
     ./w2w/build-vocabulary.py
+    # Then see the output with ./w2w/dump-vocabulary.py, to see if you want
+    # to adjust the w2w minfreq hyperparameter
+
     ./w2w/build-target-vocabulary.py
+    # Then see the output with ./w2w/dump-target-vocabulary.py
+
     ./train-w2w.py
 
 TODO:
