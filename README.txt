@@ -1,5 +1,8 @@
 Approach based upon language model in Bengio et al ICML 09 "Curriculum Learning".
 
+You will need my common python library:
+    http://github.com/turian/common
+
 To train a monolingual language model, probably you should run:
     [edit hyperparameters.language-model.yaml]
     ./build-vocabulary.py
