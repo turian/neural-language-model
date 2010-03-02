@@ -114,14 +114,24 @@ if __name__ == "__main__":
             cnt += len(ebatch)
 #        #    print [wordmap.str(id) for id in e]
 
+            for e in ebatch:
+                # Make sure all examples have the same language
+                assert e.l1 == ebatch[0].l1
+
             # The following is code for training on bilingual examples.
             # TODO: Monolingual examples?
 
-            # Make sure every example in the batch has the same source language.
-            for (l1, seq), w2 in ebatch:
-                assert l1 == ebatch[0][0][0]
-
-#            noise_sequences, weights = w2w.examples.corrupt_bilingual_examples(m, correct_sequences)
+            correct_sequences = []
+            noise_sequences = []
+            weights = []
+            for e in ebatch:
+                notw2, weight = e.corrupt
+                correct_sequences.append(e.l1seq + [e.w2])
+                noise_sequences.append(e.l1seq + [notw2])
+                weights.append(weight)
+            assert len(ebatch) == len(correct_sequences)
+            assert len(ebatch) == len(noise_sequences)
+            assert len(ebatch) == len(weights)
 
 #            m.train(ebatch, noise_sequences, weights)
 #            m.train(ebatch)

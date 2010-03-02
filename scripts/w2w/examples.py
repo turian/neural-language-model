@@ -27,7 +27,40 @@ class BilingualExample:
             assert self.l1 == language(self.w1)
 
     @property
-    def l2(self): return language(w2)
+    def l2(self):
+        return language(self.w2)
+
+    @property
+    def corrupt(self):
+        """
+        Return a (notw2, weight), a corrupt target word and its weight.
+        Note: This will return a different random value every call.
+        """
+        from hyperparameters import HYPERPARAMETERS
+        import random
+        possible_targets = targetmap()[self.w1][self.l2]
+        assert len(possible_targets) > 1
+        assert self.w2 in possible_targets
+        notw2 = self.w2
+        cnt = 0
+        while self.w2 == notw2:
+            if HYPERPARAMETERS["NGRAM_FOR_TRAINING_NOISE"] == 0:
+                notw2 = random.choice(possible_targets)
+                pr = 1./len(possible_targets)
+            elif HYPERPARAMETERS["NGRAM_FOR_TRAINING_NOISE"] == 1:
+                assert 0
+    #            import noise
+    #            from common.myrandom import weighted_sample
+    #            e[-1], pr = weighted_sample(noise.indexed_weights())
+    ##            from vocabulary import wordmap
+    ##            print wordmap.str(e[-1]), pr
+            else:
+                assert 0
+            cnt += 1
+            # Backoff to 0gram smoothing if we fail 10 times to get noise.
+            if cnt > 10: notw2 = random.choice(possible_targets)
+        weight = 1./pr
+        return notw2, weight
 
     def __str__(self):
         return "%s" % `(self.l1, wordform(self.w1), [wordmap().str(w)[1] for w in self.l1seq], wordmap().str(self.w2))`
@@ -55,6 +88,9 @@ def get_training_biexample(l1, l2, f1, f2, falign):
             # Skip translations to unknown words
             if wordform(w2) == "*UNKNOWN*": continue
             assert l2new == l2
+
+            # Skip translations from unknown words
+            if wordform(w1) == "*UNKNOWN*": continue
 
             if w1 not in targetmap():
                 logging.warning("No translations for word %s, skipping" % (`wordmap().str(w1)`))
