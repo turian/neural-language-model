@@ -11,9 +11,10 @@ To train a monolingual language model, probably you should run:
     ./train.py
 
 To train word-to-word multilingual model, probably you should run:
+    cd scripts; ln -s hyperparameters.language-model.sample.yaml s hyperparameters.language-model.yaml
+
     [TODO:
     * Initialize using monolingual language model in source language.
-    * More than one target language.
     * Loss = logistic, not margin.
     ]
 

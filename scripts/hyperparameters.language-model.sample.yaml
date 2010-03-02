@@ -1,0 +1,116 @@
+#: Not actually used directly, just for convenience
+#
+#locations: {"DATA_DIR": "/home/fringant2/lisa/turian/dev/python/language-model/data/"}
+#locations: {"DATA_DIR": "/home/turianjo/dev/python/language-model/data/"}
+locations: {"DATA_DIR": "../data-sample-bilingual/"}
+#locations: {"DATA_DIR": "../data/full-bilingual/"}
+
+## 32-bit for the GPU
+##import theano.config as config
+##floatX: config.floatX
+#floatX: 'float32'
+
+# Should we induce an embedding for OOV words?
+INCLUDE_UNKNOWN_WORD: True
+
+RUN_NAME: "rcv1.case-intact"
+MONOLINGUAL_VOCABULARY_SIZE: 268810
+
+# Make all example weights are uniform
+# Note: When a word has more target words, we might want to give it higher weight. (Or, when we use ngram noise.)
+UNIFORM EXAMPLE WEIGHTS: True
+
+# Bilingual corpora language pairs
+W2W BICORPORA: [["en", "fr"], ["en", "nl"]]
+#W2W BICORPORA: [["en", "nl"]]
+# Monolingual corpora language singletons 
+W2W MONOCORPORA: []
+#W2W MONOCORPORA: ["en"]
+
+# Delexicalize all words that occur fewer than this number of times.
+W2W MINIMUM WORD FREQUENCY: 3
+#W2W MINIMUM WORD FREQUENCY: 10
+
+# Skip translations to unknown word.
+# This makes coding easy, because we treat the Unknown word as having its own language.
+# However, this means that we always will try to translate words to
+# something in the target vocab, whereas in practice we might want to
+# translate to *UNKNOWN* and in the target language just keep the word
+# form as is.
+W2W SKIP TRANSLATIONS TO UNKNOWN WORD: True
+
+# Use the log-bilinear model or not?
+# If True, we predict the Mnih log-bilinear model
+# If False, we predict the C&W language model.
+#LOG BILINEAR MODEL: True
+LOG BILINEAR MODEL: False
+
+# Number of examples per minibach
+MINIBATCH SIZE: 100
+
+# Randomly initialize embeddings uniformly in the range [-this value, +this value]
+INITIAL_EMBEDDING_RANGE: 0.01
+
+# l1 penalty appliedto C&W embeddings
+CW_EMBEDDING_L1_PENALTY: 0.
+
+NORMALIZE_EMBEDDINGS: False
+#NORMALIZE_EMBEDDINGS: True
+#UPDATES_PER_NORMALIZE_EMBEDDINGS: 1000
+
+# Number of validation examples
+#VALIDATION EXAMPLES: 10000
+#VALIDATION EXAMPLES: 2500
+VALIDATION EXAMPLES: 1000
+
+# What percent of noise examples should we use for computing the logrank
+# during validation?
+# This is a speed optimization.
+PERCENT OF NOISE EXAMPLES FOR VALIDATION LOGRANK: 0.01
+
+NGRAM_FOR_TRAINING_NOISE: 0
+
+#NGRAMS: {(1, 5000): join(DATA_DIR, "1grams-wikitext-5000.json.gz"),
+#(1, 10000): join(DATA_DIR, "1grams-wikitext-10000.json.gz"),
+#(1, 20000): join(DATA_DIR, "1grams-wikitext-20000.json.gz")}
+
+# Number of instances of each ngram to add, for smoothing.
+TRAINING_NOISE_SMOOTHING_ADDITION: 0
+
+# Each embedded word representation has this width
+EMBEDDING_SIZE: 50
+#EMBEDDING_SIZE: 20
+#EMBEDDING_SIZE: 5
+
+# Predict with a window of five words at a time
+WINDOW_SIZE: 5
+
+HIDDEN_SIZE: 100
+#HIDDEN_SIZE: 40
+#HIDDEN_SIZE: 10
+
+#: Scaling value to control range for weight initialization
+#SCALE_INITIAL_WEIGHTS_BY: math.sqrt(3)
+SCALE_INITIAL_WEIGHTS_BY: 1
+
+# Which activation function to use?
+#ACTIVATION_FUNCTION="sigmoid"
+#ACTIVATION_FUNCTION="tanh"
+ACTIVATION_FUNCTION: "softsign"
+
+LEARNING_RATE: 0.000000011
+#LEARNING_RATE: 0.000000000001
+
+# The learning rate for the embeddings
+EMBEDDING_LEARNING_RATE: 0.00000000034
+
+## number of (higher-order) quadratic filters for James's neuron
+#NUMBER_OF_QUADRATIC_FILTERS=0
+## We use this scaling factor for initial weights of quadratic filters,
+## instead of SCALE_INITIAL_WEIGHTS_BY
+## @note: Try between 10 and 0.01
+#SCALE_QUADRATIC_INITIAL_WEIGHTS_BY: 1
+
+# Validate after this many examples
+#VALIDATE_EVERY: 10000000
+VALIDATE_EVERY: 10000
