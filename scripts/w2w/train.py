@@ -10,7 +10,7 @@ import miscglobals
 import logging
 
 import w2w.examples
-#import diagnostics
+import diagnostics
 #import state
 
 #def validate(cnt):
@@ -88,7 +88,7 @@ if __name__ == "__main__":
 
     translation_model = {}
     for l1, l2 in HYPERPARAMETERS["W2W BICORPORA"]:
-        translation_model[l1] = model.Model(window_size=HYPERPARAMETERS["WINDOW_SIZE"]+1)
+        translation_model[l1] = model.Model(name="translate-from-%s" % l1, window_size=HYPERPARAMETERS["WINDOW_SIZE"]+1)
 
     # TODO: If we want more than one model, we should SHARE the embeddings parameters
     assert len(translation_model) == 1
@@ -96,6 +96,7 @@ if __name__ == "__main__":
         assert 0
 
     cnt = 0
+    lastcnt = 0
     epoch = 1
 #    get_train_minibatch = examples.TrainingMinibatchStream()
     get_train_minibatch = w2w.examples.get_training_minibatch()
@@ -111,6 +112,7 @@ if __name__ == "__main__":
     while 1:
         logging.info("STARTING EPOCH #%d" % epoch)
         for ebatch in get_train_minibatch:
+            lastcnt = cnt
             cnt += len(ebatch)
 #        #    print [wordmap.str(id) for id in e]
 
@@ -136,20 +138,22 @@ if __name__ == "__main__":
 
             translation_model[source_language].train(correct_sequences, noise_sequences, weights)
 
-#            #validate(cnt)
-#            if cnt % (int(1000./HYPERPARAMETERS["MINIBATCH SIZE"])*HYPERPARAMETERS["MINIBATCH SIZE"]) == 0:
-#                logging.info("Finished training step %d (epoch %d)" % (cnt, epoch))
-##                print ("Finished training step %d (epoch %d)" % (cnt, epoch))
-#            if cnt % (int(100000./HYPERPARAMETERS["MINIBATCH SIZE"])*HYPERPARAMETERS["MINIBATCH SIZE"]) == 0:
-#                diagnostics.diagnostics(cnt, m)
-#                if os.path.exists(os.path.join(rundir, "BAD")):
-#                    logging.info("Detected file: %s\nSTOPPING" % os.path.join(rundir, "BAD"))
-#                    sys.stderr.write("Detected file: %s\nSTOPPING\n" % os.path.join(rundir, "BAD"))
-#                    sys.exit(0)
-#            if cnt % (int(HYPERPARAMETERS["VALIDATE_EVERY"]*1./HYPERPARAMETERS["MINIBATCH SIZE"])*HYPERPARAMETERS["MINIBATCH SIZE"]) == 0:
+            #validate(cnt)
+            if int(cnt/1000) > int(lastcnt/1000):
+                logging.info("Finished training step %d (epoch %d)" % (cnt, epoch))
+#                print ("Finished training step %d (epoch %d)" % (cnt, epoch))
+            if int(cnt/10000) > int(lastcnt/10000):
+                for l1 in translation_model:
+                    diagnostics.diagnostics(cnt, translation_model[l1])
+                if os.path.exists(os.path.join(rundir, "BAD")):
+                    logging.info("Detected file: %s\nSTOPPING" % os.path.join(rundir, "BAD"))
+                    sys.stderr.write("Detected file: %s\nSTOPPING\n" % os.path.join(rundir, "BAD"))
+                    sys.exit(0)
+            if int(cnt/HYPERPARAMETERS["VALIDATE_EVERY"]) > int(lastcnt/HYPERPARAMETERS["VALIDATE_EVERY"]):
 #                state.save(m, cnt, epoch, get_train_minibatch, rundir, newkeystr)
-#                diagnostics.visualizedebug(cnt, m, rundir, newkeystr)
-##                validate(cnt)
+                for l1 in translation_model:
+                    diagnostics.visualizedebug(cnt, translation_model[l1], rundir, newkeystr)
+#                validate(cnt)
 #        get_train_minibatch = examples.TrainingMinibatchStream()
         get_train_minibatch = w2w.examples.get_training_minibatch()
         epoch += 1

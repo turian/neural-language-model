@@ -17,13 +17,12 @@ def diagnostics(cnt, model):
     random.shuffle(idxs)
     idxs = idxs[:100]
 
-    debug_prehidden_values(cnt, model)
-    embeddings_debug(model.parameters.embeddings[idxs], cnt, "rand 100 words")
-    embeddings_debug(model.parameters.embeddings[:100], cnt, "top  100 words")
-    embeddings_debug(model.parameters.embeddings[model.parameters.vocab_size/2-50:model.parameters.vocab_size/2+50], cnt, "mid  100 words")
-    embeddings_debug(model.parameters.embeddings[-100:], cnt, "last 100 words")
-    weights_debug(model.parameters.hidden_weights.value, cnt, "hidden weights")
-    weights_debug(model.parameters.output_weights.value, cnt, "output weights")
+    embeddings_debug(model.parameters.embeddings[idxs], cnt, "rand 100 words, model %s" % model.name)
+    embeddings_debug(model.parameters.embeddings[:100], cnt, "top  100 words, model %s" % model.name)
+    embeddings_debug(model.parameters.embeddings[model.parameters.vocab_size/2-50:model.parameters.vocab_size/2+50], cnt, "mid  100 words, model %s" % model.name)
+    embeddings_debug(model.parameters.embeddings[-100:], cnt, "last 100 words, model %s" % model.name)
+    weights_debug(model.parameters.hidden_weights.value, cnt, "hidden weights, model %s" % model.name)
+    weights_debug(model.parameters.output_weights.value, cnt, "output weights, model %s" % model.name)
     logging.info(stats())
 
 def visualizedebug(cnt, model, rundir, newkeystr, WORDCNT=500):
@@ -36,22 +35,6 @@ def visualizedebug(cnt, model, rundir, newkeystr, WORDCNT=500):
     visualize(cnt, model, rundir, range(-1, -WORDCNT, -1), "leastcommon%s" % newkeystr)
     visualize(cnt, model, rundir, range(model.parameters.vocab_size/2-WORDCNT/2,model.parameters.vocab_size/2+WORDCNT/2), "midcommon%s" % newkeystr)
 
-def debug_prehidden_values(cnt, model):
-    """
-    Give debug output on pre-squash hidden values.
-    """
-    for (i, ve) in enumerate(examples.get_validation_example()):
-        (score, prehidden) = model.verbose_predict(ve)
-        abs_prehidden = numpy.abs(prehidden)
-        med = numpy.median(abs_prehidden)
-        abs_prehidden = abs_prehidden.tolist()
-        assert len(abs_prehidden) == 1
-        abs_prehidden = abs_prehidden[0]
-        abs_prehidden.sort()
-        abs_prehidden.reverse()
-        logging.info("%s %s %s %s %s" % (cnt, "abs(pre-squash hidden) median =", med, "max =", abs_prehidden[:3]))
-        if i+1 >= 3: break
-
 def visualize(cnt, model, rundir, idxs, str):
     """
     Visualize a set of examples using t-SNE.
@@ -61,10 +44,10 @@ def visualize(cnt, model, rundir, idxs, str):
 
     x = model.parameters.embeddings[idxs]
     print x.shape
-    titles = [wordmap.str(id) for id in idxs]
+    titles = [wordmap().str(id) for id in idxs]
 
     import os.path
-    filename = os.path.join(rundir, "embeddings-%s-%d.png" % (str, cnt))
+    filename = os.path.join(rundir, "embeddings.model-%s.-%s-%d.png" % (model.name, str, cnt))
     try:
         from textSNE.calc_tsne import tsne
 #       from textSNE.tsne import tsne

@@ -28,7 +28,8 @@ class Model:
     import hyperparameters
     import miscglobals
     import vocabulary
-    def __init__(self, window_size=HYPERPARAMETERS["WINDOW_SIZE"], vocab_size=vocabulary.wordmap().len, embedding_size=HYPERPARAMETERS["EMBEDDING_SIZE"], hidden_size=HYPERPARAMETERS["HIDDEN_SIZE"], seed=miscglobals.RANDOMSEED):
+    def __init__(self, name="", window_size=HYPERPARAMETERS["WINDOW_SIZE"], vocab_size=vocabulary.wordmap().len, embedding_size=HYPERPARAMETERS["EMBEDDING_SIZE"], hidden_size=HYPERPARAMETERS["HIDDEN_SIZE"], seed=miscglobals.RANDOMSEED):
+        self.name = name
         self.parameters = Parameters(window_size, vocab_size, embedding_size, hidden_size, seed)
         if LBL:
             graph.output_weights = self.parameters.output_weights
@@ -213,6 +214,8 @@ class Model:
                     logging.info(("After %d updates, pre-update train Pr(unpenalized loss != 0) %s" % (self.train_cnt, self.train_unpenalized_lossnonzero.verbose_string())))
                 logging.info(("After %d updates, pre-update train correct score %s" % (self.train_cnt, self.train_correct_score.verbose_string())))
                 logging.info(("After %d updates, pre-update train noise score %s" % (self.train_cnt, self.train_noise_score.verbose_string())))
+
+                self.debug_prehidden_values(correct_sequences)
     
                 if LBL:
                     i = 1.
@@ -308,6 +311,23 @@ class Model:
         else:
             (score, prehidden) = graph.verbose_predict(self.embed(sequence), self.parameters)
             return score, prehidden
+    
+    def debug_prehidden_values(self, sequences):
+        """
+        Give debug output on pre-squash hidden values.
+        """
+        import numpy
+        for (i, ve) in enumerate(sequences):
+            (score, prehidden) = self.verbose_predict(ve)
+            abs_prehidden = numpy.abs(prehidden)
+            med = numpy.median(abs_prehidden)
+            abs_prehidden = abs_prehidden.tolist()
+            assert len(abs_prehidden) == 1
+            abs_prehidden = abs_prehidden[0]
+            abs_prehidden.sort()
+            abs_prehidden.reverse()
+            logging.info("model %s, %s %s %s %s %s" % (self.name, self.train_cnt, "abs(pre-squash hidden) median =", med, "max =", abs_prehidden[:3]))
+            if i+1 >= 3: break
 
     def validate(self, sequence):
         """
