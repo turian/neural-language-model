@@ -70,8 +70,8 @@ def bicorpus_sentences_and_alignments(l1, l2, f1, f2, falign):
 
         ws1 = [(l1, w1) for w1 in string.split(s1)]
         ws2 = [(l2, w2) for w2 in string.split(s2)]
-        ws1 = [wordmap.id(tok) for tok in ws1]
-        ws2 = [wordmap.id(tok) for tok in ws2]
+        ws1 = [wordmap().id(tok) for tok in ws1]
+        ws2 = [wordmap().id(tok) for tok in ws2]
    
         if len(ws1) == 0 or len(ws2) == 0:
             emptycnt += 1

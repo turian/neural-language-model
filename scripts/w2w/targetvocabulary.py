@@ -13,16 +13,19 @@ def _targetmap_filename():
     HYPERPARAMETERS = common.hyperparameters.read("language-model")
     return join(HYPERPARAMETERS["DATA_DIR"], "targetmap.minfreq=%d.include_unknown=%s.pkl.gz" % (HYPERPARAMETERS["W2W MINIMUM WORD FREQUENCY"], HYPERPARAMETERS["INCLUDE_UNKNOWN_WORD"]))
 
-targetmap = None
-try:
-    targetmap = cPickle.load(myopen(_targetmap_filename()))
-except: pass
+_targetmap = None
+def targetmap():
+    global _targetmap
+    if _targetmap is None:
+        _targetmap = cPickle.load(myopen(_targetmap_filename()))
+    return _targetmap
 
-def write(_targetmap):
+def write(_targetmap_new):
     """
     Write the word ID map, passed as a parameter.
     """
-    global targetmap
-    targetmap = _targetmap
+    global _targetmap
+    assert _targetmap is None
+    _targetmap = _targetmap_new
     print >> sys.stderr, "Writing target map to %s..." % _targetmap_filename()
-    cPickle.dump(targetmap, myopen(_targetmap_filename(), "w"))
+    cPickle.dump(_targetmap, myopen(_targetmap_filename(), "w"))

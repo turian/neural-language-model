@@ -15,7 +15,7 @@ if __name__ == "__main__":
     import hyperparameters
 
     import w2w.corpora
-    import w2w.vocabulary
+    from w2w.vocabulary import wordmap
     from collections import defaultdict
     from common.mydict import sort as dictsort
 
@@ -26,11 +26,11 @@ if __name__ == "__main__":
                 w1 = ws1[i1]
                 w2 = ws2[i2]
                 if w1 not in cnt: cnt[w1] = defaultdict(int)
-#                print w2w.vocabulary.wordmap.str(w1)[1], w2w.vocabulary.wordmap.str(w2)[1]
+#                print wordmap.str(w1)[1], wordmap.str(w2)[1]
                 cnt[w1][w2] += 1
 
     for w1 in cnt:
-        print w2w.vocabulary.wordmap.str(w1), [(n, w2w.vocabulary.wordmap.str(w2)) for n, w2 in dictsort(cnt[w1])]
+        print wordmap().str(w1), [(n, wordmap().str(w2)) for n, w2 in dictsort(cnt[w1])]
 
 #    words = {}
 #    for (l, w) in wordfreq:
