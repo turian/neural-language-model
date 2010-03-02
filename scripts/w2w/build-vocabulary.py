@@ -50,7 +50,9 @@ if __name__ == "__main__":
     import w2w.vocabulary
     import common.idmap
 
+    wordfreqkeys = [key for cnt, key in dictsort(wordfreq)]
+
 #    for k in wordfreq.keys():
 #        print k
-    v = common.idmap.IDmap(wordfreq.keys() + [(None, "*LBOUNDARY*"), (None, "*RBOUNDARY*")], allow_unknown=HYPERPARAMETERS["INCLUDE_UNKNOWN_WORD"], unknown_key=(None, "*UNKNOWN*"))
+    v = common.idmap.IDmap([(None, "*LBOUNDARY*"), (None, "*RBOUNDARY*")] + wordfreqkeys, allow_unknown=HYPERPARAMETERS["INCLUDE_UNKNOWN_WORD"], unknown_key=(None, "*UNKNOWN*"))
     w2w.vocabulary.write(v)
