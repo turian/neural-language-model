@@ -12,6 +12,11 @@ import string
 def get_training_biexample(l1, l2, f1, f2, falign):
     """
     Generator of bilingual training examples from this bicorpus.
+    Each example is of the form:
+        ((l1, seq), w2)
+    where l1 is the source language, seq is a sequence of word ids in
+    the source language, and w2 is the word id of the focus word in the
+    target language.
     """
     import common.hyperparameters
     HYPERPARAMETERS = common.hyperparameters.read("language-model")
@@ -21,8 +26,8 @@ def get_training_biexample(l1, l2, f1, f2, falign):
         for i1, i2 in links:
             w1 = ws1[i1]
             w2 = ws2[i2]
-            if w1 not in targetmap or w2 not in targetmap[w1]:
-                print >> sys.stderr, "Translating %s to %s is not in target map, skipping" % (wordmap.str(w1), wordmap.str(w2))
+            if w1 not in targetmap() or w2 not in targetmap()[w1]:
+                print >> sys.stderr, "Translating %s to %s is not in target map, skipping" % (wordmap().str(w1), wordmap().str(w2))
                 continue
 
             # Extract the window of tokens around index i1. Pad with *LBOUNDARY* and *RBOUNDARY* as necessary.
@@ -40,11 +45,11 @@ def get_training_biexample(l1, l2, f1, f2, falign):
 
 #            print i1 - (WINDOW-1)/2, i1 + (WINDOW-1)/2
 #            print "min=%d, max=%d, lpad=%d, rpad=%d" % (min, max, lpad, rpad)
-            seq = [wordmap.id((None, "*LBOUNDARY*"))]*lpad + ws1[min:max+1] + [wordmap.id((None, "*RBOUNDARY*"))]*rpad
+            seq = [wordmap().id((None, "*LBOUNDARY*"))]*lpad + ws1[min:max+1] + [wordmap().id((None, "*RBOUNDARY*"))]*rpad
 #            print [wordmap.str(w) for w in seq]
             assert len(seq) == WINDOW
 #            print ws1[i1 - (WINDOW-1)/2:i1 + (WINDOW-1)/2]
-            yield seq, w2
+            yield (l1, seq), w2
 
 def get_training_minibatch():
     import common.hyperparameters
@@ -80,5 +85,5 @@ def get_training_minibatch():
 if __name__ == "__main__":
     for minibatch in get_training_minibatch():
 #        print len(minibatch)
-        for seq, w2 in minibatch:
-            print [wordmap.str(w)[1] for w in seq], wordmap.str(w2)
+        for (l1, seq), w2 in minibatch:
+            print (l1, [wordmap().str(w)[1] for w in seq]), wordmap().str(w2)
