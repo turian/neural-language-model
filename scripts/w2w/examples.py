@@ -10,6 +10,28 @@ from w2w.vocabulary import wordmap, language, wordform
 import string
 import logging
 
+class BilingualExample:
+    def __init__(self, l1, l1seq, w1, w2):
+        """
+        l1 = source language
+        l1seq = sequence of word IDs in source language
+        w1 = focus word ID in source language
+        w2 = focus word ID in target language
+        """
+        self.l1 = l1
+        self.l1seq = l1seq
+        self.w1 = w1
+        self.w2 = w2
+
+        if wordform(self.w1) != "*UNKNOWN*":
+            assert self.l1 == language(self.w1)
+
+    @property
+    def l2(self): return language(w2)
+
+    def __str__(self):
+        return "%s" % `(self.l1, wordform(self.w1), [wordmap().str(w)[1] for w in self.l1seq], wordmap().str(self.w2))`
+
 def get_training_biexample(l1, l2, f1, f2, falign):
     """
     Generator of bilingual training examples from this bicorpus.
@@ -70,7 +92,8 @@ def get_training_biexample(l1, l2, f1, f2, falign):
             assert len(seq) == WINDOW
 #            print ws1[i1 - (WINDOW-1)/2:i1 + (WINDOW-1)/2]
 
-            yield (l1, seq), w2
+            assert seq[(WINDOW-1)/2] == w1
+            yield BilingualExample(l1, seq, w1, w2)
 
 def get_training_minibatch():
     import common.hyperparameters
@@ -106,5 +129,5 @@ def get_training_minibatch():
 if __name__ == "__main__":
     for minibatch in get_training_minibatch():
 #        print len(minibatch)
-        for (l1, seq), w2 in minibatch:
-            print (l1, [wordmap().str(w)[1] for w in seq]), wordmap().str(w2)
+        for e in minibatch:
+            print e

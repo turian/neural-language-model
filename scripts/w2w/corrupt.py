@@ -3,6 +3,7 @@ Methods for corrupting examples.
 """
 
 from w2w.targetvocabulary import targetmap
+from w2w.vocabulary import language
 
 def corrupt_bilingual_example((l1, seq), w2):
     """
