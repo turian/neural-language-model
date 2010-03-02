@@ -88,7 +88,7 @@ if __name__ == "__main__":
 
     translation_model = {}
     for l1, l2 in HYPERPARAMETERS["W2W BICORPORA"]:
-        translation_model[l1] = model.Model()
+        translation_model[l1] = model.Model(window_size=HYPERPARAMETERS["WINDOW_SIZE"]+1)
 
     # TODO: If we want more than one model, we should SHARE the embeddings parameters
     assert len(translation_model) == 1
@@ -114,9 +114,10 @@ if __name__ == "__main__":
             cnt += len(ebatch)
 #        #    print [wordmap.str(id) for id in e]
 
+            source_language = ebatch[0].l1
             for e in ebatch:
-                # Make sure all examples have the same language
-                assert e.l1 == ebatch[0].l1
+                # Make sure all examples have the same source language
+                assert e.l1 == source_language
 
             # The following is code for training on bilingual examples.
             # TODO: Monolingual examples?
@@ -133,9 +134,8 @@ if __name__ == "__main__":
             assert len(ebatch) == len(noise_sequences)
             assert len(ebatch) == len(weights)
 
-#            m.train(ebatch, noise_sequences, weights)
-#            m.train(ebatch)
-#
+            translation_model[source_language].train(correct_sequences, noise_sequences, weights)
+
 #            #validate(cnt)
 #            if cnt % (int(1000./HYPERPARAMETERS["MINIBATCH SIZE"])*HYPERPARAMETERS["MINIBATCH SIZE"]) == 0:
 #                logging.info("Finished training step %d (epoch %d)" % (cnt, epoch))

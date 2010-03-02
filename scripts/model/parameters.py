@@ -16,10 +16,7 @@ class Parameters:
     @todo: Document these
     """
 
-    import hyperparameters
-    import miscglobals
-    import vocabulary
-    def __init__(self, window_size=HYPERPARAMETERS["WINDOW_SIZE"], vocab_size=vocabulary.wordmap().len, embedding_size=HYPERPARAMETERS["EMBEDDING_SIZE"], hidden_size=HYPERPARAMETERS["HIDDEN_SIZE"], seed=miscglobals.RANDOMSEED):
+    def __init__(self, window_size, vocab_size, embedding_size, hidden_size, seed):
         """
         Initialize L{Model} parameters.
         """

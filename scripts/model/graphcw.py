@@ -31,15 +31,15 @@ COMPILE_MODE = theano.compile.Mode('c|py', 'fast_run')
 
 import numpy
 
-#hidden_weights = t.xmatrix()
-#hidden_biases = t.xmatrix()
+#hidden_weights = t.matrix()
+#hidden_biases = t.matrix()
 
 #if HYPERPARAMETERS["USE_SECOND_HIDDEN_LAYER"] == True:
-#    hidden2_weights = t.xmatrix()
-#    hidden2_biases = t.xmatrix()
+#    hidden2_weights = t.matrix()
+#    hidden2_biases = t.matrix()
 
-#output_weights = t.xmatrix()
-#output_biases = t.xmatrix()
+#output_weights = t.matrix()
+#output_biases = t.matrix()
 
 # TODO: Include gradient steps in actual function, don't do them manually
 
@@ -85,12 +85,12 @@ def functions(sequence_length):
     if cachekey not in cached_functions:
         print "Need to construct graph for sequence_length=%d..." % (sequence_length)
         # Create the sequence_length inputs.
-        # Each is a t.xmatrix(), initial word embeddings (provided by
+        # Each is a t.matrix(), initial word embeddings (provided by
         # Jason + Ronan) to be transformed into an initial representation.
         # We could use a vector, but instead we use a matrix with one row.
-        correct_inputs = [t.xmatrix() for i in range(sequence_length)]
-        noise_inputs = [t.xmatrix() for i in range(sequence_length)]
-        learning_rate = t.xscalar()
+        correct_inputs = [t.matrix() for i in range(sequence_length)]
+        noise_inputs = [t.matrix() for i in range(sequence_length)]
+        learning_rate = t.scalar()
 
         stacked_correct_inputs = stack(correct_inputs)
         stacked_noise_inputs = stack(noise_inputs)

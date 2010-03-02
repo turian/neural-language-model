@@ -25,8 +25,11 @@ class Model:
     @todo: Document
     """
 
-    def __init__(self):
-        self.parameters = Parameters()
+    import hyperparameters
+    import miscglobals
+    import vocabulary
+    def __init__(self, window_size=HYPERPARAMETERS["WINDOW_SIZE"], vocab_size=vocabulary.wordmap().len, embedding_size=HYPERPARAMETERS["EMBEDDING_SIZE"], hidden_size=HYPERPARAMETERS["HIDDEN_SIZE"], seed=miscglobals.RANDOMSEED):
+        self.parameters = Parameters(window_size, vocab_size, embedding_size, hidden_size, seed)
         if LBL:
             graph.output_weights = self.parameters.output_weights
             graph.output_biases = self.parameters.output_biases
@@ -117,8 +120,10 @@ class Model:
         from hyperparameters import HYPERPARAMETERS
         learning_rate = HYPERPARAMETERS["LEARNING_RATE"]
 
-        # All weights must be the same, if we first multiply by the learning rate
-        for w in weights: assert w == weights[0]
+        # All weights must be the same, because of how we use a scalar learning rate
+        assert HYPERPARAMETERS["UNIFORM EXAMPLE WEIGHTS"]
+        if HYPERPARAMETERS["UNIFORM EXAMPLE WEIGHTS"]:
+            for w in weights: assert w == weights[0]
 
         if LBL:
             # REWRITE FOR MINIBATCH
@@ -220,7 +225,11 @@ class Model:
     #            print(("After %d updates, pre-update train loss %s" % (self.train_cnt, self.train_loss.verbose_string())))
     #            print(("After %d updates, pre-update train error %s" % (self.train_cnt, self.train_err.verbose_string())))
     
-            for w in weights: assert w == weights[0]
+
+            # All weights must be the same, because of how we use a scalar learning rate
+            assert HYPERPARAMETERS["UNIFORM EXAMPLE WEIGHTS"]
+            if HYPERPARAMETERS["UNIFORM EXAMPLE WEIGHTS"]:
+                for w in weights: assert w == weights[0]
             embedding_learning_rate = HYPERPARAMETERS["EMBEDDING_LEARNING_RATE"] * weights[0]
             if loss == 0:
                 if LBL:

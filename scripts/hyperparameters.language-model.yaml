@@ -15,6 +15,10 @@ INCLUDE_UNKNOWN_WORD: True
 RUN_NAME: "rcv1.case-intact"
 MONOLINGUAL_VOCABULARY_SIZE: 268810
 
+# Make all example weights are uniform
+# Note: When a word has more target words, we might want to give it higher weight. (Or, when we use ngram noise.)
+UNIFORM EXAMPLE WEIGHTS: True
+
 # Bilingual corpora language pairs
 W2W BICORPORA: [["en", "fr"], ["en", "nl"]]
 # Monolingual corpora language singletons 

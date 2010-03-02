@@ -59,7 +59,11 @@ class BilingualExample:
             cnt += 1
             # Backoff to 0gram smoothing if we fail 10 times to get noise.
             if cnt > 10: notw2 = random.choice(possible_targets)
-        weight = 1./pr
+
+        if HYPERPARAMETERS["UNIFORM EXAMPLE WEIGHTS"]:
+            weight = 1.
+        else:
+            weight = 1./pr
         return notw2, weight
 
     def __str__(self):
