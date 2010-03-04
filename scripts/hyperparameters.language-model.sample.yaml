@@ -21,14 +21,14 @@ MONOLINGUAL_VOCABULARY_SIZE: 268810
 UNIFORM EXAMPLE WEIGHTS: True
 
 # Bilingual corpora language pairs
-W2W BICORPORA: [["en", "fr"], ["en", "nl"]]
+W2W BICORPORA: [["en", "fr"], ["en", "nl"], ["en", "it"], ["en", "de"]]
 #W2W BICORPORA: [["en", "nl"]]
 # Monolingual corpora language singletons 
 W2W MONOCORPORA: []
 #W2W MONOCORPORA: ["en"]
 
 # Delexicalize all words that occur fewer than this number of times.
-W2W MINIMUM WORD FREQUENCY: 3
+W2W MINIMUM WORD FREQUENCY: 2
 #W2W MINIMUM WORD FREQUENCY: 10
 
 # Skip translations to unknown word.

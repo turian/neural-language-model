@@ -22,7 +22,7 @@ UNIFORM EXAMPLE WEIGHTS: True
 
 # Bilingual corpora language pairs
 #W2W BICORPORA: [["en", "fr"], ["en", "nl"]]
-W2W BICORPORA: [["en", "nl"]]
+W2W BICORPORA: [["en", "nl"], ["en", "de"], ["en", "it"]]
 # Monolingual corpora language singletons 
 W2W MONOCORPORA: []
 #W2W MONOCORPORA: ["en"]
