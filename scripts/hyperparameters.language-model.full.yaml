@@ -39,6 +39,13 @@ W2W MINIMUM WORD FREQUENCY: 10
 # form as is.
 W2W SKIP TRANSLATIONS TO UNKNOWN WORD: True
 
+# Use these embeddings to initialize the model
+W2W INITIAL EMBEDDINGS: /u/turian/data/share/embeddings-ACL2010-20100116-redo-baseline-with-100dims/model-2270000000.LEARNING_RATE=1e-09.EMBEDDING_LEARNING_RATE=1e-06.txt.gz
+# Language of the initial embeddings
+W2W INITIAL EMBEDDINGS LANGUAGE: en
+# Were the initial embeddings induced case-sensitive, but now we want to lowercase them?
+W2W LOWERCASE INITIAL EMBEDDINGS BEFORE INITIALIZATION: True
+
 # Use the log-bilinear model or not?
 # If True, we predict the Mnih log-bilinear model
 # If False, we predict the C&W language model.

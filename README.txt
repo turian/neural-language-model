@@ -29,6 +29,8 @@ To train word-to-word multilingual model, probably you should run:
     ./w2w/build-target-vocabulary.py
     # Then see the output with ./w2w/dump-target-vocabulary.py
 
+    ./w2w/build-initial-embeddings.py
+
     ./train-w2w.py
 
 TODO:
