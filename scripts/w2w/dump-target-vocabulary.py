@@ -31,3 +31,20 @@ if __name__ == "__main__":
             totcnt = 0
             for cnt, w2 in dictsort(targetmap()[w1][l2]): totcnt += cnt
             print wordmap().str(w1), l2, [(percent(cnt, totcnt), wordform(w2)) for cnt, w2 in dictsort(targetmap()[w1][l2])]
+
+    print >> sys.stderr, "REVERSE MAP NOW"
+
+    for w1 in wordmap().all:
+        w1 = wordmap().id(w1)
+        # Actually, should assert W2W SKIP TRANSLATIONS FROM UNKNOWN WORD
+        assert HYPERPARAMETERS["W2W SKIP TRANSLATIONS TO UNKNOWN WORD"]
+        if language(w1) is None:
+            print >> sys.stderr, "Skipping %s" % `wordmap().str(w1)`
+            continue
+        if w1 not in targetmap(name="reverse"):
+            print >> sys.stderr, "Skipping %s, not a source word in targetmap" % `wordmap().str(w1)`
+            continue
+        for l2 in targetmap(name="reverse")[w1]:
+            totcnt = 0
+            for cnt, w2 in dictsort(targetmap(name="reverse")[w1][l2]): totcnt += cnt
+            print wordmap().str(w1), l2, [(percent(cnt, totcnt), wordform(w2)) for cnt, w2 in dictsort(targetmap(name="reverse")[w1][l2])]

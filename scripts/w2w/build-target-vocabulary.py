@@ -23,12 +23,12 @@ if __name__ == "__main__":
     from common.mydict import sort as dictsort
 
     cnt = {}
+    reversecnt = {}
     for l1, l2, f1, f2, falign in w2w.corpora.bicorpora_filenames():
         for ws1, ws2, links in w2w.corpora.bicorpus_sentences_and_alignments(l1, l2, f1, f2, falign):
             for i1, i2 in links:
                 w1 = ws1[i1]
                 w2 = ws2[i2]
-                if w1 not in cnt: cnt[w1] = {}
 #                print wordmap.str(w1)[1], wordmap.str(w2)[1]
 
                 l2new = language(w2)
@@ -38,12 +38,17 @@ if __name__ == "__main__":
                 if wordform(w2) == "*UNKNOWN*": continue
 
                 assert l2new == l2
+                if w1 not in cnt: cnt[w1] = {}
                 if l2 not in cnt[w1]: cnt[w1][l2] = defaultdict(int)
                 cnt[w1][l2][w2] += 1
 
-    for w1 in cnt:
-        for l2 in cnt[w1]:
-            print wordmap().str(w1), l2, [(n, wordmap().str(w2)) for n, w2 in dictsort(cnt[w1][l2])]
+                if w2 not in reversecnt: reversecnt[w2] = {}
+                if l1 not in reversecnt[w2]: reversecnt[w2][l1] = defaultdict(int)
+                reversecnt[w2][l1][w1] += 1
+
+#    for w1 in cnt:
+#        for l2 in cnt[w1]:
+#            print wordmap().str(w1), l2, [(n, wordmap().str(w2)) for n, w2 in dictsort(cnt[w1][l2])]
 
 #    words = {}
 #    for (l, w) in wordfreq:
@@ -53,3 +58,4 @@ if __name__ == "__main__":
 
     import w2w.targetvocabulary
     w2w.targetvocabulary.write(cnt)
+    w2w.targetvocabulary.write(reversecnt, name="reverse")
