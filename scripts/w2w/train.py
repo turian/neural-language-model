@@ -61,6 +61,10 @@ if __name__ == "__main__":
     random.seed(miscglobals.RANDOMSEED)
     numpy.random.seed(miscglobals.RANDOMSEED)
 
+    # Random wait if we are a batch job
+    import time
+    if not HYPERPARAMETERS["console"]: time.sleep(25 * random.random())
+
 #    import vocabulary
 ##    logging.info("Reading vocab")
 ##    vocabulary.read()
