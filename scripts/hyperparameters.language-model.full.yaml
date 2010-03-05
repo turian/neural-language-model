@@ -40,7 +40,7 @@ W2W MINIMUM WORD FREQUENCY: 10
 W2W SKIP TRANSLATIONS TO UNKNOWN WORD: True
 
 # Use these embeddings to initialize the model
-W2W INITIAL EMBEDDINGS: /u/turian/data/share/embeddings-ACL2010-20100116-redo-baseline-with-100dims/model-2270000000.LEARNING_RATE=1e-09.EMBEDDING_LEARNING_RATE=1e-06.txt.gz
+W2W INITIAL EMBEDDINGS: /u/turian/data/share/embeddings/model-2520000000.LEARNING_RATE=1e-09.EMBEDDING_LEARNING_RATE=1e-06.HIDDEN_SIZE=800.txt.gz
 # Language of the initial embeddings
 W2W INITIAL EMBEDDINGS LANGUAGE: en
 # Were the initial embeddings induced case-sensitive, but now we want to lowercase them?
