@@ -100,7 +100,10 @@ if __name__ == "__main__":
     epoch = 1
 #    get_train_minibatch = examples.TrainingMinibatchStream()
     get_train_minibatch = w2w.examples.get_training_minibatch()
-    logging.basicConfig(filename=logfile, filemode="w", level=logging.DEBUG)
+    if HYPERPARAMETERS["console"]:
+        logging.basicConfig(level=logging.INFO)
+    else:
+        logging.basicConfig(filename=logfile, filemode="w", level=logging.DEBUG)
     logging.info("INITIALIZING TRAINING STATE")
 
 

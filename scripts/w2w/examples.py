@@ -109,7 +109,7 @@ def get_training_biexample(l1, l2, f1, f2, falign):
                 continue
 
             if len(targetmap()[w1][l2new]) == 1:
-                logging.info("Word %s has only one translation in language %s, skipping" % (`wordmap().str(w1)`, l2new))
+                logging.debug("Word %s has only one translation in language %s, skipping" % (`wordmap().str(w1)`, l2new))
                 continue
 
             # Extract the window of tokens around index i1. Pad with *LBOUNDARY* and *RBOUNDARY* as necessary.

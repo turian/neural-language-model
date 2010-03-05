@@ -5,6 +5,10 @@
 #locations: {"DATA_DIR": "../data-sample-bilingual/"}
 locations: {"DATA_DIR": "../data/full-bilingual/"}
 
+# Are we running this automatically from a console, or is this job part of some larger batch?
+# If True, we log output to stdout, not to a log file on disk.
+console: False
+
 ## 32-bit for the GPU
 ##import theano.config as config
 ##floatX: config.floatX
