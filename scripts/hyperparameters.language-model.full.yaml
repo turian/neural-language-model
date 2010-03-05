@@ -90,7 +90,7 @@ EMBEDDING_SIZE: 50
 #EMBEDDING_SIZE: 5
 
 # Predict with a window of five words at a time
-WINDOW_SIZE: 5
+WINDOW_SIZE: 11
 
 HIDDEN_SIZE: 100
 #HIDDEN_SIZE: 40

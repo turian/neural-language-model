@@ -31,7 +31,7 @@ To train word-to-word multilingual model, probably you should run:
 
     ./w2w/build-initial-embeddings.py
 
-    ./train-w2w.py
+    ./w2w/train.py
 
 TODO:
     * sqrt scaling of SGD updates
