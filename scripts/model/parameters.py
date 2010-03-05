@@ -5,6 +5,8 @@
 from theano import config
 from theano.compile.sandbox import shared
 
+import copy
+
 floatX = config.floatX
 
 from hyperparameters import HYPERPARAMETERS
@@ -16,7 +18,7 @@ class Parameters:
     @todo: Document these
     """
 
-    def __init__(self, window_size, vocab_size, embedding_size, hidden_size, seed):
+    def __init__(self, window_size, vocab_size, embedding_size, hidden_size, seed, initial_embeddings):
         """
         Initialize L{Model} parameters.
         """
@@ -36,7 +38,11 @@ class Parameters:
 
         from pylearn.algorithms.weights import random_weights
         numpy.random.seed(seed)
-        self.embeddings = numpy.asarray((numpy.random.rand(self.vocab_size, HYPERPARAMETERS["EMBEDDING_SIZE"]) - 0.5)*2 * HYPERPARAMETERS["INITIAL_EMBEDDING_RANGE"], dtype=floatX)
+        if initial_embeddings is None:
+            self.embeddings = numpy.asarray((numpy.random.rand(self.vocab_size, HYPERPARAMETERS["EMBEDDING_SIZE"]) - 0.5)*2 * HYPERPARAMETERS["INITIAL_EMBEDDING_RANGE"], dtype=floatX)
+        else:
+            assert initial_embeddings.shape == (self.vocab_size, HYPERPARAMETERS["EMBEDDING_SIZE"])
+            self.embeddings = copy.copy(initial_embeddings)
         if HYPERPARAMETERS["NORMALIZE_EMBEDDINGS"]: self.normalize(range(self.vocab_size))
         if LBL:
             self.output_weights = shared(numpy.asarray(random_weights(self.input_size, self.output_size, scale_by=HYPERPARAMETERS["SCALE_INITIAL_WEIGHTS_BY"]), dtype=floatX))

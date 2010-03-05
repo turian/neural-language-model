@@ -13,6 +13,8 @@ import w2w.examples
 import diagnostics
 #import state
 
+import cPickle
+
 #def validate(cnt):
 #    import math
 #    logranks = []
@@ -86,9 +88,12 @@ if __name__ == "__main__":
 
     # TODO: Try to load old training state
 
+    print >> sys.stderr, "Loading initial embeddings from %s" % HYPERPARAMETERS["INITIAL_EMBEDDINGS"]
+    embeddings = cPickle.load(common.file.myopen(HYPERPARAMETERS["INITIAL_EMBEDDINGS"]))
+
     translation_model = {}
     for l1, l2 in HYPERPARAMETERS["W2W BICORPORA"]:
-        translation_model[l1] = model.Model(name="translate-from-%s" % l1, window_size=HYPERPARAMETERS["WINDOW_SIZE"]+1)
+        translation_model[l1] = model.Model(name="translate-from-%s" % l1, window_size=HYPERPARAMETERS["WINDOW_SIZE"]+1, initial_embeddings=embeddings)
 
     # TODO: If we want more than one model, we should SHARE the embeddings parameters
     assert len(translation_model) == 1

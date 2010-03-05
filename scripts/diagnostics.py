@@ -39,13 +39,14 @@ def visualize(cnt, model, rundir, idxs, str):
     """
     Visualize a set of examples using t-SNE.
     """
-    from vocabulary import wordmap
+    from vocabulary import wordmap, wordform
     PERPLEXITY=30
 
     idxs = [id % model.parameters.embeddings.shape[0] for id in idxs]
     x = model.parameters.embeddings[idxs]
     print x.shape
-    titles = [`wordmap().str(id)` for id in idxs]
+    #titles = [`wordmap().str(id)` for id in idxs]
+    titles = [wordform(id) for id in idxs]
 
     import os.path
     filename = os.path.join(rundir, "embeddings.model-%s.-%s-%d.png" % (model.name, str, cnt))

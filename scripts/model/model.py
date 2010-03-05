@@ -28,9 +28,9 @@ class Model:
     import hyperparameters
     import miscglobals
     import vocabulary
-    def __init__(self, name="", window_size=HYPERPARAMETERS["WINDOW_SIZE"], vocab_size=vocabulary.wordmap().len, embedding_size=HYPERPARAMETERS["EMBEDDING_SIZE"], hidden_size=HYPERPARAMETERS["HIDDEN_SIZE"], seed=miscglobals.RANDOMSEED):
+    def __init__(self, name="", window_size=HYPERPARAMETERS["WINDOW_SIZE"], vocab_size=vocabulary.wordmap().len, embedding_size=HYPERPARAMETERS["EMBEDDING_SIZE"], hidden_size=HYPERPARAMETERS["HIDDEN_SIZE"], seed=miscglobals.RANDOMSEED, initial_embeddings=None):
         self.name = name
-        self.parameters = Parameters(window_size, vocab_size, embedding_size, hidden_size, seed)
+        self.parameters = Parameters(window_size, vocab_size, embedding_size, hidden_size, seed, initial_embeddings)
         if LBL:
             graph.output_weights = self.parameters.output_weights
             graph.output_biases = self.parameters.output_biases
