@@ -32,8 +32,8 @@ def visualizedebug(cnt, model, rundir, newkeystr, WORDCNT=500):
 
     visualize(cnt, model, rundir, idxs, "randomized%s" % newkeystr)
     visualize(cnt, model, rundir, range(WORDCNT), "mostcommon%s" % newkeystr)
-    visualize(cnt, model, rundir, range(-1, -WORDCNT, -1), "leastcommon%s" % newkeystr)
-    visualize(cnt, model, rundir, range(model.parameters.vocab_size/2-WORDCNT/2,model.parameters.vocab_size/2+WORDCNT/2), "midcommon%s" % newkeystr)
+    visualize(cnt, model, rundir, range(-1, -WORDCNT*50, -1*50), "leastcommon%s" % newkeystr)
+    visualize(cnt, model, rundir, range(model.parameters.vocab_size/2-WORDCNT*20/2,model.parameters.vocab_size/2+WORDCNT*20/2, 20), "midcommon%s" % newkeystr)
 
 def visualize(cnt, model, rundir, idxs, str):
     """
@@ -42,9 +42,10 @@ def visualize(cnt, model, rundir, idxs, str):
     from vocabulary import wordmap
     PERPLEXITY=30
 
+    idxs = [id % model.parameters.embeddings.shape[0] for id in idxs]
     x = model.parameters.embeddings[idxs]
     print x.shape
-    titles = [wordmap().str(id) for id in idxs]
+    titles = [`wordmap().str(id)` for id in idxs]
 
     import os.path
     filename = os.path.join(rundir, "embeddings.model-%s.-%s-%d.png" % (model.name, str, cnt))

@@ -8,6 +8,7 @@ bak
 *.dag.*
 data
 data-sample-bilingual/*.pkl.gz
+data-sample-bilingual/*.png
 fmap*.pkl.gz
 html
 hyperparameters.language-model.yaml

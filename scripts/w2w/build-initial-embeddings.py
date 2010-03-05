@@ -9,6 +9,20 @@ words without embeddings as *UNKNOWN* in the embedding language, and
 include these embeddings. But we don't.)
 """
 
+def visualize(embeddings, idxs, name, PERPLEXITY=30):
+    idxs = [w % embeddings.shape[0] for w in idxs]
+    titles = [wordform(w) for w in idxs]
+    import os.path
+    filename = HYPERPARAMETERS["INITIAL_EMBEDDINGS"] + ".visualize-%s.png" % name
+    try:
+        from textSNE.calc_tsne import tsne
+#       from textSNE.tsne import tsne
+        out = tsne(embeddings[idxs], perplexity=PERPLEXITY)
+        from textSNE.render import render
+        render([(title, point[0], point[1]) for title, point in zip(titles, out)], filename)
+    except IOError:
+        logging.info("ERROR visualizing", filename, ". Continuing...")
+
 
 if __name__ == "__main__":
     import common.hyperparameters, common.options
@@ -23,6 +37,7 @@ if __name__ == "__main__":
     import numpy
     import string
     import copy
+    import cPickle
 
     import logging
     logging.basicConfig(level=logging.DEBUG)
@@ -44,6 +59,8 @@ if __name__ == "__main__":
             word = string.lower(word)
         assert len(vals[1:]) == HYPERPARAMETERS["EMBEDDING_SIZE"]
         tot += 1
+        if tot % 10000 == 0:
+            print >> sys.stderr, "\tRead %d lines from %s" % (tot, HYPERPARAMETERS["W2W INITIAL EMBEDDINGS"])
         if word in original_embeddings:
 #            print >> sys.stderr, "Skipping word %s (originally %s), we already have an embedding for it" % (word, vals[0])
             continue
@@ -102,7 +119,21 @@ if __name__ == "__main__":
                 embedding = original_embeddings[wordform(w)]
         embeddings[w] = copy.copy(embedding)
 
-        print wordform(w), language(w),
-        for v in embeddings[w]:
-            print v,
-        print
+#        print wordform(w), language(w),
+#        for v in embeddings[w]:
+#            print v,
+#        print
+
+    print >> sys.stderr, "Dumping initial embeddings to %s" % HYPERPARAMETERS["INITIAL_EMBEDDINGS"]
+    cPickle.dump(embeddings, common.file.myopen(HYPERPARAMETERS["INITIAL_EMBEDDINGS"], "w"))
+
+    import random
+    WORDCNT = 500
+    idxs = range(wordmap().len)
+    random.shuffle(idxs)
+    idxs = idxs[:WORDCNT]
+
+    visualize(embeddings, idxs, "randomized")
+    visualize(embeddings, range(WORDCNT), "mostcommon")
+    visualize(embeddings, range(-1, -WORDCNT*50, -50), "leastcommon")
+    visualize(embeddings, range(wordmap().len/2-WORDCNT*20/2,wordmap().len/2+WORDCNT*20/2, 20), "midcommon")
