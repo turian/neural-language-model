@@ -63,7 +63,10 @@ if __name__ == "__main__":
 
     # Random wait if we are a batch job
     import time
-    if not HYPERPARAMETERS["console"]: time.sleep(25 * random.random())
+    if not HYPERPARAMETERS["console"]:
+        wait = 100 * random.random()
+        print >> sys.stderr, "Waiting %f seconds..." % wait
+        time.sleep(wait)
 
 #    import vocabulary
 ##    logging.info("Reading vocab")
@@ -112,7 +115,7 @@ if __name__ == "__main__":
     if HYPERPARAMETERS["console"]:
         logging.basicConfig(level=logging.INFO)
     else:
-        logging.basicConfig(filename=logfile, filemode="w", level=logging.DEBUG)
+        logging.basicConfig(filename=logfile, filemode="w", level=logging.INFO)
     logging.info("INITIALIZING TRAINING STATE")
 
 

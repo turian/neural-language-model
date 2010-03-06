@@ -50,6 +50,11 @@ W2W INITIAL EMBEDDINGS LANGUAGE: en
 # Were the initial embeddings induced case-sensitive, but now we want to lowercase them?
 W2W LOWERCASE INITIAL EMBEDDINGS BEFORE INITIALIZATION: True
 
+# Only train on examples in which the focus word lemmatizes to one of these words.
+# If an empty list, we use ALL examples, and don't do any filtering.
+W2W FOCUS LEMMAS: [
+]
+
 # Use the log-bilinear model or not?
 # If True, we predict the Mnih log-bilinear model
 # If False, we predict the C&W language model.

@@ -31,6 +31,13 @@ W2W BICORPORA: [["en", "nl"], ["en", "de"], ["en", "it"]]
 W2W MONOCORPORA: []
 #W2W MONOCORPORA: ["en"]
 
+# Only train on examples in which the focus word lemmatizes to one of these words.
+# If an empty list, we use ALL examples, and don't do any filtering.
+W2W FOCUS LEMMAS: [
+"bank", "movement", "occupation", "passage", "plant",
+"coach", "education", "execution", "figure", "job", "post", "pot", "range", "rest", "ring", "mood", "soil", "strain", "match", "scene", "test", "mission", "letter", "paper", "side"
+]
+
 # Delexicalize all words that occur fewer than this number of times.
 #W2W MINIMUM WORD FREQUENCY: 3
 W2W MINIMUM WORD FREQUENCY: 10

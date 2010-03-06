@@ -5,6 +5,8 @@ You will need my common python library:
 and my textSNE wrapper for t-SNE:
     http://github.com:turian/textSNE
 
+You will also need NLTK for lemmatization of English.
+
 To train a monolingual language model, probably you should run:
     [edit hyperparameters.language-model.yaml]
     ./build-vocabulary.py
@@ -12,6 +14,11 @@ To train a monolingual language model, probably you should run:
 
 To train word-to-word multilingual model, probably you should run:
     cd scripts; ln -s hyperparameters.language-model.sample.yaml s hyperparameters.language-model.yaml
+
+    # [optional: Filter the corpora only to include sentences with certain
+    # focus words.
+    ./scripts/preprocess/filter-sentences-by-lemma.py
+    # You should then move the filtered corpora to a new data directory.]
 
     [TODO:
     * Initialize using monolingual language model in source language.
