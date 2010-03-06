@@ -96,9 +96,9 @@ def get_training_biexample(l1, l2, f1, f2, falign):
             # If we are filtering examples by lemma
             if not(HYPERPARAMETERS["W2W FOCUS LEMMAS"] is None or len (HYPERPARAMETERS["W2W FOCUS LEMMAS"]) == 0):
                 assert language(w1) == "en"
-                import lemma
-                if lemma.lemmatize(language(w1), wordform(w1)) not in HYPERPARAMETERS["W2W FOCUS LEMMAS"]:
-                    logging.debug("Focus word %s (lemma %s) not in our list of focus lemmas" % (`wordmap().str(w1)`, lemma.lemmatize(language(w1), wordform(w1))))
+                from lemmatizer import lemmatize
+                if lemmatize(language(w1), wordform(w1)) not in HYPERPARAMETERS["W2W FOCUS LEMMAS"]:
+                    logging.debug("Focus word %s (lemma %s) not in our list of focus lemmas" % (`wordmap().str(w1)`, lemmatize(language(w1), wordform(w1))))
                     continue
                     
 

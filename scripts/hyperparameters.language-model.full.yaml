@@ -3,7 +3,8 @@
 #locations: {"DATA_DIR": "/home/fringant2/lisa/turian/dev/python/language-model/data/"}
 #locations: {"DATA_DIR": "/home/turianjo/dev/python/language-model/data/"}
 #locations: {"DATA_DIR": "../data-sample-bilingual/"}
-locations: {"DATA_DIR": "../data/full-bilingual/"}
+#locations: {"DATA_DIR": "../data/full-bilingual/"}
+locations: {"DATA_DIR": "../data/filtered-full-bilingual/"}
 
 # Are we running this automatically from a console, or is this job part of some larger batch?
 # If True, we log output to stdout, not to a log file on disk.
@@ -26,7 +27,9 @@ UNIFORM EXAMPLE WEIGHTS: True
 
 # Bilingual corpora language pairs
 #W2W BICORPORA: [["en", "fr"], ["en", "nl"]]
-W2W BICORPORA: [["en", "nl"], ["en", "de"], ["en", "it"]]
+#W2W BICORPORA: [["en", "fr"]]
+#W2W BICORPORA: [["en", "nl"], ["en", "de"], ["en", "it"], ["en", "fr"], ["en", "es"]]
+W2W BICORPORA: [["en", "nl"], ["en", "de"], ["en", "it"], ["en", "es"]]
 # Monolingual corpora language singletons 
 W2W MONOCORPORA: []
 #W2W MONOCORPORA: ["en"]
@@ -39,8 +42,8 @@ W2W FOCUS LEMMAS: [
 ]
 
 # Delexicalize all words that occur fewer than this number of times.
-#W2W MINIMUM WORD FREQUENCY: 3
-W2W MINIMUM WORD FREQUENCY: 10
+W2W MINIMUM WORD FREQUENCY: 1
+#W2W MINIMUM WORD FREQUENCY: 10
 
 # Skip translations to unknown word.
 # This makes coding easy, because we treat the Unknown word as having its own language.

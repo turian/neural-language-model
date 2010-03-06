@@ -21,7 +21,7 @@ if HYPERPARAMETERS["W2W FOCUS LEMMAS"] is None or len (HYPERPARAMETERS["W2W FOCU
 assert len(args) >= 1
 
 from common.stats import stats
-import lemma
+from lemmatizer import lemmatize
 
 print >> sys.stderr, "Loaded Morphological analyizer"
 print >> sys.stderr, stats()
@@ -53,7 +53,7 @@ for lines in izip(*inf):
     tot += 1
     keep = False
     for w in string.split(lines[0]):
-        if lemma.lemmatize("en", w) in HYPERPARAMETERS["W2W FOCUS LEMMAS"]:
+        if lemmatize("en", w) in HYPERPARAMETERS["W2W FOCUS LEMMAS"]:
             keep = True
             break
     if keep:

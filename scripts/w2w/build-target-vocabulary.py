@@ -27,6 +27,11 @@ if __name__ == "__main__":
     for l1, l2, f1, f2, falign in w2w.corpora.bicorpora_filenames():
         for ws1, ws2, links in w2w.corpora.bicorpus_sentences_and_alignments(l1, l2, f1, f2, falign):
             for i1, i2 in links:
+                if len(ws1) <= i1 or len(ws2) <= i2:
+                    print >> sys.stderr, "This is going to break on link (%d, %d) because lens = (%d, %d)" % (i1,i2, len(ws1), len(ws2))
+                    print >> sys.stderr, [wordform(w) for w in ws1]
+                    print >> sys.stderr, [wordform(w) for w in ws2]
+                    print >> sys.stderr, links
                 w1 = ws1[i1]
                 w2 = ws2[i2]
 #                print wordmap.str(w1)[1], wordmap.str(w2)[1]
@@ -38,6 +43,16 @@ if __name__ == "__main__":
                 if wordform(w2) == "*UNKNOWN*": continue
 
                 assert l2new == l2
+
+
+                # If we are filtering examples by lemma
+                if not(HYPERPARAMETERS["W2W FOCUS LEMMAS"] is None or len (HYPERPARAMETERS["W2W FOCUS LEMMAS"]) == 0):
+                    assert language(w1) == "en"
+                    from lemmatizer import lemmatize
+                    if lemmatize(language(w1), wordform(w1)) not in HYPERPARAMETERS["W2W FOCUS LEMMAS"]:
+#                        logging.debug("Focus word %s (lemma %s) not in our list of focus lemmas" % (`wordmap().str(w1)`, lemmatize(language(w1), wordform(w1))))
+                        continue
+
                 if w1 not in cnt: cnt[w1] = {}
                 if l2 not in cnt[w1]: cnt[w1][l2] = defaultdict(int)
                 cnt[w1][l2][w2] += 1
