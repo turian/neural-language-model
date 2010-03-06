@@ -45,13 +45,14 @@ if __name__ == "__main__":
                 assert l2new == l2
 
 
-                # If we are filtering examples by lemma
-                if not(HYPERPARAMETERS["W2W FOCUS LEMMAS"] is None or len (HYPERPARAMETERS["W2W FOCUS LEMMAS"]) == 0):
-                    assert language(w1) == "en"
-                    from lemmatizer import lemmatize
-                    if lemmatize(language(w1), wordform(w1)) not in HYPERPARAMETERS["W2W FOCUS LEMMAS"]:
-#                        logging.debug("Focus word %s (lemma %s) not in our list of focus lemmas" % (`wordmap().str(w1)`, lemmatize(language(w1), wordform(w1))))
-                        continue
+                # We don't filter here, otherwise we will get a reversemap that only maps to focus lemmas.
+#                # If we are filtering examples by lemma
+#                if not(HYPERPARAMETERS["W2W FOCUS LEMMAS"] is None or len (HYPERPARAMETERS["W2W FOCUS LEMMAS"]) == 0):
+#                    assert language(w1) == "en"
+#                    from lemmatizer import lemmatize
+#                    if lemmatize(language(w1), wordform(w1)) not in HYPERPARAMETERS["W2W FOCUS LEMMAS"]:
+##                        logging.debug("Focus word %s (lemma %s) not in our list of focus lemmas" % (`wordmap().str(w1)`, lemmatize(language(w1), wordform(w1))))
+#                        continue
 
                 if w1 not in cnt: cnt[w1] = {}
                 if l2 not in cnt[w1]: cnt[w1][l2] = defaultdict(int)
