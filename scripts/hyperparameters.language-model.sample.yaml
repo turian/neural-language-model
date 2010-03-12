@@ -2,12 +2,16 @@
 #
 #locations: {"DATA_DIR": "/home/fringant2/lisa/turian/dev/python/language-model/data/"}
 #locations: {"DATA_DIR": "/home/turianjo/dev/python/language-model/data/"}
-locations: {"DATA_DIR": "../data-sample-bilingual/"}
+#locations: {"DATA_DIR": "../data-sample-bilingual/"}
 #locations: {"DATA_DIR": "../data/full-bilingual/"}
+#locations: {"DATA_DIR": "../data/maxlength40-lemmas/"}
+#locations: {"DATA_DIR": "../data/maxlength40-lemmas-filtered/"}
+locations: {"DATA_DIR": "../data/small-sample.maxlength40-lemmas-filtered/"}
 
 # Are we running this automatically from a console, or is this job part of some larger batch?
 # If True, we log output to stdout, not to a log file on disk.
-console: True
+console: False
+#console: True
 
 ## 32-bit for the GPU
 ##import theano.config as config
@@ -25,14 +29,22 @@ MONOLINGUAL_VOCABULARY_SIZE: 268810
 UNIFORM EXAMPLE WEIGHTS: True
 
 # Bilingual corpora language pairs
-W2W BICORPORA: [["en", "fr"], ["en", "nl"], ["en", "it"], ["en", "de"], ["en", "es"]]
-#W2W BICORPORA: [["en", "nl"]]
+#W2W BICORPORA: [["en", "fr"], ["en", "nl"]]
+#W2W BICORPORA: [["en", "fr"]]
+W2W BICORPORA: [["en", "nl"], ["en", "de"], ["en", "it"], ["en", "fr"], ["en", "es"]]
 # Monolingual corpora language singletons 
 W2W MONOCORPORA: []
 #W2W MONOCORPORA: ["en"]
 
+# Only train on examples in which the focus word lemmatizes to one of these words.
+# If an empty list, we use ALL examples, and don't do any filtering.
+W2W FOCUS LEMMAS: [
+"bank", "movement", "occupation", "passage", "plant",
+"coach", "education", "execution", "figure", "job", "post", "pot", "range", "rest", "ring", "mood", "soil", "strain", "match", "scene", "test", "mission", "letter", "paper", "side"
+]
+
 # Delexicalize all words that occur fewer than this number of times.
-W2W MINIMUM WORD FREQUENCY: 2
+W2W MINIMUM WORD FREQUENCY: 3
 #W2W MINIMUM WORD FREQUENCY: 10
 
 # Skip translations to unknown word.
@@ -49,11 +61,6 @@ W2W INITIAL EMBEDDINGS: /u/turian/data/share/embeddings/model-2520000000.LEARNIN
 W2W INITIAL EMBEDDINGS LANGUAGE: en
 # Were the initial embeddings induced case-sensitive, but now we want to lowercase them?
 W2W LOWERCASE INITIAL EMBEDDINGS BEFORE INITIALIZATION: True
-
-# Only train on examples in which the focus word lemmatizes to one of these words.
-# If an empty list, we use ALL examples, and don't do any filtering.
-W2W FOCUS LEMMAS: [
-]
 
 # Use the log-bilinear model or not?
 # If True, we predict the Mnih log-bilinear model
@@ -99,7 +106,7 @@ EMBEDDING_SIZE: 50
 #EMBEDDING_SIZE: 5
 
 # Predict with a window of five words at a time
-WINDOW_SIZE: 5
+WINDOW_SIZE: 11
 
 HIDDEN_SIZE: 100
 #HIDDEN_SIZE: 40
@@ -118,7 +125,8 @@ LEARNING_RATE: 0.000000011
 #LEARNING_RATE: 0.000000000001
 
 # The learning rate for the embeddings
-EMBEDDING_LEARNING_RATE: 0.00000000034
+#EMBEDDING_LEARNING_RATE: 0.00000000034
+EMBEDDING_LEARNING_RATE: 0
 
 ## number of (higher-order) quadratic filters for James's neuron
 #NUMBER_OF_QUADRATIC_FILTERS=0
@@ -128,5 +136,5 @@ EMBEDDING_LEARNING_RATE: 0.00000000034
 #SCALE_QUADRATIC_INITIAL_WEIGHTS_BY: 1
 
 # Validate after this many examples
-VALIDATE_EVERY: 1000000
-#VALIDATE_EVERY: 10000
+#VALIDATE_EVERY: 10000000
+VALIDATE_EVERY: 10000

@@ -167,7 +167,7 @@ if __name__ == "__main__":
                     sys.stderr.write("Detected file: %s\nSTOPPING\n" % os.path.join(rundir, "BAD"))
                     sys.exit(0)
             if int(cnt/HYPERPARAMETERS["VALIDATE_EVERY"]) > int(lastcnt/HYPERPARAMETERS["VALIDATE_EVERY"]):
-#                pass
+                pass
 #                for l1 in translation_model:
 #                    diagnostics.visualizedebug(cnt, translation_model[l1], rundir, newkeystr)
 
