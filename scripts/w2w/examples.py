@@ -93,17 +93,17 @@ def get_training_biexample(l1, l2, f1, f2, falign):
             if wordform(w2) == "*UNKNOWN*": continue
             assert l2new == l2
 
+            # Skip translations from unknown words
+            if wordform(w1) == "*UNKNOWN*": continue
+
             # If we are filtering examples by lemma
             if not(HYPERPARAMETERS["W2W FOCUS LEMMAS"] is None or len (HYPERPARAMETERS["W2W FOCUS LEMMAS"]) == 0):
+#                print wordmap().str(w1), wordmap().str(w2)
                 assert language(w1) == "en"
                 from lemmatizer import lemmatize
                 if lemmatize(language(w1), wordform(w1)) not in HYPERPARAMETERS["W2W FOCUS LEMMAS"]:
                     logging.debug("Focus word %s (lemma %s) not in our list of focus lemmas" % (`wordmap().str(w1)`, lemmatize(language(w1), wordform(w1))))
                     continue
-                    
-
-            # Skip translations from unknown words
-            if wordform(w1) == "*UNKNOWN*": continue
 
             if w1 not in targetmap():
                 logging.warning("No translations for word %s, skipping" % (`wordmap().str(w1)`))

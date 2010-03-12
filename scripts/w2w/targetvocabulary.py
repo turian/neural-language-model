@@ -5,6 +5,7 @@ language l2 and target word ID w2 with count c.
 
 import cPickle
 from common.file import myopen
+from common.stats import stats
 import sys
 from os.path import join
 
@@ -17,7 +18,12 @@ _targetmap = {}
 def targetmap(name=""):
     global _targetmap
     if name not in _targetmap:
-        _targetmap[name] = cPickle.load(myopen(_targetmap_filename(name=name)))
+        f = _targetmap_filename(name=name)
+        print >> sys.stderr, "Reading target map from %s..." % f
+        print >> sys.stderr, stats()
+        _targetmap[name] = cPickle.load(myopen(f))
+        print >> sys.stderr, "...done reading target map from %s" % f
+        print >> sys.stderr, stats()
     return _targetmap[name]
 
 def write(_targetmap_new, name=""):

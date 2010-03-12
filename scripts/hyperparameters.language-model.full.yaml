@@ -4,11 +4,14 @@
 #locations: {"DATA_DIR": "/home/turianjo/dev/python/language-model/data/"}
 #locations: {"DATA_DIR": "../data-sample-bilingual/"}
 #locations: {"DATA_DIR": "../data/full-bilingual/"}
-locations: {"DATA_DIR": "../data/filtered-full-bilingual/"}
+#locations: {"DATA_DIR": "../data/maxlength40-lemmas/"}
+#locations: {"DATA_DIR": "../data/maxlength40-lemmas-filtered/"}
+locations: {"DATA_DIR": "../data/small-sample.maxlength40-lemmas-filtered/"}
 
 # Are we running this automatically from a console, or is this job part of some larger batch?
 # If True, we log output to stdout, not to a log file on disk.
-console: False
+#console: False
+console: True
 
 ## 32-bit for the GPU
 ##import theano.config as config
@@ -28,8 +31,7 @@ UNIFORM EXAMPLE WEIGHTS: True
 # Bilingual corpora language pairs
 #W2W BICORPORA: [["en", "fr"], ["en", "nl"]]
 #W2W BICORPORA: [["en", "fr"]]
-#W2W BICORPORA: [["en", "nl"], ["en", "de"], ["en", "it"], ["en", "fr"], ["en", "es"]]
-W2W BICORPORA: [["en", "nl"], ["en", "de"], ["en", "it"], ["en", "es"]]
+W2W BICORPORA: [["en", "nl"], ["en", "de"], ["en", "it"], ["en", "fr"], ["en", "es"]]
 # Monolingual corpora language singletons 
 W2W MONOCORPORA: []
 #W2W MONOCORPORA: ["en"]
@@ -42,7 +44,7 @@ W2W FOCUS LEMMAS: [
 ]
 
 # Delexicalize all words that occur fewer than this number of times.
-W2W MINIMUM WORD FREQUENCY: 1
+W2W MINIMUM WORD FREQUENCY: 3
 #W2W MINIMUM WORD FREQUENCY: 10
 
 # Skip translations to unknown word.
@@ -123,7 +125,8 @@ LEARNING_RATE: 0.000000011
 #LEARNING_RATE: 0.000000000001
 
 # The learning rate for the embeddings
-EMBEDDING_LEARNING_RATE: 0.00000000034
+#EMBEDDING_LEARNING_RATE: 0.00000000034
+EMBEDDING_LEARNING_RATE: 0
 
 ## number of (higher-order) quadratic filters for James's neuron
 #NUMBER_OF_QUADRATIC_FILTERS=0

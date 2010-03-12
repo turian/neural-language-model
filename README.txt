@@ -15,10 +15,9 @@ To train a monolingual language model, probably you should run:
 To train word-to-word multilingual model, probably you should run:
     cd scripts; ln -s hyperparameters.language-model.sample.yaml s hyperparameters.language-model.yaml
 
-    # [optional: Filter the corpora only to include sentences with certain
-    # focus words.
-    ./scripts/preprocess/filter-sentences-by-lemma.py
-    # You should then move the filtered corpora to a new data directory.]
+    # [optional: Lemmatize]
+    Tadpole --skip=tmp -t ~/dev/python/mt-language-model/neural-language-model/data/filtered-full-bilingual/en-nl/filtered-training.nl | perl -ne 's/\t/ /g; print lc($_);' | chop 3 | from-one-line-per-word-to-one-line-per-sentence.py > ~/dev/python/mt-language-model/neural-language-model/data/filtered-full-bilingual-lemmas/en-nl/filtered-training-lemmas.nl
+    #
 
     [TODO:
     * Initialize using monolingual language model in source language.
@@ -37,6 +36,14 @@ To train word-to-word multilingual model, probably you should run:
     # Then see the output with ./w2w/dump-target-vocabulary.py
 
     ./w2w/build-initial-embeddings.py
+
+    # [optional: Filter the corpora only to include sentences with certain
+    # focus words.]
+    # You want to make sure this happens AFTER
+    # ./w2w/build-initial-embeddings.py, so you have good embeddings for words
+    # that aren't as common in the filtered corpora.
+    ./scripts/preprocess/filter-sentences-by-lemma.py
+    # You should then move the filtered corpora to a new data directory.]
 
     ./w2w/train.py
 

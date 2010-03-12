@@ -1,0 +1,65 @@
+
+# We take the text, tokenize it, maxlength 40 it, 
+# lemmatize it, and align it to get:
+
+cd data/maxlength40-lemmas
+
+mkdir en-fr ; cp ~/data/multitext/align-lemmas/aligner.fr-en/training.?? en-fr/ ; cp ~/data/multitext/align-lemmas/aligner.fr-en/training.align en-fr/training.align.fr-en
+mkdir en-nl ; cp ~/data/multitext/align-lemmas/aligner.nl-en/training.?? en-nl/ ; cp ~/data/multitext/align-lemmas/aligner.nl-en/training.align en-nl/training.align.nl-en
+mkdir en-de ; cp ~/data/multitext/align-lemmas/aligner.de-en/training.?? en-de/ ; cp ~/data/multitext/align-lemmas/aligner.de-en/training.align en-de/training.align.de-en
+mkdir en-it ; cp ~/data/multitext/align-lemmas/aligner.it-en/training.?? en-it/ ; cp ~/data/multitext/align-lemmas/aligner.it-en/training.align en-it/training.align.it-en
+mkdir en-es ; cp ~/data/multitext/align-lemmas/aligner.es-en/training.?? en-es/ ; cp ~/data/multitext/align-lemmas/aligner.es-en/training.align en-es/training.align.es-en
+
+../../scripts/preprocess/reverse-alignment.pl en-de/training.align.de-en
+../../scripts/preprocess/reverse-alignment.pl en-nl/training.align.nl-en
+../../scripts/preprocess/reverse-alignment.pl en-it/training.align.it-en
+../../scripts/preprocess/reverse-alignment.pl en-es/training.align.es-en
+../../scripts/preprocess/reverse-alignment.pl en-fr/training.align.fr-en
+
+# At this point, we run the preprocessing, because we want to build the
+# initial embeddings BEFORE filtering
+
+../../scripts/preprocess/filter-sentences-by-lemma.py en-de/training.en  en-de/training.de en-de/training.align.en-de &
+../../scripts/preprocess/filter-sentences-by-lemma.py en-it/training.en  en-it/training.it en-it/training.align.en-it &
+../../scripts/preprocess/filter-sentences-by-lemma.py en-fr/training.en  en-fr/training.fr en-fr/training.align.en-fr &
+../../scripts/preprocess/filter-sentences-by-lemma.py en-nl/training.en  en-nl/training.nl en-nl/training.align.en-nl &
+../../scripts/preprocess/filter-sentences-by-lemma.py en-es/training.en  en-es/training.es en-es/training.align.en-es &
+
+##################################################################
+###  Below is deprecated
+##################################################################
+
+##### Wait, using freeling for es will changes the number of tokens. grr....
+##### Let's use treetagger for es instead
+
+
+cp ~/data/multitext/align/aligner.fr-en.filtered.maxlength-40/training.en data/filtered-full-bilingual/
+cp ~/data/multitext/align/aligner.fr-en.filtered.maxlength-40/training.fr data/filtered-full-bilingual/
+cp ~/data/multitext/align/aligner.fr-en.filtered.maxlength-40/training.align data/filtered-full-bilingual/training.align.fr-en
+
+../../scripts/preprocess/reverse-alignment.pl en-fr/training.align.fr-en 
+
+    Tadpole --skip=tmp -t ~/dev/python/mt-language-model/neural-language-model/data/filtered-full-bilingual/en-nl/filtered-training.nl | perl -ne 's/\t/ /g; print lc($_);' | chop 3 | from-one-line-per-word-to-one-line-per-sentence.py > ~/dev/python/mt-language-model/neural-language-model/data/filtered-full-bilingual-lemmas/en-nl/filtered-training-lemmas.nl
+
+~/utils/src/treetagger-3.2/lemmatizer.py french-utf8 ~/dev/python/mt-language-model/neural-language-model/data/filtered-full-bilingual/en-fr/training.fr > ~/dev/python/mt-language-model/neural-language-model/data/filtered-full-bilingual-lemmas/en-fr/filtered-training-lemmas.fr
+~/utils/src/treetagger-3.2/lemmatizer.py german ~/dev/python/mt-language-model/neural-language-model/data/filtered-full-bilingual/en-de/filtered-training.de > ~/dev/python/mt-language-model/neural-language-model/data/filtered-full-bilingual-lemmas/en-de/filtered-training-lemmas.de
+~/utils/src/treetagger-3.2/lemmatizer.py spanish ~/dev/python/mt-language-model/neural-language-model/data/filtered-full-bilingual/en-es/filtered-training.es> ~/dev/python/mt-language-model/neural-language-model/data/filtered-full-bilingual-lemmas/en-es/filtered-training-lemmas.es
+
+~/utils/src/libiconv-1.13.1/src/iconv --byte-subst="<0x%x>" --unicode-subst="<0x%x>" ~/dev/python/mt-language-model/neural-language-model/data/filtered-full-bilingual/en-de/filtered-training.de > ~/dev/python/mt-language-model/neural-language-model/data/filtered-full-bilingual/en-de/filtered-training.de.latin1
+~/utils/src/treetagger-3.2/lemmatizer.py german ~/dev/python/mt-language-model/neural-language-model/data/filtered-full-bilingual/en-de/filtered-training.de.latin1 > ~/dev/python/mt-language-model/neural-language-model/data/filtered-full-bilingual-lemmas/en-de/filtered-training-lemmas.de
+
+cd /u/turian/utils/src/FreeLing-2.1/src/main/simple_examples
+./justmorph.py it ~/dev/python/mt-language-model/neural-language-model/data/filtered-full-bilingual/en-it/filtered-training.it > ~/dev/python/mt-language-model/neural-language-model/data/filtered-full-bilingual-lemmas/en-it/filtered-training-lemmas.it
+#./justmorph.py es ~/dev/python/mt-language-model/neural-language-model/data/filtered-full-bilingual/en-es/filtered-training.es > ~/dev/python/mt-language-model/neural-language-model/data/filtered-full-bilingual-lemmas/en-es/filtered-training-lemmas.es
+
+./justmorph.py en ~/dev/python/mt-language-model/neural-language-model/data/filtered-full-bilingual/en-es/filtered-training.en > ~/dev/python/mt-language-model/neural-language-model/data/filtered-full-bilingual-lemmas/en-es/filtered-training-lemmas.en
+./justmorph.py en ~/dev/python/mt-language-model/neural-language-model/data/filtered-full-bilingual/en-fr/training.en > ~/dev/python/mt-language-model/neural-language-model/data/filtered-full-bilingual-lemmas/en-fr/filtered-training-lemmas.en
+./justmorph.py en ~/dev/python/mt-language-model/neural-language-model/data/filtered-full-bilingual/en-de/filtered-training.en > ~/dev/python/mt-language-model/neural-language-model/data/filtered-full-bilingual-lemmas/en-de/filtered-training-lemmas.en
+./justmorph.py en ~/dev/python/mt-language-model/neural-language-model/data/filtered-full-bilingual/en-nl/filtered-training.en > ~/dev/python/mt-language-model/neural-language-model/data/filtered-full-bilingual-lemmas/en-nl/filtered-training-lemmas.en
+./justmorph.py en ~/dev/python/mt-language-model/neural-language-model/data/filtered-full-bilingual/en-it/filtered-training.en > ~/dev/python/mt-language-model/neural-language-model/data/filtered-full-bilingual-lemmas/en-it/filtered-training-lemmas.en
+
+cp ../filtered-full-bilingual/en-fr/filtered-training.align.en-fr ../filtered-full-bilingual-lemmas/en-fr/filtered-training-lemmas.align.en-fr
+cp ../filtered-full-bilingual/en-nl/filtered-training.align.en-nl ../filtered-full-bilingual-lemmas/en-nl/filtered-training-lemmas.align.en-nl
+cp ../filtered-full-bilingual/en-de/filtered-training.align.en-de ../filtered-full-bilingual-lemmas/en-de/filtered-training-lemmas.align.en-de
+cp ../filtered-full-bilingual/en-es/filtered-training.align.en-es ../filtered-full-bilingual-lemmas/en-es/filtered-training-lemmas.align.en-es
+cp ../filtered-full-bilingual/en-it/filtered-training.align.en-it ../filtered-full-bilingual-lemmas/en-it/filtered-training-lemmas.align.en-it

@@ -113,8 +113,10 @@ if __name__ == "__main__":
 #    get_train_minibatch = examples.TrainingMinibatchStream()
     get_train_minibatch = w2w.examples.get_training_minibatch()
     if HYPERPARAMETERS["console"]:
+        print >> sys.stderr, "Console mode (not batch mode)."
         logging.basicConfig(level=logging.INFO)
     else:
+        print >> sys.stderr, "YOU ARE RUNNING IN BATCH, NOT CONSOLE MODE. THIS WILL BE THE LAST MESSAGE TO STDERR."
         logging.basicConfig(filename=logfile, filemode="w", level=logging.INFO)
     logging.info("INITIALIZING TRAINING STATE")
 
@@ -165,9 +167,11 @@ if __name__ == "__main__":
                     sys.stderr.write("Detected file: %s\nSTOPPING\n" % os.path.join(rundir, "BAD"))
                     sys.exit(0)
             if int(cnt/HYPERPARAMETERS["VALIDATE_EVERY"]) > int(lastcnt/HYPERPARAMETERS["VALIDATE_EVERY"]):
+                pass
+#                for l1 in translation_model:
+#                    diagnostics.visualizedebug(cnt, translation_model[l1], rundir, newkeystr)
+
 #                state.save(m, cnt, epoch, get_train_minibatch, rundir, newkeystr)
-                for l1 in translation_model:
-                    diagnostics.visualizedebug(cnt, translation_model[l1], rundir, newkeystr)
 #                validate(cnt)
 #        get_train_minibatch = examples.TrainingMinibatchStream()
         get_train_minibatch = w2w.examples.get_training_minibatch()
