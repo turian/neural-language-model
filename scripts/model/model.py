@@ -153,7 +153,10 @@ class Model:
 #            print "noise_score = ", noise_score
         else:
             r = graph.train(self.embeds(correct_sequences), self.embeds(noise_sequences), learning_rate * weights[0])
-            (dcorrect_inputss, dnoise_inputss, losss, unpenalized_losss, l1penaltys, correct_scores, noise_scores) = r
+            if HYPERPARAMETERS["EMBEDDING_LEARNING_RATE"] != 0:
+                (dcorrect_inputss, dnoise_inputss, losss, unpenalized_losss, l1penaltys, correct_scores, noise_scores) = r
+            else:
+                (losss, unpenalized_losss, l1penaltys, correct_scores, noise_scores) = r
 #            print [d.shape for d in dcorrect_inputss]
 #            print [d.shape for d in dnoise_inputss]
 #            print "losss", losss.shape, losss
@@ -175,8 +178,9 @@ class Model:
             correct_sequence = correct_sequences[ecnt]
             noise_sequence = noise_sequences[ecnt]
 
-            dcorrect_inputs = [d[ecnt] for d in dcorrect_inputss]
-            dnoise_inputs = [d[ecnt] for d in dnoise_inputss]
+            if HYPERPARAMETERS["EMBEDDING_LEARNING_RATE"] != 0:
+                dcorrect_inputs = [d[ecnt] for d in dcorrect_inputss]
+                dnoise_inputs = [d[ecnt] for d in dnoise_inputss]
 
 #            print [d.shape for d in dcorrect_inputs]
 #            print [d.shape for d in dnoise_inputs]
@@ -249,8 +253,9 @@ class Model:
     #                    print "correct_score = ", correct_score
     #                    print "noise_score = ", noise_score
                 else:
-                    for di in dcorrect_inputs + dnoise_inputs:
-                        assert (di == 0).all()
+                    if HYPERPARAMETERS["EMBEDDING_LEARNING_RATE"] != 0:
+                        for di in dcorrect_inputs + dnoise_inputs:
+                            assert (di == 0).all()
     
             if loss != 0:
                 if LBL:
@@ -270,23 +275,24 @@ class Model:
                         self.parameters.score_biases[i] -= 1.0 * embedding_learning_rate * di
     #                    print "REMOVEME", i, self.parameters.score_biases[i]
                 else:
-                    for (i, di) in zip(correct_sequence, dcorrect_inputs):
-#                        assert di.shape[0] == 1
-#                        di.resize(di.size)
-    #                    print i, di
-                        assert di.shape == (self.parameters.embedding_size,)
-                        self.parameters.embeddings[i] -= 1.0 * embedding_learning_rate * di
-                        if HYPERPARAMETERS["NORMALIZE_EMBEDDINGS"]:
-                            to_normalize.add(i)
-                    for (i, di) in zip(noise_sequence, dnoise_inputs):
-#                        assert di.shape[0] == 1
-#                        di.resize(di.size)
-    #                    print i, di
-                        assert di.shape == (self.parameters.embedding_size,)
-                        self.parameters.embeddings[i] -= 1.0 * embedding_learning_rate * di
-                        if HYPERPARAMETERS["NORMALIZE_EMBEDDINGS"]:
-                            to_normalize.add(i)
-    #                print to_normalize
+                    if HYPERPARAMETERS["EMBEDDING_LEARNING_RATE"] != 0:
+                        for (i, di) in zip(correct_sequence, dcorrect_inputs):
+    #                        assert di.shape[0] == 1
+    #                        di.resize(di.size)
+        #                    print i, di
+                            assert di.shape == (self.parameters.embedding_size,)
+                            self.parameters.embeddings[i] -= 1.0 * embedding_learning_rate * di
+                            if HYPERPARAMETERS["NORMALIZE_EMBEDDINGS"]:
+                                to_normalize.add(i)
+                        for (i, di) in zip(noise_sequence, dnoise_inputs):
+    #                        assert di.shape[0] == 1
+    #                        di.resize(di.size)
+        #                    print i, di
+                            assert di.shape == (self.parameters.embedding_size,)
+                            self.parameters.embeddings[i] -= 1.0 * embedding_learning_rate * di
+                            if HYPERPARAMETERS["NORMALIZE_EMBEDDINGS"]:
+                                to_normalize.add(i)
+        #                print to_normalize
     
         if len(to_normalize) > 0:
             to_normalize = [i for i in to_normalize]

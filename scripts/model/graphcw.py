@@ -114,14 +114,18 @@ def functions(sequence_length):
         total_loss = t.sum(loss)
 
         (dhidden_weights, dhidden_biases, doutput_weights, doutput_biases) = t.grad(total_loss, [hidden_weights, hidden_biases, output_weights, output_biases])
-        dcorrect_inputs = t.grad(total_loss, correct_inputs)
-        dnoise_inputs = t.grad(total_loss, noise_inputs)
+        if HYPERPARAMETERS["EMBEDDING_LEARNING_RATE"] != 0:
+            dcorrect_inputs = t.grad(total_loss, correct_inputs)
+            dnoise_inputs = t.grad(total_loss, noise_inputs)
         #print "REMOVEME", len(dcorrect_inputs)
         predict_inputs = correct_inputs
         train_inputs = correct_inputs + noise_inputs + [learning_rate]
         verbose_predict_inputs = predict_inputs
         predict_outputs = [correct_score]
-        train_outputs = dcorrect_inputs + dnoise_inputs + [loss, unpenalized_loss, l1penalty, correct_score, noise_score]
+        if HYPERPARAMETERS["EMBEDDING_LEARNING_RATE"] != 0:
+            train_outputs = dcorrect_inputs + dnoise_inputs + [loss, unpenalized_loss, l1penalty, correct_score, noise_score]
+        else:
+            train_outputs = [loss, unpenalized_loss, l1penalty, correct_score, noise_score]
         verbose_predict_outputs = [correct_score, correct_prehidden]
 
         import theano.gof.graph
@@ -177,14 +181,19 @@ def train(correct_sequence, noise_sequence, learning_rate):
     assert len(correct_sequence) == len(noise_sequence)
     fn = functions(sequence_length=len(correct_sequence))[1]
     r = fn(*(correct_sequence + noise_sequence + [learning_rate]))
-    dcorrect_inputs = r[:len(correct_sequence)]
-    r = r[len(correct_sequence):]
-    dnoise_inputs = r[:len(noise_sequence)]
-    r = r[len(correct_sequence):]
+    from hyperparameters import HYPERPARAMETERS
+    if HYPERPARAMETERS["EMBEDDING_LEARNING_RATE"] != 0:
+        dcorrect_inputs = r[:len(correct_sequence)]
+        r = r[len(correct_sequence):]
+        dnoise_inputs = r[:len(noise_sequence)]
+        r = r[len(correct_sequence):]
 #    print "REMOVEME", len(dcorrect_inputs), len(dnoise_inputs)
     (loss, unpenalized_loss, l1penalty, correct_score, noise_score) = r
 #    if loss == 0:
 #        for di in [dhidden_weights, dhidden_biases, doutput_weights, doutput_biases]:
 #            assert (di == 0).all()
 
-    return (dcorrect_inputs, dnoise_inputs, loss, unpenalized_loss, l1penalty, correct_score, noise_score)
+    if HYPERPARAMETERS["EMBEDDING_LEARNING_RATE"] != 0:
+        return (dcorrect_inputs, dnoise_inputs, loss, unpenalized_loss, l1penalty, correct_score, noise_score)
+    else:
+        return (loss, unpenalized_loss, l1penalty, correct_score, noise_score)
