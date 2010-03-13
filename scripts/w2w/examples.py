@@ -4,11 +4,17 @@ Streaming examples.
 
 from w2w.corpora import bicorpora_filenames, monocorpora_filenames, bicorpus_sentences_and_alignments
 from common.file import myopen
+from common.stats import stats
 
 from w2w.targetvocabulary import targetmap
 from w2w.vocabulary import wordmap, language, wordform
 import string
 import logging
+
+import random
+from rundir import rundir
+import os.path
+import cPickle
 
 class BilingualExample:
     def __init__(self, l1, l1seq, w1, w2):
@@ -144,7 +150,13 @@ def get_training_biexample(l1, l2, f1, f2, falign):
             assert seq[(WINDOW-1)/2] == w1
             yield BilingualExample(l1, seq, w1, w2)
 
-def get_training_minibatch():
+def get_training_minibatch_online():
+    """
+    Warning: The approach has the weird property that if one language
+    pair's corpus is way longer than others, it will be the only examples
+    for a while after the other corpora are exhausted.
+    """
+
     import common.hyperparameters
     HYPERPARAMETERS = common.hyperparameters.read("language-model")
     MINIBATCH_SIZE = HYPERPARAMETERS["MINIBATCH SIZE"]
@@ -175,8 +187,61 @@ def get_training_minibatch():
         # Go to the next corpus
         idx = (idx + 1) % len(generators)
 
+_all_examples = None
+def all_training_examples_cached():
+    global _all_examples
+    if _all_examples is None:
+        training_examples_cache_filename = os.path.join(rundir(), "examples-cache.pkl.gz")
+        try:
+            _all_examples, cnt = cPickle.load(myopen(training_examples_cache_filename))
+            assert len(_all_examples) == cnt
+            logging.info("Successfully read %d training examples from %s" % (cnt, training_examples_cache_filename))
+            logging.info(stats())
+        except:
+            logging.info("Caching all training examples...")
+            logging.info(stats())
+            _all_examples = []
+            for l1, l2, f1, f2, falign in bicorpora_filenames():
+                for e in get_training_biexample(l1, l2, f1, f2, falign):
+                    _all_examples.append(e)
+                    if len(_all_examples) % 10000 == 0:
+                        logging.info("\tcurrently have read %d training examples" % len(_all_examples))
+                        logging.info(stats())
+            random.shuffle(_all_examples)
+            logging.info("...done caching all %d training examples" % len(_all_examples))
+            logging.info(stats())
+
+            cnt = len(_all_examples)
+            cPickle.dump((_all_examples, cnt), myopen(training_examples_cache_filename, "wb"), protocol=-1)
+            assert len(_all_examples) == cnt
+            logging.info("Wrote %d training examples to %s" % (cnt, training_examples_cache_filename))
+            logging.info(stats())
+    assert _all_examples is not None
+    return _all_examples
+
+        
+
+def get_all_training_examples_cached():
+    for e in all_training_examples_cached():
+        yield e
+    
+def get_training_minibatch_cached():
+    import common.hyperparameters
+    HYPERPARAMETERS = common.hyperparameters.read("language-model")
+    MINIBATCH_SIZE = HYPERPARAMETERS["MINIBATCH SIZE"]
+
+    minibatch = []
+    for e in get_all_training_examples_cached():
+        minibatch.append(e)
+        if len(minibatch) >= MINIBATCH_SIZE:
+            yield minibatch
+            minibatch = []
+    if len(minibatch) > 0:
+        yield minibatch
+        minibatch = []
+
 if __name__ == "__main__":
-    for minibatch in get_training_minibatch():
+    for minibatch in get_training_minibatch_cached():
 #        print len(minibatch)
         for e in minibatch:
             print e
