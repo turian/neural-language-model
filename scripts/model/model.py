@@ -28,9 +28,9 @@ class Model:
     import hyperparameters
     import miscglobals
     import vocabulary
-    def __init__(self, name="", window_size=HYPERPARAMETERS["WINDOW_SIZE"], vocab_size=vocabulary.wordmap().len, embedding_size=HYPERPARAMETERS["EMBEDDING_SIZE"], hidden_size=HYPERPARAMETERS["HIDDEN_SIZE"], seed=miscglobals.RANDOMSEED, initial_embeddings=None):
+    def __init__(self, name="", window_size=HYPERPARAMETERS["WINDOW_SIZE"], vocab_size=vocabulary.wordmap().len, embedding_size=HYPERPARAMETERS["EMBEDDING_SIZE"], hidden_size=HYPERPARAMETERS["HIDDEN_SIZE"], seed=miscglobals.RANDOMSEED, initial_embeddings=None, two_hidden_layers=HYPERPARAMETERS["TWO_HIDDEN_LAYERS"]):
         self.name = name
-        self.parameters = Parameters(window_size, vocab_size, embedding_size, hidden_size, seed, initial_embeddings)
+        self.parameters = Parameters(window_size, vocab_size, embedding_size, hidden_size, seed, initial_embeddings, two_hidden_layers)
         if LBL:
             graph.output_weights = self.parameters.output_weights
             graph.output_biases = self.parameters.output_biases
@@ -38,6 +38,9 @@ class Model:
         else:
             graph.hidden_weights = self.parameters.hidden_weights
             graph.hidden_biases = self.parameters.hidden_biases
+            if self.parameters.two_hidden_layers:
+                graph.hidden2_weights = self.parameters.hidden2_weights
+                graph.hidden2_biases = self.parameters.hidden2_biases
             graph.output_weights = self.parameters.output_weights
             graph.output_biases = self.parameters.output_biases
 
@@ -66,6 +69,9 @@ class Model:
         else:
             graph.hidden_weights = self.parameters.hidden_weights
             graph.hidden_biases = self.parameters.hidden_biases
+            if self.parameters.two_hidden_layers:
+                graph.hidden2_weights = self.parameters.hidden2_weights
+                graph.hidden2_biases = self.parameters.hidden2_biases
             graph.output_weights = self.parameters.output_weights
             graph.output_biases = self.parameters.output_biases
 
