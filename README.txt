@@ -45,6 +45,10 @@ To train word-to-word multilingual model, probably you should run:
     ./scripts/preprocess/filter-sentences-by-lemma.py
     # You should then move the filtered corpora to a new data directory.]
 
+    #[optional: This will cache all the training examples onto disk. This will
+    # happen automatically during training anyhow.]
+    ./scripts/w2w/build-example-cache.py
+
     ./w2w/train.py
 
 TODO:

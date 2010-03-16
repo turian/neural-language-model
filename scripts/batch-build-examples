@@ -1,0 +1,13 @@
+#dbidispatch --exp_dir="T" ./w2w/train.py \
+dbidispatch --no_machine=maggie42.iro.umontreal.ca --mem=1900 --exp_dir="T" ./w2w/build-example-cache.py \
+    '--no_console' \
+    '--no_LOG_BILINEAR_MODEL' \
+    '--no_NORMALIZE_EMBEDDINGS' \
+    '--EMBEDDING_SIZE=50' \
+    '--HIDDEN_SIZE=100' \
+    '--WINDOW_SIZE={{11,9,7,5}}' \
+    '--CW_EMBEDDING_L1_PENALTY=0' \
+    '--NGRAM_FOR_TRAINING_NOISE=0' \
+    '--EMBEDDING_LEARNING_RATE=0'
+#    '--LEARNING_RATE={{0.001,0.0001,0.00001,0.000001,0.0000001,0.00000001,0.000000001}}' \
+#    '--EMBEDDING_LEARNING_RATE={{0.1,0.01,0.001,0.0001,0.00001,0.000001}}'

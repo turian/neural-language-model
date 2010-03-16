@@ -187,15 +187,18 @@ def get_training_minibatch_online():
         # Go to the next corpus
         idx = (idx + 1) % len(generators)
 
+def training_examples_cache_filename():
+    HYPERPARAMETERS = common.hyperparameters.read("language-model")
+    return os.path.join(HYPERPARAMETERS["DATA_DIR"], "%sexamples-cache.minfreq=%d.include_unknown=%s.window-%d.pkl.gz" % (name, HYPERPARAMETERS["W2W MINIMUM WORD FREQUENCY"], HYPERPARAMETERS["INCLUDE_UNKNOWN_WORD"], HYPERPARAMETERS["WINDOW_SIZE"]))
+
 _all_examples = None
 def all_training_examples_cached():
     global _all_examples
     if _all_examples is None:
-        training_examples_cache_filename = os.path.join(rundir(), "examples-cache.pkl.gz")
         try:
-            _all_examples, cnt = cPickle.load(myopen(training_examples_cache_filename))
+            _all_examples, cnt = cPickle.load(myopen(training_examples_cache_filename()))
             assert len(_all_examples) == cnt
-            logging.info("Successfully read %d training examples from %s" % (cnt, training_examples_cache_filename))
+            logging.info("Successfully read %d training examples from %s" % (cnt, training_examples_cache_filename()))
             logging.info(stats())
         except:
             logging.info("Caching all training examples...")
@@ -212,9 +215,9 @@ def all_training_examples_cached():
             logging.info(stats())
 
             cnt = len(_all_examples)
-            cPickle.dump((_all_examples, cnt), myopen(training_examples_cache_filename, "wb"), protocol=-1)
+            cPickle.dump((_all_examples, cnt), myopen(training_examples_cache_filename(), "wb"), protocol=-1)
             assert len(_all_examples) == cnt
-            logging.info("Wrote %d training examples to %s" % (cnt, training_examples_cache_filename))
+            logging.info("Wrote %d training examples to %s" % (cnt, training_examples_cache_filename()))
             logging.info(stats())
     assert _all_examples is not None
     return _all_examples
