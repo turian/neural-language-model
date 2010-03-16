@@ -18,7 +18,7 @@ class Parameters:
     @todo: Document these
     """
 
-    def __init__(self, window_size, vocab_size, embedding_size, hidden_size, seed, initial_embeddings):
+    def __init__(self, window_size, vocab_size, embedding_size, hidden_size, seed, initial_embeddings, two_hidden_layers):
         """
         Initialize L{Model} parameters.
         """
@@ -26,6 +26,7 @@ class Parameters:
         self.vocab_size     = vocab_size
         self.window_size    = window_size
         self.embedding_size = embedding_size
+        self.two_hidden_layers = two_hidden_layers
         if LBL:
             self.hidden_size    = hidden_size
             self.output_size    = self.embedding_size
@@ -48,10 +49,14 @@ class Parameters:
             self.output_weights = shared(numpy.asarray(random_weights(self.input_size, self.output_size, scale_by=HYPERPARAMETERS["SCALE_INITIAL_WEIGHTS_BY"]), dtype=floatX))
             self.output_biases = shared(numpy.asarray(numpy.zeros((1, self.output_size)), dtype=floatX))
             self.score_biases = shared(numpy.asarray(numpy.zeros(self.vocab_size), dtype=floatX))
+            assert not self.two_hidden_layers
         else:
             self.hidden_weights = shared(numpy.asarray(random_weights(self.input_size, self.hidden_size, scale_by=HYPERPARAMETERS["SCALE_INITIAL_WEIGHTS_BY"]), dtype=floatX))
-            self.output_weights = shared(numpy.asarray(random_weights(self.hidden_size, self.output_size, scale_by=HYPERPARAMETERS["SCALE_INITIAL_WEIGHTS_BY"]), dtype=floatX))
             self.hidden_biases = shared(numpy.asarray(numpy.zeros((self.hidden_size,)), dtype=floatX))
+            if self.two_hidden_layers:
+                self.hidden2_weights = shared(numpy.asarray(random_weights(self.hidden_size, self.hidden_size, scale_by=HYPERPARAMETERS["SCALE_INITIAL_WEIGHTS_BY"]), dtype=floatX))
+                self.hidden2_biases = shared(numpy.asarray(numpy.zeros((self.hidden_size,)), dtype=floatX))
+            self.output_weights = shared(numpy.asarray(random_weights(self.hidden_size, self.output_size, scale_by=HYPERPARAMETERS["SCALE_INITIAL_WEIGHTS_BY"]), dtype=floatX))
             self.output_biases = shared(numpy.asarray(numpy.zeros((self.output_size,)), dtype=floatX))
 
     input_size = property(lambda self:

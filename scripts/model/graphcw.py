@@ -64,9 +64,15 @@ def stack(x):
     return horizontal_stack(*x)
 
 def score(x):
+    from hyperparameters import HYPERPARAMETERS
     prehidden = dot(x, hidden_weights) + hidden_biases
     hidden = activation_function(prehidden)
-    score = dot(hidden, output_weights) + output_biases
+    if HYPERPARAMETERS["TWO_HIDDEN_LAYERS"] == True:
+        prehidden2 = dot(hidden, hidden2_weights) + hidden2_biases
+        hidden2 = activation_function(prehidden2)
+        score = dot(hidden2, output_weights) + output_biases
+    else:
+        score = dot(hidden, output_weights) + output_biases
     return score, prehidden
 
 cached_functions = {}
@@ -113,7 +119,10 @@ def functions(sequence_length):
 
         total_loss = t.sum(loss)
 
-        (dhidden_weights, dhidden_biases, doutput_weights, doutput_biases) = t.grad(total_loss, [hidden_weights, hidden_biases, output_weights, output_biases])
+        if HYPERPARAMETERS["TWO_HIDDEN_LAYERS"] == True:
+            (dhidden_weights, dhidden_biases, dhidden2_weights, dhidden2_biases, doutput_weights, doutput_biases) = t.grad(total_loss, [hidden_weights, hidden_biases, hidden2_weights, hidden2_biases, output_weights, output_biases])
+        else:
+            (dhidden_weights, dhidden_biases, doutput_weights, doutput_biases) = t.grad(total_loss, [hidden_weights, hidden_biases, output_weights, output_biases])
         if HYPERPARAMETERS["EMBEDDING_LEARNING_RATE"] != 0:
             dcorrect_inputs = t.grad(total_loss, correct_inputs)
             dnoise_inputs = t.grad(total_loss, noise_inputs)
@@ -142,7 +151,10 @@ def functions(sequence_length):
 
         nnodes = len(theano.gof.graph.ops(train_inputs, train_outputs))
         print "About to compile train function over %d ops [nodes]..." % nnodes
-        train_function = pfunc(train_inputs, train_outputs, mode=COMPILE_MODE, updates=[(p, p-learning_rate*gp) for p, gp in zip((hidden_weights, hidden_biases, output_weights, output_biases), (dhidden_weights, dhidden_biases, doutput_weights, doutput_biases))])
+        if HYPERPARAMETERS["TWO_HIDDEN_LAYERS"] == True:
+            train_function = pfunc(train_inputs, train_outputs, mode=COMPILE_MODE, updates=[(p, p-learning_rate*gp) for p, gp in zip((hidden_weights, hidden_biases, hidden2_weights, hidden2_biases, output_weights, output_biases), (dhidden_weights, dhidden_biases, dhidden2_weights, dhidden2_biases, doutput_weights, doutput_biases))])
+        else:
+            train_function = pfunc(train_inputs, train_outputs, mode=COMPILE_MODE, updates=[(p, p-learning_rate*gp) for p, gp in zip((hidden_weights, hidden_biases, output_weights, output_biases), (dhidden_weights, dhidden_biases, doutput_weights, doutput_biases))])
         print "...done constructing graph for sequence_length=%d" % (sequence_length)
 
         cached_functions[cachekey] = (predict_function, train_function, verbose_predict_function)

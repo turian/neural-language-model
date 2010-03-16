@@ -112,6 +112,9 @@ HIDDEN_SIZE: 100
 #HIDDEN_SIZE: 40
 #HIDDEN_SIZE: 10
 
+# Two hidden layers, or only one?
+TWO_HIDDEN_LAYERS: False
+
 #: Scaling value to control range for weight initialization
 #SCALE_INITIAL_WEIGHTS_BY: math.sqrt(3)
 SCALE_INITIAL_WEIGHTS_BY: 1
