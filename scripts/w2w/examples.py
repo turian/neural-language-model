@@ -73,7 +73,7 @@ class BilingualExample:
         return notw2, weight
 
     def __str__(self):
-        return "%s" % `(self.l1, wordform(self.w1), [wordmap().str(w)[1] for w in self.l1seq], wordmap().str(self.w2))`
+        return "%s" % `(wordmap().str(self.w2), self.l1, wordform(self.w1), [wordmap().str(w)[1] for w in self.l1seq])`
 
 def get_training_biexample(l1, l2, f1, f2, falign):
     """
@@ -188,8 +188,9 @@ def get_training_minibatch_online():
         idx = (idx + 1) % len(generators)
 
 def training_examples_cache_filename():
+    import common.hyperparameters
     HYPERPARAMETERS = common.hyperparameters.read("language-model")
-    return os.path.join(HYPERPARAMETERS["DATA_DIR"], "%sexamples-cache.minfreq=%d.include_unknown=%s.window-%d.pkl.gz" % (name, HYPERPARAMETERS["W2W MINIMUM WORD FREQUENCY"], HYPERPARAMETERS["INCLUDE_UNKNOWN_WORD"], HYPERPARAMETERS["WINDOW_SIZE"]))
+    return os.path.join(HYPERPARAMETERS["DATA_DIR"], "examples-cache.minfreq=%d.include_unknown=%s.window-%d.pkl.gz" % (HYPERPARAMETERS["W2W MINIMUM WORD FREQUENCY"], HYPERPARAMETERS["INCLUDE_UNKNOWN_WORD"], HYPERPARAMETERS["WINDOW_SIZE"]))
 
 _all_examples = None
 def all_training_examples_cached():
