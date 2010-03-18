@@ -110,8 +110,8 @@ if __name__ == "__main__":
     cnt = 0
     lastcnt = 0
     epoch = 1
-#    get_train_minibatch = examples.TrainingMinibatchStream()
-    get_train_minibatch = w2w.examples.get_training_minibatch_cached()
+    get_train_minibatch = w2w.examples.get_training_minibatch_online()
+#    get_train_minibatch = w2w.examples.get_training_minibatch_cached()
     if HYPERPARAMETERS["console"]:
         print >> sys.stderr, "Console mode (not batch mode)."
         logging.basicConfig(level=logging.INFO)
@@ -173,6 +173,6 @@ if __name__ == "__main__":
 
 #                state.save(m, cnt, epoch, get_train_minibatch, rundir, newkeystr)
 #                validate(cnt)
-#        get_train_minibatch = examples.TrainingMinibatchStream()
-        get_train_minibatch = w2w.examples.get_training_minibatch_cached()
+        get_train_minibatch = w2w.examples.get_training_minibatch_online()
+#        get_train_minibatch = w2w.examples.get_training_minibatch_cached()
         epoch += 1

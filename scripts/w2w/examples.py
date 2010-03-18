@@ -188,7 +188,7 @@ def get_training_minibatch_online():
         idx = (idx + 1) % len(generators)
 
 def training_examples_cache_filename():
-    import common.hyperparameters
+    import common.hyperparameters, hyperparameters
     HYPERPARAMETERS = common.hyperparameters.read("language-model")
     return os.path.join(HYPERPARAMETERS["DATA_DIR"], "examples-cache.minfreq=%d.include_unknown=%s.window-%d.pkl.gz" % (HYPERPARAMETERS["W2W MINIMUM WORD FREQUENCY"], HYPERPARAMETERS["INCLUDE_UNKNOWN_WORD"], HYPERPARAMETERS["WINDOW_SIZE"]))
 
@@ -202,6 +202,7 @@ def all_training_examples_cached():
             logging.info("Successfully read %d training examples from %s" % (cnt, training_examples_cache_filename()))
             logging.info(stats())
         except:
+            logging.info("(Couldn't read training examples from %s, sorry)" % (training_examples_cache_filename()))
             logging.info("Caching all training examples...")
             logging.info(stats())
             _all_examples = []

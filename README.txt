@@ -15,6 +15,9 @@ To train a monolingual language model, probably you should run:
 To train word-to-word multilingual model, probably you should run:
     cd scripts; ln -s hyperparameters.language-model.sample.yaml s hyperparameters.language-model.yaml
 
+    # Create validation data:
+    ./preprocess-validation.pl > ~/data/SemEval-2-2010/Task\ 3\ -\ Cross-Lingual\ Word\ Sense\ Disambiguation/validation.txt Tokenizer v3
+
     # [optional: Lemmatize]
     Tadpole --skip=tmp -t ~/dev/python/mt-language-model/neural-language-model/data/filtered-full-bilingual/en-nl/filtered-training.nl | perl -ne 's/\t/ /g; print lc($_);' | chop 3 | from-one-line-per-word-to-one-line-per-sentence.py > ~/dev/python/mt-language-model/neural-language-model/data/filtered-full-bilingual-lemmas/en-nl/filtered-training-lemmas.nl
     #
