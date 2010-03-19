@@ -1,5 +1,6 @@
 #dbidispatch --exp_dir="T" ./w2w/train.py \
-dbidispatch --no_machine=maggie42.iro.umontreal.ca --mem=1900 --exp_dir="T" ./w2w/train.py \
+#dbidispatch --no_machine=maggie42.iro.umontreal.ca --mem=1900 --exp_dir="T" ./w2w/train.py \
+dbidispatch --no_machine=brams01.iro.umontreal.ca --mem=1900 --exp_dir="T" ./w2w/train.py \
     '--no_console' \
     '--no_LOG_BILINEAR_MODEL' \
     '--no_NORMALIZE_EMBEDDINGS' \
