@@ -5,7 +5,8 @@ You will need my common python library:
 and my textSNE wrapper for t-SNE:
     http://github.com:turian/textSNE
 
-You will also need NLTK for lemmatization of English.
+You will need Murmur for hashing.
+    easy_install Murmur
 
 To train a monolingual language model, probably you should run:
     [edit hyperparameters.language-model.yaml]

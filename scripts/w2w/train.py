@@ -5,6 +5,7 @@ import string
 import common.dump
 from common.file import myopen
 from common.stats import stats
+from common.str import percent
 
 import miscglobals
 import logging
@@ -15,13 +16,27 @@ import state
 
 import cPickle
 
-#def validate(cnt):
-#    import math
+def validate(translation_model, cnt):
+    import math
 #    logranks = []
 #    logging.info("BEGINNING VALIDATION AT TRAINING STEP %d" % cnt)
 #    logging.info(stats())
-#    i = 0
-#    for (i, ve) in enumerate(examples.get_validation_example()):
+    i = 0
+    tot = 0
+    correct = 0
+    for (i, ve) in enumerate(w2w.examples.get_all_validation_examples_cached()):
+        correct_sequences, noise_sequences, weights = ebatch_to_sequences([ve])
+        source_language = ve.l1
+        is_correct = translation_model[source_language].validate_errors(correct_sequences, noise_sequences)
+#        print r
+        for w in weights: assert w == 1.0
+
+        tot += 1
+        if is_correct: correct += 1
+
+        if i % 1000 == 0: logging.info("\tvalidating %d examples done..." % i)
+#    logging.info("Validation of model %s at cnt %d: validation err %s" % (translation_model[source_language].modelname, cnt, percent(correct, tot)))
+    logging.info("VALIDATION of model at cnt %d: validation err %s" % (cnt, percent(correct, tot)))
 ##        logging.info([wordmap.str(id) for id in ve])
 #        logranks.append(math.log(m.validate(ve)))
 #        if (i+1) % 10 == 0:
@@ -31,6 +46,23 @@ import cPickle
 #    logging.info(stats())
 ##    print "FINAL VALIDATION AT TRAINING STEP %d: mean(logrank) = %.2f, stddev(logrank) = %.2f, cnt = %d" % (cnt, numpy.mean(numpy.array(logranks)), numpy.std(numpy.array(logranks)), i+1)
 ##    print stats()
+
+def ebatch_to_sequences(ebatch):
+    """
+    Convert example batch to sequences.
+    """
+    correct_sequences = []
+    noise_sequences = []
+    weights = []
+    for e in ebatch:
+        notw2, weight = e.corrupt
+        correct_sequences.append(e.l1seq + [e.w2])
+        noise_sequences.append(e.l1seq + [notw2])
+        weights.append(weight)
+    assert len(ebatch) == len(correct_sequences)
+    assert len(ebatch) == len(noise_sequences)
+    assert len(ebatch) == len(weights)
+    return correct_sequences, noise_sequences, weights
 
 if __name__ == "__main__":
     import common.hyperparameters, common.options
@@ -112,13 +144,12 @@ if __name__ == "__main__":
     for l1 in HYPERPARAMETERS["W2W MONOCORPORA"]:
         assert 0
 
-    get_train_minibatch = w2w.examples.get_training_minibatch_online()
-#    get_train_minibatch = w2w.examples.get_training_minibatch_cached()
-
+#    get_train_minibatch = w2w.examples.get_training_minibatch_online()
+    get_train_minibatch = w2w.examples.get_training_minibatch_cached()
 
     logging.info(myyaml.dump(common.dump.vars_seq([hyperparameters, miscglobals])))
 
-#    #validate(0)
+    validate(translation_model, 0)
 #    diagnostics.diagnostics(cnt, m)
 ##    diagnostics.visualizedebug(cnt, m, rundir)
 #    state.save(translation_model, cnt, lastcnt, epoch, rundir, newkeystr)
@@ -137,21 +168,10 @@ if __name__ == "__main__":
             # The following is code for training on bilingual examples.
             # TODO: Monolingual examples?
 
-            correct_sequences = []
-            noise_sequences = []
-            weights = []
-            for e in ebatch:
-                notw2, weight = e.corrupt
-                correct_sequences.append(e.l1seq + [e.w2])
-                noise_sequences.append(e.l1seq + [notw2])
-                weights.append(weight)
-            assert len(ebatch) == len(correct_sequences)
-            assert len(ebatch) == len(noise_sequences)
-            assert len(ebatch) == len(weights)
-
+            correct_sequences, noise_sequences, weights = ebatch_to_sequences(ebatch)
             translation_model[source_language].train(correct_sequences, noise_sequences, weights)
 
-            #validate(cnt)
+            #validate(translation_model, cnt)
             if int(cnt/1000) > int(lastcnt/1000):
                 logging.info("Finished training step %d (epoch %d)" % (cnt, epoch))
 #                print ("Finished training step %d (epoch %d)" % (cnt, epoch))
@@ -163,12 +183,14 @@ if __name__ == "__main__":
                     sys.stderr.write("Detected file: %s\nSTOPPING\n" % os.path.join(rundir, "BAD"))
                     sys.exit(0)
             if int(cnt/HYPERPARAMETERS["VALIDATE_EVERY"]) > int(lastcnt/HYPERPARAMETERS["VALIDATE_EVERY"]):
+                validate(translation_model, cnt)
                 pass
 #                for l1 in translation_model:
 #                    diagnostics.visualizedebug(cnt, translation_model[l1], rundir, newkeystr)
 
-        get_train_minibatch = w2w.examples.get_training_minibatch_online()
-#        get_train_minibatch = w2w.examples.get_training_minibatch_cached()
+        validate(translation_model, cnt)
+#        get_train_minibatch = w2w.examples.get_training_minibatch_online()
+        get_train_minibatch = w2w.examples.get_training_minibatch_cached()
         epoch += 1
 
         state.save(translation_model, cnt, lastcnt, epoch, rundir, newkeystr)

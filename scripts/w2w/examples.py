@@ -16,6 +16,8 @@ from rundir import rundir
 import os.path
 import cPickle
 
+import murmur
+
 class MonolingualExample:
     def __init__(self, l1, l1seq, w1):
         """
@@ -113,9 +115,11 @@ def get_training_biexample(l1, l2, f1, f2, falign):
             if not(HYPERPARAMETERS["W2W FOCUS LEMMAS"] is None or len (HYPERPARAMETERS["W2W FOCUS LEMMAS"]) == 0):
 #                print wordmap().str(w1), wordmap().str(w2)
                 assert language(w1) == "en"
-                from lemmatizer import lemmatize
-                if lemmatize(language(w1), wordform(w1)) not in HYPERPARAMETERS["W2W FOCUS LEMMAS"]:
-                    logging.debug("Focus word %s (lemma %s) not in our list of focus lemmas" % (`wordmap().str(w1)`, lemmatize(language(w1), wordform(w1))))
+#                from lemmatizer import lemmatize
+#                if lemmatize(language(w1), wordform(w1)) not in HYPERPARAMETERS["W2W FOCUS LEMMAS"]:
+#                    logging.debug("Focus word %s (lemma %s) not in our list of focus lemmas" % (`wordmap().str(w1)`, lemmatize(language(w1), wordform(w1))))
+                if wordform(w1) not in HYPERPARAMETERS["W2W FOCUS LEMMAS"]:
+                    logging.debug("Focus word %s not in our list of focus lemmas" % (`wordmap().str(w1)`))
                     continue
 
             if w1 not in targetmap():
@@ -157,12 +161,20 @@ def get_training_biexample(l1, l2, f1, f2, falign):
             assert seq[(WINDOW-1)/2] == w1
             yield BilingualExample(l1, seq, w1, w2)
 
+def is_validation_example(e):
+    import common.hyperparameters
+    HYPERPARAMETERS = common.hyperparameters.read("language-model")
+    examples_per_validation = int(1/HYPERPARAMETERS["PERCENT_OF_TRAINING_EXAMPLES_FOR_VALIDATION"])
+    return murmur.string_hash(`e`) % examples_per_validation == 0
+
 def get_training_minibatch_online():
     """
     Warning: The approach has the weird property that if one language
     pair's corpus is way longer than others, it will be the only examples
     for a while after the other corpora are exhausted.
     """
+
+    assert 0 # We need to filter validation examples
 
     import common.hyperparameters
     HYPERPARAMETERS = common.hyperparameters.read("language-model")
@@ -231,10 +243,14 @@ def all_training_examples_cached():
     assert _all_examples is not None
     return _all_examples
 
-        
-
 def get_all_training_examples_cached():
     for e in all_training_examples_cached():
+        if is_validation_example(e): continue
+        yield e
+
+def get_all_validation_examples_cached():
+    for e in all_training_examples_cached():
+        if not is_validation_example(e): continue
         yield e
     
 def get_training_minibatch_cached():

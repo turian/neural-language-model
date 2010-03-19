@@ -14,7 +14,10 @@ locations: {"DATA_DIR": "../data/maxlength40-lemmas-filtered/"}
 console: True
 
 # A list of the validation examples
+# Currently unused
 VALIDATION_INPUT: /u/turian/data/SemEval-2-2010/Task 3 - Cross-Lingual Word Sense Disambiguation/validation.txt
+
+PERCENT_OF_TRAINING_EXAMPLES_FOR_VALIDATION: 0.01
 
 ## 32-bit for the GPU
 ##import theano.config as config
