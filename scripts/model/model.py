@@ -373,7 +373,7 @@ class Model:
 
 #            r = graph.train(self.embeds(correct_sequences), self.embeds(noise_sequences), learning_rate * weights[0])
         correct_scores = graph.predict(self.embeds(correct_sequences))
-        noise_scores = graph.predict(self.embeds(correct_sequences))
+        noise_scores = graph.predict(self.embeds(noise_sequences))
 
 #        print correct_scores
 #        print noise_scores

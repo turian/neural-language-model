@@ -36,7 +36,7 @@ def validate(translation_model, cnt):
 
         if i % 1000 == 0: logging.info("\tvalidating %d examples done..." % i)
 #    logging.info("Validation of model %s at cnt %d: validation err %s" % (translation_model[source_language].modelname, cnt, percent(correct, tot)))
-    logging.info("VALIDATION of model at cnt %d: validation err %s" % (cnt, percent(correct, tot)))
+    logging.info("VALIDATION of model at cnt %d: validation accuracy %s" % (cnt, percent(correct, tot)))
 ##        logging.info([wordmap.str(id) for id in ve])
 #        logranks.append(math.log(m.validate(ve)))
 #        if (i+1) % 10 == 0:
