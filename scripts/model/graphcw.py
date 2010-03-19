@@ -174,7 +174,7 @@ def functions(sequence_length):
 ##        else:
 #        return fn(*(inputs + [parameters.hidden_weights, parameters.hidden_biases, parameters.output_weights, parameters.output_biases]))
 #
-def predict(correct_sequence, parameters):
+def predict(correct_sequence):
     fn = functions(sequence_length=len(correct_sequence))[0]
 #    print "REMOVEME", correct_sequence
     r = fn(*(correct_sequence))
@@ -182,7 +182,7 @@ def predict(correct_sequence, parameters):
     r = r[0]
     assert r.shape == (1, 1)
     return r[0,0]
-def verbose_predict(correct_sequence, parameters):
+def verbose_predict(correct_sequence):
     fn = functions(sequence_length=len(correct_sequence))[2]
     r = fn(*(correct_sequence))
     assert len(r) == 2

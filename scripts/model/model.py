@@ -321,7 +321,7 @@ class Model:
         if LBL:
             assert 0
         else:
-            (score, prehidden) = graph.verbose_predict(self.embed(sequence), self.parameters)
+            (score, prehidden) = graph.verbose_predict(self.embed(sequence))
             return score, prehidden
     
     def debug_prehidden_values(self, sequences):
@@ -364,3 +364,26 @@ class Model:
 #                print " CORRUPT", corrupt_score, [wordmap.str(id) for id in corrupt_sequence]
                 rank += 1
         return rank
+
+    def validate_errors(self, correct_sequences, noise_sequences):
+        """
+        Count the errors in this validation batch.
+        """
+
+#            r = graph.train(self.embeds(correct_sequences), self.embeds(noise_sequences), learning_rate * weights[0])
+        correct_scores = graph.predict(self.embeds(correct_sequences))
+        noise_scores = graph.predict(self.embeds(correct_sequences))
+
+#        print correct_scores
+#        print noise_scores
+        return correct_scores > noise_scores
+##        print "CORRECT", correct_score, [wordmap.str(id) for id in sequence]
+#        for i in range(self.parameters.vocab_size):
+#            if r.random() > HYPERPARAMETERS["PERCENT OF NOISE EXAMPLES FOR VALIDATION LOGRANK"]: continue
+#            if i == sequence[-1]: continue
+#            corrupt_sequence[-1] = i
+#            corrupt_score = self.predict(corrupt_sequence)
+#            if correct_score <= corrupt_score:
+##                print " CORRUPT", corrupt_score, [wordmap.str(id) for id in corrupt_sequence]
+#                rank += 1
+#        return rank
