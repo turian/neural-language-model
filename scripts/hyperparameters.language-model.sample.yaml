@@ -13,6 +13,12 @@ locations: {"DATA_DIR": "../data/small-sample.maxlength40-lemmas-filtered/"}
 console: False
 #console: True
 
+# A list of the validation examples
+# Currently unused
+VALIDATION_INPUT: /u/turian/data/SemEval-2-2010/Task 3 - Cross-Lingual Word Sense Disambiguation/validation.txt
+
+PERCENT_OF_TRAINING_EXAMPLES_FOR_VALIDATION: 0.01
+
 ## 32-bit for the GPU
 ##import theano.config as config
 ##floatX: config.floatX
@@ -106,7 +112,7 @@ EMBEDDING_SIZE: 50
 #EMBEDDING_SIZE: 5
 
 # Predict with a window of five words at a time
-WINDOW_SIZE: 11
+WINDOW_SIZE: 5
 
 HIDDEN_SIZE: 100
 #HIDDEN_SIZE: 40
