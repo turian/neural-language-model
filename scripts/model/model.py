@@ -28,8 +28,8 @@ class Model:
     import hyperparameters
     import miscglobals
     import vocabulary
-    def __init__(self, name="", window_size=HYPERPARAMETERS["WINDOW_SIZE"], vocab_size=vocabulary.wordmap().len, embedding_size=HYPERPARAMETERS["EMBEDDING_SIZE"], hidden_size=HYPERPARAMETERS["HIDDEN_SIZE"], seed=miscglobals.RANDOMSEED, initial_embeddings=None, two_hidden_layers=HYPERPARAMETERS["TWO_HIDDEN_LAYERS"]):
-        self.name = name
+    def __init__(self, modelname="", window_size=HYPERPARAMETERS["WINDOW_SIZE"], vocab_size=vocabulary.wordmap().len, embedding_size=HYPERPARAMETERS["EMBEDDING_SIZE"], hidden_size=HYPERPARAMETERS["HIDDEN_SIZE"], seed=miscglobals.RANDOMSEED, initial_embeddings=None, two_hidden_layers=HYPERPARAMETERS["TWO_HIDDEN_LAYERS"]):
+        self.modelname = modelname
         self.parameters = Parameters(window_size, vocab_size, embedding_size, hidden_size, seed, initial_embeddings, two_hidden_layers)
         if LBL:
             graph.output_weights = self.parameters.output_weights
@@ -58,10 +58,10 @@ class Model:
         self.train_cnt = 0
 
     def __getstate__(self):
-        return (self.parameters, self.train_loss, self.train_err, self.train_lossnonzero, self.train_squashloss, self.train_unpenalized_loss, self.train_l1penalty, self.train_unpenalized_lossnonzero, self.train_correct_score, self.train_noise_score, self.train_cnt)
+        return (self.modelname, self.parameters, self.train_loss, self.train_err, self.train_lossnonzero, self.train_squashloss, self.train_unpenalized_loss, self.train_l1penalty, self.train_unpenalized_lossnonzero, self.train_correct_score, self.train_noise_score, self.train_cnt)
 
     def __setstate__(self, state):
-        (self.parameters, self.train_loss, self.train_err, self.train_lossnonzero, self.train_squashloss, self.train_unpenalized_loss, self.train_l1penalty, self.train_unpenalized_lossnonzero, self.train_correct_score, self.train_noise_score, self.train_cnt) = state
+        (self.modelname, self.parameters, self.train_loss, self.train_err, self.train_lossnonzero, self.train_squashloss, self.train_unpenalized_loss, self.train_l1penalty, self.train_unpenalized_lossnonzero, self.train_correct_score, self.train_noise_score, self.train_cnt) = state
         if LBL:
             graph.output_weights = self.parameters.output_weights
             graph.output_biases = self.parameters.output_biases
@@ -338,7 +338,8 @@ class Model:
             abs_prehidden = abs_prehidden[0]
             abs_prehidden.sort()
             abs_prehidden.reverse()
-            logging.info("model %s, %s %s %s %s %s" % (self.name, self.train_cnt, "abs(pre-squash hidden) median =", med, "max =", abs_prehidden[:3]))
+
+            logging.info("model %s, %s %s %s %s %s" % (self.modelname, self.train_cnt, "abs(pre-squash hidden) median =", med, "max =", abs_prehidden[:3]))
             if i+1 >= 3: break
 
     def validate(self, sequence):

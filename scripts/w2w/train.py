@@ -11,7 +11,7 @@ import logging
 
 import w2w.examples
 import diagnostics
-#import state
+import state
 
 import cPickle
 
@@ -73,52 +73,47 @@ if __name__ == "__main__":
 ##    vocabulary.read()
 #    
     import model
-#    try:
-#        print >> sys.stderr, ("Trying to read training state for %s %s..." % (newkeystr, rundir))
-#        (m, cnt, epoch, get_train_minibatch) = state.load(rundir, newkeystr)
-#        print >> sys.stderr, ("...success reading training state for %s %s" % (newkeystr, rundir))
-#        print >> sys.stderr, logfile
-#        logging.basicConfig(filename=logfile, level=logging.DEBUG)
-##        logging.basicConfig(filename=logfile, filemode="w", level=logging.DEBUG)
-#        logging.info("CONTINUING FROM TRAINING STATE")
-#    except IOError:
-#        print >> sys.stderr, ("...FAILURE reading training state for %s %s" % (newkeystr, rundir))
-#        print >> sys.stderr, ("INITIALIZING")
-#
-#        m = model.Model()
-#        cnt = 0
-#        epoch = 1
+    try:
+        print >> sys.stderr, ("Trying to read training state for %s %s..." % (newkeystr, rundir))
+        (translation_model, cnt, lastcnt, epoch) = state.load(rundir, newkeystr)
+        print >> sys.stderr, ("...success reading training state for %s %s" % (newkeystr, rundir))
+        print >> sys.stderr, logfile
+        print >> sys.stderr, "CONTINUING FROM TRAINING STATE"
+    except IOError:
+        print >> sys.stderr, ("...FAILURE reading training state for %s %s" % (newkeystr, rundir))
+        print >> sys.stderr, ("INITIALIZING")
+
+        translation_model = {}
+        print >> sys.stderr, "Loading initial embeddings from %s" % HYPERPARAMETERS["INITIAL_EMBEDDINGS"]
+        # TODO: If we want more than one model, we should SHARE the embeddings parameters
+        embeddings = cPickle.load(common.file.myopen(HYPERPARAMETERS["INITIAL_EMBEDDINGS"]))
+
+        print >> sys.stderr, "INITIALIZING TRAINING STATE"
+
+        all_l1 = {}
+        for l1, l2 in HYPERPARAMETERS["W2W BICORPORA"]: all_l1[l1] = True
+        for l1 in all_l1:
+            translation_model[l1] = model.Model(modelname="translate-from-%s" % l1, window_size=HYPERPARAMETERS["WINDOW_SIZE"]+1, initial_embeddings=embeddings)
+        # TODO: I'd like to free this memory, but translation_model doesn't make a copy.
+#        embeddings = None
+        cnt = 0
+        lastcnt = 0
+        epoch = 1
 #        get_train_minibatch = examples.TrainingMinibatchStream()
-#        logging.basicConfig(filename=logfile, filemode="w", level=logging.DEBUG)
-#        logging.info("INITIALIZING TRAINING STATE")
 
-
-    # TODO: Try to load old training state
-
-    print >> sys.stderr, "Loading initial embeddings from %s" % HYPERPARAMETERS["INITIAL_EMBEDDINGS"]
-    embeddings = cPickle.load(common.file.myopen(HYPERPARAMETERS["INITIAL_EMBEDDINGS"]))
-
-    translation_model = {}
-    for l1, l2 in HYPERPARAMETERS["W2W BICORPORA"]:
-        translation_model[l1] = model.Model(name="translate-from-%s" % l1, window_size=HYPERPARAMETERS["WINDOW_SIZE"]+1, initial_embeddings=embeddings)
-
-    # TODO: If we want more than one model, we should SHARE the embeddings parameters
-    assert len(translation_model) == 1
-    for l1 in HYPERPARAMETERS["W2W MONOCORPORA"]:
-        assert 0
-
-    cnt = 0
-    lastcnt = 0
-    epoch = 1
-    get_train_minibatch = w2w.examples.get_training_minibatch_online()
-#    get_train_minibatch = w2w.examples.get_training_minibatch_cached()
     if HYPERPARAMETERS["console"]:
         print >> sys.stderr, "Console mode (not batch mode)."
         logging.basicConfig(level=logging.INFO)
     else:
         print >> sys.stderr, "YOU ARE RUNNING IN BATCH, NOT CONSOLE MODE. THIS WILL BE THE LAST MESSAGE TO STDERR."
         logging.basicConfig(filename=logfile, filemode="w", level=logging.INFO)
-    logging.info("INITIALIZING TRAINING STATE")
+
+    assert len(translation_model) == 1
+    for l1 in HYPERPARAMETERS["W2W MONOCORPORA"]:
+        assert 0
+
+    get_train_minibatch = w2w.examples.get_training_minibatch_online()
+#    get_train_minibatch = w2w.examples.get_training_minibatch_cached()
 
 
     logging.info(myyaml.dump(common.dump.vars_seq([hyperparameters, miscglobals])))
@@ -126,6 +121,7 @@ if __name__ == "__main__":
 #    #validate(0)
 #    diagnostics.diagnostics(cnt, m)
 ##    diagnostics.visualizedebug(cnt, m, rundir)
+#    state.save(translation_model, cnt, lastcnt, epoch, rundir, newkeystr)
     while 1:
         logging.info("STARTING EPOCH #%d" % epoch)
         for ebatch in get_train_minibatch:
@@ -171,8 +167,9 @@ if __name__ == "__main__":
 #                for l1 in translation_model:
 #                    diagnostics.visualizedebug(cnt, translation_model[l1], rundir, newkeystr)
 
-#                state.save(m, cnt, epoch, get_train_minibatch, rundir, newkeystr)
-#                validate(cnt)
         get_train_minibatch = w2w.examples.get_training_minibatch_online()
 #        get_train_minibatch = w2w.examples.get_training_minibatch_cached()
         epoch += 1
+
+        state.save(translation_model, cnt, lastcnt, epoch, rundir, newkeystr)
+#       validate(cnt)

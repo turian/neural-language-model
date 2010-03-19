@@ -17,12 +17,12 @@ def diagnostics(cnt, model):
     random.shuffle(idxs)
     idxs = idxs[:100]
 
-    embeddings_debug(model.parameters.embeddings[idxs], cnt, "rand 100 words, model %s" % model.name)
-    embeddings_debug(model.parameters.embeddings[:100], cnt, "top  100 words, model %s" % model.name)
-    embeddings_debug(model.parameters.embeddings[model.parameters.vocab_size/2-50:model.parameters.vocab_size/2+50], cnt, "mid  100 words, model %s" % model.name)
-    embeddings_debug(model.parameters.embeddings[-100:], cnt, "last 100 words, model %s" % model.name)
-    weights_debug(model.parameters.hidden_weights.value, cnt, "hidden weights, model %s" % model.name)
-    weights_debug(model.parameters.output_weights.value, cnt, "output weights, model %s" % model.name)
+    embeddings_debug(model.parameters.embeddings[idxs], cnt, "rand 100 words, model %s" % model.modelname)
+    embeddings_debug(model.parameters.embeddings[:100], cnt, "top  100 words, model %s" % model.modelname)
+    embeddings_debug(model.parameters.embeddings[model.parameters.vocab_size/2-50:model.parameters.vocab_size/2+50], cnt, "mid  100 words, model %s" % model.modelname)
+    embeddings_debug(model.parameters.embeddings[-100:], cnt, "last 100 words, model %s" % model.modelname)
+    weights_debug(model.parameters.hidden_weights.value, cnt, "hidden weights, model %s" % model.modelname)
+    weights_debug(model.parameters.output_weights.value, cnt, "output weights, model %s" % model.modelname)
     logging.info(stats())
 
 def visualizedebug(cnt, model, rundir, newkeystr, WORDCNT=500):
@@ -49,7 +49,7 @@ def visualize(cnt, model, rundir, idxs, str):
     titles = [wordform(id) for id in idxs]
 
     import os.path
-    filename = os.path.join(rundir, "embeddings.model-%s.-%s-%d.png" % (model.name, str, cnt))
+    filename = os.path.join(rundir, "embeddings.model-%s.-%s-%d.png" % (model.modelname, str, cnt))
     try:
         from textSNE.calc_tsne import tsne
 #       from textSNE.tsne import tsne
