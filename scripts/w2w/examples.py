@@ -16,7 +16,24 @@ from rundir import rundir
 import os.path
 import cPickle
 
-class BilingualExample:
+class MonolingualExample:
+    def __init__(self, l1, l1seq, w1):
+        """
+        l1 = source language
+        l1seq = sequence of word IDs in source language
+        w1 = focus word ID in source language
+        """
+        self.l1 = l1
+        self.l1seq = l1seq
+        self.w1 = w1
+
+        if wordform(self.w1) != "*UNKNOWN*":
+            assert self.l1 == language(self.w1)
+
+    def __str__(self):
+        return "%s" % `(self.l1, wordform(self.w1), [wordmap().str(w)[1] for w in self.l1seq])`
+
+class BilingualExample(MonolingualExample):
     def __init__(self, l1, l1seq, w1, w2):
         """
         l1 = source language
@@ -24,13 +41,8 @@ class BilingualExample:
         w1 = focus word ID in source language
         w2 = focus word ID in target language
         """
-        self.l1 = l1
-        self.l1seq = l1seq
-        self.w1 = w1
+        MonolingualExample.__init__(self, l1, l1seq, w1)
         self.w2 = w2
-
-        if wordform(self.w1) != "*UNKNOWN*":
-            assert self.l1 == language(self.w1)
 
     @property
     def l2(self):
@@ -78,11 +90,6 @@ class BilingualExample:
 def get_training_biexample(l1, l2, f1, f2, falign):
     """
     Generator of bilingual training examples from this bicorpus.
-    Each example is of the form:
-        ((l1, seq), w2)
-    where l1 is the source language, seq is a sequence of word ids in
-    the source language, and w2 is the word id of the focus word in the
-    target language.
     """
     import common.hyperparameters
     HYPERPARAMETERS = common.hyperparameters.read("language-model")
