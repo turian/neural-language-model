@@ -1,5 +1,6 @@
 Approach based upon language model in Bengio et al ICML 09 "Curriculum Learning".
 
+
 You will need my common python library:
     http://github.com/turian/common
 and my textSNE wrapper for t-SNE:
